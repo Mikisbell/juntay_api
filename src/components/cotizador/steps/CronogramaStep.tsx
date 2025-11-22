@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Calendar, Calculator, FileText } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import {
     generarCronograma,
     calcularInteresFraccionado,
@@ -64,9 +64,21 @@ export default function CronogramaStep() {
         }
     }, [])
 
-    const tasaFraccionada = calcularInteresFraccionado(tasaInteres, frecuenciaPago)
-    const totalIntereses = cronograma.length > 0 ? calcularTotalIntereses(cronograma) : 0
-    const totalAPagar = cronograma.length > 0 ? calcularTotalAPagar(cronograma) : 0
+    // Memoize expensive calculations - prevents re-computation on every render
+    const tasaFraccionada = useMemo(
+        () => calcularInteresFraccionado(tasaInteres, frecuenciaPago),
+        [tasaInteres, frecuenciaPago]
+    )
+
+    const totalIntereses = useMemo(
+        () => cronograma.length > 0 ? calcularTotalIntereses(cronograma) : 0,
+        [cronograma]
+    )
+
+    const totalAPagar = useMemo(
+        () => cronograma.length > 0 ? calcularTotalAPagar(cronograma) : 0,
+        [cronograma]
+    )
 
     return (
         <div className="space-y-4 max-w-full">
