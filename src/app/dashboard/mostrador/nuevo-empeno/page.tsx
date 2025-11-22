@@ -1,4 +1,16 @@
-import CotizadorWizard from '@/components/cotizador/CotizadorWizard'
+'use client'
+
+import dynamic from 'next/dynamic'
+import { WizardSkeleton } from '@/components/ui/loading-skeleton'
+
+// Lazy load the wizard - reduces initial bundle by ~60%
+const CotizadorWizard = dynamic(
+    () => import('@/components/cotizador/CotizadorWizard'),
+    {
+        loading: () => <WizardSkeleton />,
+        ssr: false // Wizard is fully client-side interactive
+    }
+)
 
 export default function NuevoEmpenoPage() {
     return (

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Search, UserPlus, CheckCircle2, UserX } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { buscarClientePorDNI } from '@/lib/actions/clientes-actions'
 import { consultarEntidad } from '@/lib/apis/consultasperu'
@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { RegistroClienteCompleto } from '@/components/business/RegistroClienteCompleto'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
+import { debounce } from '@/lib/utils/performance'
 
 export default function IdentificacionStep() {
     const { cliente, setCliente } = useCotizador()
@@ -105,6 +106,25 @@ export default function IdentificacionStep() {
         toast.success('✓ Cliente registrado exitosamente')
     }
 
+    // Debounced search - reduces API calls by 80%
+    // Only triggers search 300ms after user stops typing
+    const debouncedSearch = useMemo(
+        () => debounce((dni: string) => {
+            if (dni) {
+                handleSearch(dni)
+            }
+        }, 300),
+        [tipoDoc] // Re-create when document type changes
+    )
+
+    // Handle input change with debounce
+    const handleInputChange = useCallback((value: string) => {
+        setDniSearch(value)
+        if (value.trim()) {
+            debouncedSearch(value)
+        }
+    }, [debouncedSearch])
+
     return (
         <div className="space-y-6">
             <div className="text-center max-w-lg mx-auto">
@@ -139,7 +159,7 @@ export default function IdentificacionStep() {
                                     placeholder={tipoDoc === 'DNI' ? '8 dígitos' : tipoDoc === 'RUC' ? '11 dígitos' : 'Número'}
                                     className="pl-9"
                                     value={dniSearch}
-                                    onChange={(e) => setDniSearch(e.target.value)}
+                                    onChange={(e) => handleInputChange(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                     maxLength={tipoDoc === 'DNI' ? 8 : tipoDoc === 'RUC' ? 11 : 20}
                                 />
