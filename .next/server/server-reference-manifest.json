@@ -1,0 +1,439 @@
+{
+  "node": {
+    "006092e2765a592a23e6ebdf62cef30bba576f8592": {
+      "workers": {
+        "app/dashboard/pagos/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fcaja-actions.ts%22%2C%5B%5B%22006092e2765a592a23e6ebdf62cef30bba576f8592%22%2C%22obtenerEstadoCaja%22%5D%2C%5B%2240246d2fd029a77ed7c9fe5c6cd555c6a5ff8b0924%22%2C%22abrirCajaAction%22%5D%2C%5B%2260261f0f24f58dc1d11f69d6c436ba8c8be3180156%22%2C%22cerrarCajaAction%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/dashboard/caja/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fcaja-actions.ts%22%2C%5B%5B%22006092e2765a592a23e6ebdf62cef30bba576f8592%22%2C%22obtenerEstadoCaja%22%5D%2C%5B%2240246d2fd029a77ed7c9fe5c6cd555c6a5ff8b0924%22%2C%22abrirCajaAction%22%5D%2C%5B%2260261f0f24f58dc1d11f69d6c436ba8c8be3180156%22%2C%22cerrarCajaAction%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/pagos/page": "rsc",
+        "app/dashboard/caja/page": "rsc"
+      }
+    },
+    "40246d2fd029a77ed7c9fe5c6cd555c6a5ff8b0924": {
+      "workers": {
+        "app/dashboard/pagos/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fcaja-actions.ts%22%2C%5B%5B%22006092e2765a592a23e6ebdf62cef30bba576f8592%22%2C%22obtenerEstadoCaja%22%5D%2C%5B%2240246d2fd029a77ed7c9fe5c6cd555c6a5ff8b0924%22%2C%22abrirCajaAction%22%5D%2C%5B%2260261f0f24f58dc1d11f69d6c436ba8c8be3180156%22%2C%22cerrarCajaAction%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/dashboard/caja/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fcaja-actions.ts%22%2C%5B%5B%22006092e2765a592a23e6ebdf62cef30bba576f8592%22%2C%22obtenerEstadoCaja%22%5D%2C%5B%2240246d2fd029a77ed7c9fe5c6cd555c6a5ff8b0924%22%2C%22abrirCajaAction%22%5D%2C%5B%2260261f0f24f58dc1d11f69d6c436ba8c8be3180156%22%2C%22cerrarCajaAction%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/pagos/page": "rsc",
+        "app/dashboard/caja/page": "rsc"
+      }
+    },
+    "60261f0f24f58dc1d11f69d6c436ba8c8be3180156": {
+      "workers": {
+        "app/dashboard/pagos/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fcaja-actions.ts%22%2C%5B%5B%22006092e2765a592a23e6ebdf62cef30bba576f8592%22%2C%22obtenerEstadoCaja%22%5D%2C%5B%2240246d2fd029a77ed7c9fe5c6cd555c6a5ff8b0924%22%2C%22abrirCajaAction%22%5D%2C%5B%2260261f0f24f58dc1d11f69d6c436ba8c8be3180156%22%2C%22cerrarCajaAction%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/dashboard/caja/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fcaja-actions.ts%22%2C%5B%5B%22006092e2765a592a23e6ebdf62cef30bba576f8592%22%2C%22obtenerEstadoCaja%22%5D%2C%5B%2240246d2fd029a77ed7c9fe5c6cd555c6a5ff8b0924%22%2C%22abrirCajaAction%22%5D%2C%5B%2260261f0f24f58dc1d11f69d6c436ba8c8be3180156%22%2C%22cerrarCajaAction%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/pagos/page": "rsc",
+        "app/dashboard/caja/page": "rsc"
+      }
+    },
+    "408a8a4804cddda92f9aa5afe924488d59c7d9b8a1": {
+      "workers": {
+        "app/dashboard/pagos/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fpagos-actions.ts%22%2C%5B%5B%22408a8a4804cddda92f9aa5afe924488d59c7d9b8a1%22%2C%22registrarPago%22%5D%2C%5B%22409d15a802cf1135d52e21a2adbcd26762ff46cefa%22%2C%22buscarContratoPorCodigo%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Frenovaciones-actions.ts%22%2C%5B%5B%22409907bcb20020d2ea54c31fd94b5efe7d0512ba39%22%2C%22renovarContrato%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/pagos/page": "action-browser"
+      }
+    },
+    "409d15a802cf1135d52e21a2adbcd26762ff46cefa": {
+      "workers": {
+        "app/dashboard/pagos/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fpagos-actions.ts%22%2C%5B%5B%22408a8a4804cddda92f9aa5afe924488d59c7d9b8a1%22%2C%22registrarPago%22%5D%2C%5B%22409d15a802cf1135d52e21a2adbcd26762ff46cefa%22%2C%22buscarContratoPorCodigo%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Frenovaciones-actions.ts%22%2C%5B%5B%22409907bcb20020d2ea54c31fd94b5efe7d0512ba39%22%2C%22renovarContrato%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/pagos/page": "action-browser"
+      }
+    },
+    "409907bcb20020d2ea54c31fd94b5efe7d0512ba39": {
+      "workers": {
+        "app/dashboard/pagos/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fpagos-actions.ts%22%2C%5B%5B%22408a8a4804cddda92f9aa5afe924488d59c7d9b8a1%22%2C%22registrarPago%22%5D%2C%5B%22409d15a802cf1135d52e21a2adbcd26762ff46cefa%22%2C%22buscarContratoPorCodigo%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Frenovaciones-actions.ts%22%2C%5B%5B%22409907bcb20020d2ea54c31fd94b5efe7d0512ba39%22%2C%22renovarContrato%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/pagos/page": "action-browser"
+      }
+    },
+    "40488a4564a01d75ecab076733f6684a0e5e8561ca": {
+      "workers": {
+        "app/dashboard/inventario/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Finventario-actions.ts%22%2C%5B%5B%2240488a4564a01d75ecab076733f6684a0e5e8561ca%22%2C%22obtenerInventario%22%5D%2C%5B%22606aa9636da837c29c547d4c243fbb617d603211aa%22%2C%22cambiarEstadoGarantia%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/dashboard/remates/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Finventario-actions.ts%22%2C%5B%5B%2240488a4564a01d75ecab076733f6684a0e5e8561ca%22%2C%22obtenerInventario%22%5D%2C%5B%22606aa9636da837c29c547d4c243fbb617d603211aa%22%2C%22cambiarEstadoGarantia%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/inventario/page": "rsc",
+        "app/dashboard/remates/page": "rsc"
+      }
+    },
+    "606aa9636da837c29c547d4c243fbb617d603211aa": {
+      "workers": {
+        "app/dashboard/inventario/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Finventario-actions.ts%22%2C%5B%5B%2240488a4564a01d75ecab076733f6684a0e5e8561ca%22%2C%22obtenerInventario%22%5D%2C%5B%22606aa9636da837c29c547d4c243fbb617d603211aa%22%2C%22cambiarEstadoGarantia%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/dashboard/remates/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Finventario-actions.ts%22%2C%5B%5B%2240488a4564a01d75ecab076733f6684a0e5e8561ca%22%2C%22obtenerInventario%22%5D%2C%5B%22606aa9636da837c29c547d4c243fbb617d603211aa%22%2C%22cambiarEstadoGarantia%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/inventario/page": "rsc",
+        "app/dashboard/remates/page": "rsc"
+      }
+    },
+    "400d67c71465c13556d201c6f3c8218353763b53aa": {
+      "workers": {
+        "app/dashboard/mostrador/nuevo-empeno/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fubicacion-actions.ts%22%2C%5B%5B%220070009f60ed9ae206bae058a15d934c5adb77441a%22%2C%22obtenerUbicacionDefault%22%5D%2C%5B%2200fd75bb7a3b41eacf9f46af249955798c9239c08d%22%2C%22obtenerDepartamentos%22%5D%2C%5B%2240274edff4fd6d720cef82fa6a42439aa87dd4ea89%22%2C%22obtenerDistritos%22%5D%2C%5B%2240aa35e363bbb5655028f2b2bf9917cbc77768482c%22%2C%22obtenerProvincias%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/mostrador/nuevo-empeno/page": "action-browser"
+      }
+    },
+    "00e046c87daa89db49d9f72287306c73af3276849a": {
+      "workers": {
+        "app/dashboard/reportes/cartera/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Freportes-actions.ts%22%2C%5B%5B%2200e046c87daa89db49d9f72287306c73af3276849a%22%2C%22obtenerCartera%22%5D%2C%5B%2240a8d030fb9a2c63fc025ec41f9bc2eac59c0bf76e%22%2C%22obtenerCajaDiaria%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/dashboard/reportes/caja-diaria/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Freportes-actions.ts%22%2C%5B%5B%2200e046c87daa89db49d9f72287306c73af3276849a%22%2C%22obtenerCartera%22%5D%2C%5B%2240a8d030fb9a2c63fc025ec41f9bc2eac59c0bf76e%22%2C%22obtenerCajaDiaria%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/reportes/cartera/page": "rsc",
+        "app/dashboard/reportes/caja-diaria/page": "rsc"
+      }
+    },
+    "40a8d030fb9a2c63fc025ec41f9bc2eac59c0bf76e": {
+      "workers": {
+        "app/dashboard/reportes/cartera/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Freportes-actions.ts%22%2C%5B%5B%2200e046c87daa89db49d9f72287306c73af3276849a%22%2C%22obtenerCartera%22%5D%2C%5B%2240a8d030fb9a2c63fc025ec41f9bc2eac59c0bf76e%22%2C%22obtenerCajaDiaria%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/dashboard/reportes/caja-diaria/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Freportes-actions.ts%22%2C%5B%5B%2200e046c87daa89db49d9f72287306c73af3276849a%22%2C%22obtenerCartera%22%5D%2C%5B%2240a8d030fb9a2c63fc025ec41f9bc2eac59c0bf76e%22%2C%22obtenerCajaDiaria%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/reportes/cartera/page": "rsc",
+        "app/dashboard/reportes/caja-diaria/page": "rsc"
+      }
+    },
+    "00cf8abf343527eac552dc00f934366a1055bdb0db": {
+      "workers": {
+        "app/dashboard/admin/monitor-cajas/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Fapp%2Fdashboard%2Fadmin%2Fmonitor-cajas%2Fpage.tsx%22%2C%5B%5B%2200cf8abf343527eac552dc00f934366a1055bdb0db%22%2C%22%24%24RSC_SERVER_ACTION_0%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fmonitor-cajas-actions.ts%22%2C%5B%5B%220031552cd5cb7a8d78c21bc5cd123ae6d573e66206%22%2C%22obtenerCajasActivas%22%5D%2C%5B%22009395fcfe24112b8308852bed15c4c24b3fcbde0d%22%2C%22obtenerResumenConsolidado%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/admin/monitor-cajas/page": "rsc"
+      }
+    },
+    "0031552cd5cb7a8d78c21bc5cd123ae6d573e66206": {
+      "workers": {
+        "app/dashboard/admin/monitor-cajas/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Fapp%2Fdashboard%2Fadmin%2Fmonitor-cajas%2Fpage.tsx%22%2C%5B%5B%2200cf8abf343527eac552dc00f934366a1055bdb0db%22%2C%22%24%24RSC_SERVER_ACTION_0%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fmonitor-cajas-actions.ts%22%2C%5B%5B%220031552cd5cb7a8d78c21bc5cd123ae6d573e66206%22%2C%22obtenerCajasActivas%22%5D%2C%5B%22009395fcfe24112b8308852bed15c4c24b3fcbde0d%22%2C%22obtenerResumenConsolidado%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/admin/monitor-cajas/page": "rsc"
+      }
+    },
+    "009395fcfe24112b8308852bed15c4c24b3fcbde0d": {
+      "workers": {
+        "app/dashboard/admin/monitor-cajas/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Fapp%2Fdashboard%2Fadmin%2Fmonitor-cajas%2Fpage.tsx%22%2C%5B%5B%2200cf8abf343527eac552dc00f934366a1055bdb0db%22%2C%22%24%24RSC_SERVER_ACTION_0%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fmonitor-cajas-actions.ts%22%2C%5B%5B%220031552cd5cb7a8d78c21bc5cd123ae6d573e66206%22%2C%22obtenerCajasActivas%22%5D%2C%5B%22009395fcfe24112b8308852bed15c4c24b3fcbde0d%22%2C%22obtenerResumenConsolidado%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/admin/monitor-cajas/page": "rsc"
+      }
+    },
+    "004c98c7a8efd54711430864b592027093a6d15b8b": {
+      "workers": {
+        "app/dashboard/admin/tesoreria/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Ftesoreria-actions.ts%22%2C%5B%5B%22004c98c7a8efd54711430864b592027093a6d15b8b%22%2C%22obtenerCajeros%22%5D%2C%5B%2200fe83eb34739fa47e43b70fd894b998c582537e2c%22%2C%22obtenerEstadoBoveda%22%5D%2C%5B%2240b09ca58f936275546e40b8275e498aa05486ec00%22%2C%22obtenerMovimientosBoveda%22%5D%2C%5B%2270832608c2b8ba3d26523109a61c878396c9a458aa%22%2C%22asignarCajaAction%22%5D%2C%5B%2278556059c431f0275204a242f28608222f5f5d7eed%22%2C%22inyectarCapitalAction%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/admin/tesoreria/page": "rsc"
+      }
+    },
+    "00fe83eb34739fa47e43b70fd894b998c582537e2c": {
+      "workers": {
+        "app/dashboard/admin/tesoreria/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Ftesoreria-actions.ts%22%2C%5B%5B%22004c98c7a8efd54711430864b592027093a6d15b8b%22%2C%22obtenerCajeros%22%5D%2C%5B%2200fe83eb34739fa47e43b70fd894b998c582537e2c%22%2C%22obtenerEstadoBoveda%22%5D%2C%5B%2240b09ca58f936275546e40b8275e498aa05486ec00%22%2C%22obtenerMovimientosBoveda%22%5D%2C%5B%2270832608c2b8ba3d26523109a61c878396c9a458aa%22%2C%22asignarCajaAction%22%5D%2C%5B%2278556059c431f0275204a242f28608222f5f5d7eed%22%2C%22inyectarCapitalAction%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/admin/tesoreria/page": "rsc"
+      }
+    },
+    "40b09ca58f936275546e40b8275e498aa05486ec00": {
+      "workers": {
+        "app/dashboard/admin/tesoreria/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Ftesoreria-actions.ts%22%2C%5B%5B%22004c98c7a8efd54711430864b592027093a6d15b8b%22%2C%22obtenerCajeros%22%5D%2C%5B%2200fe83eb34739fa47e43b70fd894b998c582537e2c%22%2C%22obtenerEstadoBoveda%22%5D%2C%5B%2240b09ca58f936275546e40b8275e498aa05486ec00%22%2C%22obtenerMovimientosBoveda%22%5D%2C%5B%2270832608c2b8ba3d26523109a61c878396c9a458aa%22%2C%22asignarCajaAction%22%5D%2C%5B%2278556059c431f0275204a242f28608222f5f5d7eed%22%2C%22inyectarCapitalAction%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/admin/tesoreria/page": "rsc"
+      }
+    },
+    "70832608c2b8ba3d26523109a61c878396c9a458aa": {
+      "workers": {
+        "app/dashboard/admin/tesoreria/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Ftesoreria-actions.ts%22%2C%5B%5B%22004c98c7a8efd54711430864b592027093a6d15b8b%22%2C%22obtenerCajeros%22%5D%2C%5B%2200fe83eb34739fa47e43b70fd894b998c582537e2c%22%2C%22obtenerEstadoBoveda%22%5D%2C%5B%2240b09ca58f936275546e40b8275e498aa05486ec00%22%2C%22obtenerMovimientosBoveda%22%5D%2C%5B%2270832608c2b8ba3d26523109a61c878396c9a458aa%22%2C%22asignarCajaAction%22%5D%2C%5B%2278556059c431f0275204a242f28608222f5f5d7eed%22%2C%22inyectarCapitalAction%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/admin/tesoreria/page": "rsc"
+      }
+    },
+    "78556059c431f0275204a242f28608222f5f5d7eed": {
+      "workers": {
+        "app/dashboard/admin/tesoreria/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Ftesoreria-actions.ts%22%2C%5B%5B%22004c98c7a8efd54711430864b592027093a6d15b8b%22%2C%22obtenerCajeros%22%5D%2C%5B%2200fe83eb34739fa47e43b70fd894b998c582537e2c%22%2C%22obtenerEstadoBoveda%22%5D%2C%5B%2240b09ca58f936275546e40b8275e498aa05486ec00%22%2C%22obtenerMovimientosBoveda%22%5D%2C%5B%2270832608c2b8ba3d26523109a61c878396c9a458aa%22%2C%22asignarCajaAction%22%5D%2C%5B%2278556059c431f0275204a242f28608222f5f5d7eed%22%2C%22inyectarCapitalAction%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/admin/tesoreria/page": "rsc"
+      }
+    },
+    "40cb65d8ed53f5fdc027fa58be1ac896360af5c7ac": {
+      "workers": {
+        "app/dashboard/demo-identificacion/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Frender-status.ts%22%2C%5B%5B%22009d9fd6daba912bae8cb45a92a5a9ec6f78ee274d%22%2C%22checkRenderStatus%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        },
+        "app/dashboard/mostrador/nuevo-empeno/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fubicacion-actions.ts%22%2C%5B%5B%220070009f60ed9ae206bae058a15d934c5adb77441a%22%2C%22obtenerUbicacionDefault%22%5D%2C%5B%2200fd75bb7a3b41eacf9f46af249955798c9239c08d%22%2C%22obtenerDepartamentos%22%5D%2C%5B%2240274edff4fd6d720cef82fa6a42439aa87dd4ea89%22%2C%22obtenerDistritos%22%5D%2C%5B%2240aa35e363bbb5655028f2b2bf9917cbc77768482c%22%2C%22obtenerProvincias%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/demo-identificacion/page": "action-browser",
+        "app/dashboard/mostrador/nuevo-empeno/page": "action-browser"
+      }
+    },
+    "605b38198303aa8d54006bc42c51d29eb8b8f7c08f": {
+      "workers": {
+        "app/dashboard/demo-identificacion/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Frender-status.ts%22%2C%5B%5B%22009d9fd6daba912bae8cb45a92a5a9ec6f78ee274d%22%2C%22checkRenderStatus%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        },
+        "app/dashboard/mostrador/nuevo-empeno/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fubicacion-actions.ts%22%2C%5B%5B%220070009f60ed9ae206bae058a15d934c5adb77441a%22%2C%22obtenerUbicacionDefault%22%5D%2C%5B%2200fd75bb7a3b41eacf9f46af249955798c9239c08d%22%2C%22obtenerDepartamentos%22%5D%2C%5B%2240274edff4fd6d720cef82fa6a42439aa87dd4ea89%22%2C%22obtenerDistritos%22%5D%2C%5B%2240aa35e363bbb5655028f2b2bf9917cbc77768482c%22%2C%22obtenerProvincias%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/demo-identificacion/page": "action-browser",
+        "app/dashboard/mostrador/nuevo-empeno/page": "action-browser"
+      }
+    },
+    "7ff3ec9bbdc12c8281e1211407226ff48072b9cdaa": {
+      "workers": {
+        "app/dashboard/demo-identificacion/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Frender-status.ts%22%2C%5B%5B%22009d9fd6daba912bae8cb45a92a5a9ec6f78ee274d%22%2C%22checkRenderStatus%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        },
+        "app/dashboard/mostrador/nuevo-empeno/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fubicacion-actions.ts%22%2C%5B%5B%220070009f60ed9ae206bae058a15d934c5adb77441a%22%2C%22obtenerUbicacionDefault%22%5D%2C%5B%2200fd75bb7a3b41eacf9f46af249955798c9239c08d%22%2C%22obtenerDepartamentos%22%5D%2C%5B%2240274edff4fd6d720cef82fa6a42439aa87dd4ea89%22%2C%22obtenerDistritos%22%5D%2C%5B%2240aa35e363bbb5655028f2b2bf9917cbc77768482c%22%2C%22obtenerProvincias%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/demo-identificacion/page": "action-browser",
+        "app/dashboard/mostrador/nuevo-empeno/page": "action-browser"
+      }
+    },
+    "40c6ae9769e6deac3536d3cf796a1c41378f5a72ad": {
+      "workers": {
+        "app/dashboard/demo-identificacion/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Frender-status.ts%22%2C%5B%5B%22009d9fd6daba912bae8cb45a92a5a9ec6f78ee274d%22%2C%22checkRenderStatus%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        },
+        "app/dashboard/mostrador/nuevo-empeno/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fubicacion-actions.ts%22%2C%5B%5B%220070009f60ed9ae206bae058a15d934c5adb77441a%22%2C%22obtenerUbicacionDefault%22%5D%2C%5B%2200fd75bb7a3b41eacf9f46af249955798c9239c08d%22%2C%22obtenerDepartamentos%22%5D%2C%5B%2240274edff4fd6d720cef82fa6a42439aa87dd4ea89%22%2C%22obtenerDistritos%22%5D%2C%5B%2240aa35e363bbb5655028f2b2bf9917cbc77768482c%22%2C%22obtenerProvincias%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/demo-identificacion/page": "action-browser",
+        "app/dashboard/mostrador/nuevo-empeno/page": "action-browser"
+      }
+    },
+    "60d250f791c9720ff6c7826cbaa4074f2106a5d83d": {
+      "workers": {
+        "app/dashboard/demo-identificacion/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Frender-status.ts%22%2C%5B%5B%22009d9fd6daba912bae8cb45a92a5a9ec6f78ee274d%22%2C%22checkRenderStatus%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        },
+        "app/dashboard/mostrador/nuevo-empeno/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fubicacion-actions.ts%22%2C%5B%5B%220070009f60ed9ae206bae058a15d934c5adb77441a%22%2C%22obtenerUbicacionDefault%22%5D%2C%5B%2200fd75bb7a3b41eacf9f46af249955798c9239c08d%22%2C%22obtenerDepartamentos%22%5D%2C%5B%2240274edff4fd6d720cef82fa6a42439aa87dd4ea89%22%2C%22obtenerDistritos%22%5D%2C%5B%2240aa35e363bbb5655028f2b2bf9917cbc77768482c%22%2C%22obtenerProvincias%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/demo-identificacion/page": "action-browser",
+        "app/dashboard/mostrador/nuevo-empeno/page": "action-browser"
+      }
+    },
+    "009d9fd6daba912bae8cb45a92a5a9ec6f78ee274d": {
+      "workers": {
+        "app/dashboard/demo-identificacion/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Frender-status.ts%22%2C%5B%5B%22009d9fd6daba912bae8cb45a92a5a9ec6f78ee274d%22%2C%22checkRenderStatus%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/demo-identificacion/page": "action-browser"
+      }
+    },
+    "006747a48ce84101ff758068839883b25d86cc18f6": {
+      "workers": {
+        "app/dashboard/contratos/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fcontratos-list-actions.ts%22%2C%5B%5B%22006747a48ce84101ff758068839883b25d86cc18f6%22%2C%22obtenerContratosVigentes%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/contratos/page": "rsc"
+      }
+    },
+    "4025f701f6f4ac07e3e6151dc2b4c64e96cfb53114": {
+      "workers": {
+        "app/dashboard/contratos/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fpagos-rpc-actions.ts%22%2C%5B%5B%224025f701f6f4ac07e3e6151dc2b4c64e96cfb53114%22%2C%22registrarPagoRPCAction%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/contratos/page": "action-browser"
+      }
+    },
+    "4023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc": {
+      "workers": {
+        "app/dashboard/demo-identificacion/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Frender-status.ts%22%2C%5B%5B%22009d9fd6daba912bae8cb45a92a5a9ec6f78ee274d%22%2C%22checkRenderStatus%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        },
+        "app/dashboard/mostrador/nuevo-empeno/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fubicacion-actions.ts%22%2C%5B%5B%220070009f60ed9ae206bae058a15d934c5adb77441a%22%2C%22obtenerUbicacionDefault%22%5D%2C%5B%2200fd75bb7a3b41eacf9f46af249955798c9239c08d%22%2C%22obtenerDepartamentos%22%5D%2C%5B%2240274edff4fd6d720cef82fa6a42439aa87dd4ea89%22%2C%22obtenerDistritos%22%5D%2C%5B%2240aa35e363bbb5655028f2b2bf9917cbc77768482c%22%2C%22obtenerProvincias%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/demo-identificacion/page": "action-browser",
+        "app/dashboard/mostrador/nuevo-empeno/page": "action-browser"
+      }
+    },
+    "408f6f28da1893e8841baa381a1b44e6a23906b74e": {
+      "workers": {
+        "app/dashboard/demo-identificacion/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Frender-status.ts%22%2C%5B%5B%22009d9fd6daba912bae8cb45a92a5a9ec6f78ee274d%22%2C%22checkRenderStatus%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        },
+        "app/dashboard/mostrador/nuevo-empeno/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fubicacion-actions.ts%22%2C%5B%5B%220070009f60ed9ae206bae058a15d934c5adb77441a%22%2C%22obtenerUbicacionDefault%22%5D%2C%5B%2200fd75bb7a3b41eacf9f46af249955798c9239c08d%22%2C%22obtenerDepartamentos%22%5D%2C%5B%2240274edff4fd6d720cef82fa6a42439aa87dd4ea89%22%2C%22obtenerDistritos%22%5D%2C%5B%2240aa35e363bbb5655028f2b2bf9917cbc77768482c%22%2C%22obtenerProvincias%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/demo-identificacion/page": "action-browser",
+        "app/dashboard/mostrador/nuevo-empeno/page": "action-browser"
+      }
+    },
+    "0070009f60ed9ae206bae058a15d934c5adb77441a": {
+      "workers": {
+        "app/dashboard/mostrador/nuevo-empeno/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fubicacion-actions.ts%22%2C%5B%5B%220070009f60ed9ae206bae058a15d934c5adb77441a%22%2C%22obtenerUbicacionDefault%22%5D%2C%5B%2200fd75bb7a3b41eacf9f46af249955798c9239c08d%22%2C%22obtenerDepartamentos%22%5D%2C%5B%2240274edff4fd6d720cef82fa6a42439aa87dd4ea89%22%2C%22obtenerDistritos%22%5D%2C%5B%2240aa35e363bbb5655028f2b2bf9917cbc77768482c%22%2C%22obtenerProvincias%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/mostrador/nuevo-empeno/page": "action-browser"
+      }
+    },
+    "00fd75bb7a3b41eacf9f46af249955798c9239c08d": {
+      "workers": {
+        "app/dashboard/mostrador/nuevo-empeno/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fubicacion-actions.ts%22%2C%5B%5B%220070009f60ed9ae206bae058a15d934c5adb77441a%22%2C%22obtenerUbicacionDefault%22%5D%2C%5B%2200fd75bb7a3b41eacf9f46af249955798c9239c08d%22%2C%22obtenerDepartamentos%22%5D%2C%5B%2240274edff4fd6d720cef82fa6a42439aa87dd4ea89%22%2C%22obtenerDistritos%22%5D%2C%5B%2240aa35e363bbb5655028f2b2bf9917cbc77768482c%22%2C%22obtenerProvincias%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/mostrador/nuevo-empeno/page": "action-browser"
+      }
+    },
+    "40274edff4fd6d720cef82fa6a42439aa87dd4ea89": {
+      "workers": {
+        "app/dashboard/mostrador/nuevo-empeno/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fubicacion-actions.ts%22%2C%5B%5B%220070009f60ed9ae206bae058a15d934c5adb77441a%22%2C%22obtenerUbicacionDefault%22%5D%2C%5B%2200fd75bb7a3b41eacf9f46af249955798c9239c08d%22%2C%22obtenerDepartamentos%22%5D%2C%5B%2240274edff4fd6d720cef82fa6a42439aa87dd4ea89%22%2C%22obtenerDistritos%22%5D%2C%5B%2240aa35e363bbb5655028f2b2bf9917cbc77768482c%22%2C%22obtenerProvincias%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/mostrador/nuevo-empeno/page": "action-browser"
+      }
+    },
+    "40aa35e363bbb5655028f2b2bf9917cbc77768482c": {
+      "workers": {
+        "app/dashboard/mostrador/nuevo-empeno/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fclientes-actions.ts%22%2C%5B%5B%224023839e107f0aefd1aef4d8aa7ddd29349a4e4fdc%22%2C%22crearClienteDesdeEntidad%22%5D%2C%5B%22408f6f28da1893e8841baa381a1b44e6a23906b74e%22%2C%22buscarClientePorDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Fapis%2Fconsultasperu.ts%22%2C%5B%5B%2240cb65d8ed53f5fdc027fa58be1ac896360af5c7ac%22%2C%22validarDNI%22%5D%2C%5B%22605b38198303aa8d54006bc42c51d29eb8b8f7c08f%22%2C%22consultarEntidad%22%5D%2C%5B%227ff3ec9bbdc12c8281e1211407226ff48072b9cdaa%22%2C%22consultarDNI%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fwhatsapp-actions.ts%22%2C%5B%5B%2240c6ae9769e6deac3536d3cf796a1c41378f5a72ad%22%2C%22enviarCodigoWhatsapp%22%5D%2C%5B%2260d250f791c9720ff6c7826cbaa4074f2106a5d83d%22%2C%22verificarCodigoWhatsapp%22%5D%5D%5D%2C%5B%22%2Fhome%2Fmateo%2Fjuntay_api%2Fsrc%2Flib%2Factions%2Fubicacion-actions.ts%22%2C%5B%5B%220070009f60ed9ae206bae058a15d934c5adb77441a%22%2C%22obtenerUbicacionDefault%22%5D%2C%5B%2200fd75bb7a3b41eacf9f46af249955798c9239c08d%22%2C%22obtenerDepartamentos%22%5D%2C%5B%2240274edff4fd6d720cef82fa6a42439aa87dd4ea89%22%2C%22obtenerDistritos%22%5D%2C%5B%2240aa35e363bbb5655028f2b2bf9917cbc77768482c%22%2C%22obtenerProvincias%22%5D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/mostrador/nuevo-empeno/page": "action-browser"
+      }
+    }
+  },
+  "edge": {},
+  "encryptionKey": "flwb4wxU/LJhTFx/+gRTWh1/DO/1O3BVqmRGHGLvsGw="
+}

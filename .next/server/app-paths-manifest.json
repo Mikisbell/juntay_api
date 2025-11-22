@@ -1,0 +1,10 @@
+{
+  "/dashboard/mostrador/nuevo-empeno/page": "app/dashboard/mostrador/nuevo-empeno/page.js",
+  "/dashboard/inventario/page": "app/dashboard/inventario/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/pagos/page": "app/dashboard/pagos/page.js",
+  "/dashboard/contratos/page": "app/dashboard/contratos/page.js",
+  "/dashboard/caja/page": "app/dashboard/caja/page.js",
+  "/dashboard/admin/tesoreria/page": "app/dashboard/admin/tesoreria/page.js",
+  "/dashboard/admin/monitor-cajas/page": "app/dashboard/admin/monitor-cajas/page.js"
+}
