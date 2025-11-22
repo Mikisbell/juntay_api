@@ -26,6 +26,7 @@ import {
 } from '@/lib/utils/calculadora-credito'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
+import { toast } from 'sonner'
 
 export default function ResumenStep() {
     const {
@@ -49,6 +50,8 @@ export default function ResumenStep() {
 
     const handleConfirmar = async () => {
         setGuardando(true)
+        const loadingToast = toast.loading('Guardando empeño...')
+
         try {
             // TODO: Implementar server action para guardar
             // - Crear registro en tabla creditos
@@ -60,10 +63,19 @@ export default function ResumenStep() {
 
             await new Promise(resolve => setTimeout(resolve, 2000)) // Simulación
 
+            toast.success('¡Empeño registrado exitosamente!', {
+                id: loadingToast,
+                description: 'El contrato ha sido guardado y los documentos generados',
+                duration: 5000
+            })
             setGuardadoExitoso(true)
         } catch (error) {
             console.error('Error guardando:', error)
-            alert('Error al guardar el empeño')
+            toast.error('Error al guardar el empeño', {
+                id: loadingToast,
+                description: 'Por favor intenta nuevamente o contacta soporte',
+                duration: 5000
+            })
         } finally {
             setGuardando(false)
         }

@@ -13,6 +13,7 @@ import { consultarEntidad } from '@/lib/apis/consultasperu'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { RegistroClienteCompleto } from '@/components/business/RegistroClienteCompleto'
 import { Badge } from '@/components/ui/badge'
+import { toast } from 'sonner'
 
 export default function IdentificacionStep() {
     const { cliente, setCliente } = useCotizador()
@@ -35,11 +36,16 @@ export default function IdentificacionStep() {
 
     const handleSearch = async (dniOverride?: string) => {
         const dni = dniOverride || dniSearch
-        if (!dni) return
+        if (!dni) {
+            toast.error('Ingresa un número de documento')
+            return
+        }
 
         setLoading(true)
         setDatosEntidad(null)
         setEsClienteExistente(false)
+
+        const loadingToast = toast.loading('Buscando cliente...')
 
         try {
             // 1. Buscar en nuestra BD de clientes
@@ -59,20 +65,28 @@ export default function IdentificacionStep() {
                     nombre_completo: `${res.perfil.nombres || ''} ${res.perfil.apellido_paterno || ''} ${res.perfil.apellido_materno || ''}`.trim(),
                     numero_documento: res.perfil.numero_documento
                 })
+                toast.success('¡Cliente encontrado! Ya está registrado en el sistema', { id: loadingToast })
             } else {
                 // No es cliente, buscar en RENIEC/SUNAT
                 setCliente(null)
                 setEsClienteExistente(false)
 
                 if (tipoDoc !== 'CE') {
+                    toast.loading(`Consultando ${tipoDoc === 'RUC' ? 'SUNAT' : 'RENIEC'}...`, { id: loadingToast })
                     const entidad = await consultarEntidad(tipoDoc, dni)
                     if (entidad) {
                         setDatosEntidad(entidad)
+                        toast.success(`Persona encontrada en ${tipoDoc === 'RUC' ? 'SUNAT' : 'RENIEC'}`, { id: loadingToast })
+                    } else {
+                        toast.error('No se encontró información en ' + (tipoDoc === 'RUC' ? 'SUNAT' : 'RENIEC'), { id: loadingToast })
                     }
+                } else {
+                    toast.dismiss(loadingToast)
                 }
             }
         } catch (error) {
             console.error('Error buscando cliente:', error)
+            toast.error('Error al buscar cliente. Intenta nuevamente', { id: loadingToast })
             setCliente(null)
             setDatosEntidad(null)
         } finally {
@@ -88,6 +102,7 @@ export default function IdentificacionStep() {
             apellidos: `${nuevoCliente.apellido_paterno || ''} ${nuevoCliente.apellido_materno || ''}`.trim()
         })
         setRegistroModalOpen(false)
+        toast.success('✓ Cliente registrado exitosamente')
     }
 
     return (
