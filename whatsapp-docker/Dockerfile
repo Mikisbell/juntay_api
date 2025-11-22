@@ -1,7 +1,8 @@
-# 1. Imagen base Node
-FROM node:18-bullseye
+# 1. CAMBIO IMPORTANTE: Usamos Node 22 (Requerido por la nueva versión de WhatsApp)
+FROM node:22-bullseye
 
 # 2. Instalar Chrome y Git
+# (Mantenemos bullseye para que esta instalación siga funcionando igual)
 RUN apt-get update && apt-get install -y \
     chromium \
     git \
@@ -13,14 +14,15 @@ RUN git clone https://github.com/devlikeapro/waha.git /app
 # 4. Directorio de trabajo
 WORKDIR /app
 
-# 5. Instalar dependencias (CORREGIDO: forzamos compatibilidad)
+# 5. Instalar dependencias
+# Configuramos Chrome
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-# Aquí agregamos --legacy-peer-deps para arreglar el error ERESOLVE
+
+# Instalar ignorando conflictos de versiones antiguas (--legacy-peer-deps)
 RUN npm install --omit=dev --legacy-peer-deps
 
-# 6. Construir el proyecto (Build)
-# WAHA necesita compilarse antes de correr
+# 6. Construir el proyecto
 RUN npm run build
 
 # 7. Exponer puerto
