@@ -1,1 +1,1 @@
-FROM ghcr.io/devlikepro/waha:latest
+FROM mirror.gcr.io/devlikepro/waha:latest
