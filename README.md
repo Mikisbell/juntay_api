@@ -1,1 +1,100 @@
-# juntay_api
+# JUNTAY - Sistema Financiero de Empeños
+
+![Status](https://img.shields.io/badge/Status-Production%20Ready-success)
+![Tech](https://img.shields.io/badge/Stack-Next.js%2014%20%7C%20Supabase%20%7C%20Shadcn-blue)
+
+Sistema de gestión financiera y operativa para casas de empeño, diseñado con una arquitectura **"Bank-Grade"** (Nivel Bancario) que prioriza la integridad de los datos, la seguridad y una experiencia de usuario premium.
+
+## 🚀 Características Principales
+
+### 💎 Experiencia de Usuario "Ultra-Premium"
+
+- **Diseño Fintech:** Interfaz inspirada en neobancos (Mercury, Revolut) con glassmorphism y animaciones fluidas.
+- **Dashboard Inteligente:** Visualización en tiempo real de posición financiera, alertas de riesgo y KPIs.
+- **Modo Oscuro:** Soporte nativo para temas claro y oscuro con paletas de colores semánticas.
+
+### 🏦 Módulos Core
+
+1. **Terminal Operativa:**
+    - **Caja:** Apertura y cierre ciego, control de efectivo y arqueos.
+    - **Créditos:** Flujo de "Nuevo Empeño" con cotizador inteligente de oro y electro.
+    - **Cobranzas:** Gestión de pagos, renovaciones y desempeños.
+
+2. **Gestión de Activos:**
+    - **Cartera:** Monitor de contratos vigentes y vencidos.
+    - **Clientes:** CRM integrado con scoring de riesgo y perfilamiento.
+    - **Bóveda:** Inventario físico de garantías con trazabilidad.
+
+3. **Administración y Control:**
+    - **Tesorería:** Inyecciones de capital, retiros y gestión de liquidez.
+    - **Reportes:** Cierre diario, análisis de cartera y auditoría de transacciones.
+    - **Configuración:** Motor de reglas dinámico para tasas e intereses.
+
+## 🛠️ Stack Tecnológico
+
+- **Frontend:** Next.js 14 (App Router), React, TypeScript.
+- **UI System:** Shadcn/UI, Tailwind CSS v4, Framer Motion, Lucide Icons.
+- **Backend:** Supabase (PostgreSQL), Server Actions.
+- **Estado:** React Query (TanStack Query) para gestión de estado server-side.
+
+## 📦 Estructura del Proyecto
+
+```bash
+src/
+├── app/
+│   ├── (auth)/               # Rutas públicas (Login)
+│   ├── (dashboard)/          # Rutas protegidas (App Principal)
+│   │   ├── dashboard/
+│   │   │   ├── admin/        # Tesorería y Configuración
+│   │   │   ├── caja/         # Terminal de Caja
+│   │   │   ├── clientes/     # Directorio de Clientes
+│   │   │   ├── reportes/     # Business Intelligence
+│   │   │   └── ...
+├── components/
+│   ├── ui/                   # Componentes base (Shadcn)
+│   ├── dashboard/            # Widgets (StatsGrid, Charts)
+│   └── layout/               # Sidebar, Header
+├── lib/
+│   ├── actions/              # Server Actions (Lógica de Negocio)
+│   └── utils/                # Utilidades y Helpers
+```
+
+## 🔧 Instalación y Despliegue
+
+1. **Clonar el repositorio:**
+
+    ```bash
+    git clone https://github.com/Mikisbell/juntay_api.git
+    cd juntay_api
+    ```
+
+2. **Instalar dependencias:**
+
+    ```bash
+    npm install
+    ```
+
+3. **Configurar variables de entorno:**
+    Crear un archivo `.env.local` con las credenciales de Supabase:
+
+    ```env
+    NEXT_PUBLIC_SUPABASE_URL=tu_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_key
+    SUPABASE_SERVICE_ROLE_KEY=tu_service_key
+    ```
+
+4. **Ejecutar en desarrollo:**
+
+    ```bash
+    npm run dev
+    ```
+
+## 📄 Documentación
+
+Para detalles profundos sobre la arquitectura y reglas de negocio, consultar la carpeta `docs/`:
+
+- `🏛️ DOCUMENTACIÓN MAESTRA OFICIAL.md`: La biblia del proyecto.
+- `docs/MANUAL_DESARROLLO_JUNTAY.md`: Guía para desarrolladores.
+
+---
+Desarrollado con ❤️ y precisión financiera.

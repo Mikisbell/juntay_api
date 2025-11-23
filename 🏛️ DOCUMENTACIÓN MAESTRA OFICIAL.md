@@ -1,5 +1,5 @@
 🏛️ DOCUMENTACIÓN MAESTRA OFICIAL - PROYECTO JUNTAY
-Versión: 3.0 (Arquitectura Bancaria + Motor de Tasación) Fecha: 21 Noviembre 2025 Estado: Producción / Desarrollo Activo
+Versión: 3.1 (Arquitectura Bancaria Premium) Fecha: 23 Noviembre 2025 Estado: Producción / Estable
 
 1. 🏗️ ARQUITECTURA OFICIAL (Local-First Bancaria)
 El sistema opera bajo una arquitectura híbrida: Frontend Moderno con Lógica de Core Bancario.
@@ -20,7 +20,7 @@ Base de Datos: Supabase (PostgreSQL) corriendo en Docker Desktop.
 
 Frontend: Next.js 14 (App Router) + TypeScript Estricto.
 
-UI System: Shadcn/UI + Tailwind CSS v4.
+UI System: Shadcn/UI + Tailwind CSS v4 (Estilo "Ultra-Premium").
 
 2. ⚙️ INSTALACIÓN DEL ENTORNO OFICIAL
 Pasos exactos para un desarrollador nuevo o para reiniciar el entorno.
@@ -75,15 +75,15 @@ Row Level Security (RLS): Activado en todas las tablas críticas.
 Políticas: Cajeros solo ven su propia caja. Admins ven todo.
 
 4. 💼 MÓDULOS DE NEGOCIO OFICIALES
-Módulo A: Tesorería (El Fondeo)
+Módulo A: Tesorería (El Fondeo) ✅ IMPLEMENTADO
 Objetivo: Inyectar capital a la empresa y distribuirlo a los cajeros.
 
 Flujo: Socio aporta capital -> Bóveda Central -> Asignación a Caja Operativa.
 
 Regla: Todo ingreso externo requiere evidencia en metadata (JSONB).
 
-Módulo B: El Mostrador (Atención al Cliente)
-Cotizador Inteligente (Nuevo):
+Módulo B: El Mostrador (Atención al Cliente) ✅ IMPLEMENTADO
+Cotizador Inteligente:
 
 Oro: Gramaje x Precio (de system_settings).
 
@@ -91,15 +91,18 @@ Electro: Valor Mercado x Factor de Estado (Matriz 85%-30%).
 
 Formalización: Creación atómica de Cliente + Contrato + Desembolso.
 
-Módulo C: Gestión de Vida del Crédito
+Módulo C: Gestión de Vida del Crédito ✅ IMPLEMENTADO
 Interés al Vencimiento: El interés no se descuenta al inicio, se cobra al final.
 
 Renovación: Pago de interés acumulado para extender plazo.
 
 Desempeño: Pago de Capital + Interés para liberar la prenda.
 
-Módulo D: Cierre y Control
+Módulo D: Cierre y Control ✅ IMPLEMENTADO
 Cierre Ciego: El cajero cuenta el dinero físico y lo ingresa. El sistema calcula la diferencia (Sobrante/Faltante) contra el Ledger.
+
+Módulo E: Clientes y CRM (Nuevo) ✅ IMPLEMENTADO
+Directorio centralizado con scoring de riesgo y perfilamiento.
 
 5. 🔐 SEGURIDAD Y ROLES OFICIAL
 Matriz de Roles
@@ -117,10 +120,10 @@ Ejemplo Yape: { "codigo_operacion": "123456", "banco": "BCP" }.
 Logs: updated_by y created_at en todas las tablas sensibles.
 
 6. 🎨 UX/UI Y FLUJOS OFICIAL
-Diseño Visual (Shadcn/UI)
-Estilo: Minimalista, alta densidad de información (tipo Dashboard Financiero).
+Diseño Visual (Shadcn/UI Premium)
+Estilo: Glassmorphism, Mesh Gradients, Animaciones Fluidas.
 
-Componentes Clave: DataTable (TanStack), Sheet (Paneles laterales), Card (KPIs).
+Componentes Clave: StatsGrid (KPIs), DashboardCharts (Analytics), GlassPanel (Contenedores).
 
 Flujo Crítico: "Nuevo Empeño" (Wizard)
 No usar modales simples. Usar un proceso paso a paso en pantalla completa:
@@ -141,16 +144,12 @@ Configuración del entorno Local-First.
 
 Motor de Reglas (system_settings).
 
-Tier 2: El Núcleo Operativo (🚧 EN PROGRESO)
-Semana Actual:
+Tier 2: El Núcleo Operativo (✅ COMPLETADO)
+Cotizador UI y Lógica.
 
-Implementar el Cotizador UI (con la lógica de matriz que definimos).
+Módulo de Caja y Tesorería.
 
-Conectar Cotizador a Server Action crear_contrato.
-
-Siguiente Semana:
-
-Módulo de Caja (Apertura/Cierre) conectado a cajas_operativas.
+Gestión de Clientes y Reportes.
 
 Tier 3: Ciclo de Vida Avanzado (Pendiente)
 Proceso de Remates (Paso automático de Vencido -> En Remate).
