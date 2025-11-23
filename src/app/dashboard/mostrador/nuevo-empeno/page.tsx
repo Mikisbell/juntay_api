@@ -8,7 +8,7 @@ import { FileText } from 'lucide-react'
 import { PAGE_TITLES, PAGE_DESCRIPTIONS } from '@/lib/constants/messages'
 
 const CotizadorWizard = dynamic(
-    () => import('@/components/cotizador/CotizadorWizard').then(mod => ({ default: mod.default })),
+    () => import('@/components/cotizador/CotizadorWizard'),
     {
         loading: () => <WizardSkeleton />,
         ssr: false

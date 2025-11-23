@@ -19,7 +19,9 @@ export const identificacionSchema = z.object({
  */
 export const tasacionSchema = z.object({
     categoria: z.string().min(1, "Selecciona una categoría"),
-    marca: z.string().min(1, "La marca es obligatoria"),
+    subcategoria: z.string().optional(), // Opcional hasta que se seleccione categoría
+    marcaBien: z.string().optional(), // Marca del bien (ej: Apple, Samsung) - opcional
+    marca: z.string().optional(), // Mantener para compatibilidad, ahora opcional
     modelo: z.string().min(1, "El modelo es obligatorio"),
     serie: z.string().optional(),
     estado_bien: z.enum(['NUEVO', 'EXCELENTE', 'BUENO', 'REGULAR', 'MALO']),
@@ -33,13 +35,69 @@ export const tasacionSchema = z.object({
         .min(0, "La tasa no puede ser negativa")
         .max(100, "La tasa no puede exceder 100%"),
     fotos: z.array(z.string()).optional(),
-}).refine(
-    (data) => data.montoPrestamo <= data.valorMercado,
-    {
-        message: "El préstamo no puede exceder el valor de mercado",
-        path: ["montoPrestamo"],
+    // Campos específicos para Vehículos
+    anio: z.number().optional(),
+    placa: z.string().optional(),
+    kilometraje: z.number().optional(),
+    // Campos específicos para Inmuebles
+    area: z.number().optional(),
+    ubicacion: z.string().optional(),
+    partidaRegistral: z.string().optional(),
+    // Campos específicos para Joyas
+    peso: z.number().optional(),
+    quilataje: z.string().optional(),
+    // Campos manuales para "Otro"
+    subcategoria_manual: z.string().optional(),
+    marca_manual: z.string().optional(),
+}).superRefine((data, ctx) => {
+    // Validación de monto vs valor mercado
+    if (data.montoPrestamo > data.valorMercado) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "El préstamo no puede exceder el valor de mercado",
+            path: ["montoPrestamo"],
+        })
     }
-)
+
+    // Validaciones para "Otro (Especificar)"
+    if (data.subcategoria && data.subcategoria.startsWith('otro_')) {
+        if (!data.subcategoria_manual) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Especifique la subcategoría",
+                path: ["subcategoria_manual"]
+            })
+        }
+    }
+
+    if (data.marcaBien && data.marcaBien.startsWith('otra_')) {
+        if (!data.marca_manual) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Especifique la marca",
+                path: ["marca_manual"]
+            })
+        }
+    }
+
+    // Validaciones específicas por categoría
+    if (data.categoria === 'vehiculos') {
+        if (!data.anio) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "El año es obligatorio", path: ["anio"] })
+        if (!data.placa) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "La placa es obligatoria", path: ["placa"] })
+        if (!data.kilometraje) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "El kilometraje es obligatorio", path: ["kilometraje"] })
+    }
+
+    if (data.categoria === 'inmuebles') {
+        if (!data.area) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "El área es obligatoria", path: ["area"] })
+        if (!data.ubicacion) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "La ubicación es obligatoria", path: ["ubicacion"] })
+        if (!data.partidaRegistral) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "La partida registral es obligatoria", path: ["partidaRegistral"] })
+    }
+
+    if (data.categoria === 'joyas') {
+        if (!data.peso) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "El peso es obligatorio", path: ["peso"] })
+        if (!data.quilataje) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "El quilataje es obligatorio", path: ["quilataje"] })
+    }
+})
 
 /**
  * Schema de validación para el paso de cronograma de pagos

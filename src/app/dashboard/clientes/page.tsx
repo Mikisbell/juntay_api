@@ -33,13 +33,15 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Link from 'next/link'
 
+import { SmartPasteButton } from "@/components/ui/smart-paste-button"
+import { toast } from "sonner"
+
 export default async function ClientesPage({
     searchParams,
 }: {
-    searchParams: Promise<{ q?: string }>
+    searchParams: { q?: string }
 }) {
-    const params = await searchParams
-    const query = params.q || ''
+    const query = searchParams.q || ""
     const clientes = await obtenerClientes(query)
 
     return (
@@ -50,15 +52,18 @@ export default async function ClientesPage({
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Directorio de Clientes</h2>
-                        <p className="text-muted-foreground">Gestión de perfiles, historial crediticio y riesgo.</p>
+                        <p className="text-muted-foreground">Gestión centralizada de perfiles y riesgo crediticio.</p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Link href="/dashboard/mostrador/nuevo-empeno">
-                            <Button className="rounded-full shadow-lg shadow-primary/20">
-                                <UserPlus className="mr-2 h-4 w-4" />
-                                Nuevo Cliente
-                            </Button>
-                        </Link>
+                        <SmartPasteButton onParsed={(data) => {
+                            // Aquí abriríamos el modal de "Nuevo Cliente" con los datos pre-llenados
+                            console.log("Datos AI:", data)
+                            toast.info(`IA detectó: ${data.dni || '?'} - ${data.nombre || '?'}`)
+                        }} />
+                        <Button className="gap-2 shadow-lg shadow-primary/20">
+                            <UserPlus className="h-4 w-4" />
+                            Nuevo Cliente
+                        </Button>
                     </div>
                 </div>
 

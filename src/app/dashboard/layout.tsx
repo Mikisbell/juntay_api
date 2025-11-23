@@ -9,6 +9,9 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { DynamicBreadcrumb } from "@/components/layout/DynamicBreadcrumb"
+import { MarketTicker } from "@/components/dashboard/MarketTicker"
+import { CommandMenu } from "@/components/dashboard/CommandMenu"
 import { Separator } from "@/components/ui/separator"
 import {
     SidebarInset,
@@ -28,19 +31,11 @@ export default function DashboardLayout({
                 <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
                     <SidebarTrigger className="-ml-1" />
                     <Separator orientation="vertical" className="mr-2 h-4" />
-                    <Breadcrumb>
-                        <BreadcrumbList>
-                            <BreadcrumbItem className="hidden md:block">
-                                <BreadcrumbLink href="/dashboard">
-                                    Dashboard
-                                </BreadcrumbLink>
-                            </BreadcrumbItem>
-                            <BreadcrumbSeparator className="hidden md:block" />
-                            <BreadcrumbItem>
-                                <BreadcrumbPage>Vista Actual</BreadcrumbPage>
-                            </BreadcrumbItem>
-                        </BreadcrumbList>
-                    </Breadcrumb>
+                    <DynamicBreadcrumb />
+                    <div className="ml-auto flex items-center gap-4">
+                        <CommandMenu />
+                        <MarketTicker />
+                    </div>
                 </header>
                 <main className="flex flex-1 flex-col gap-4 p-4 md:p-8">
                     {children}

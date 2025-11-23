@@ -1,0 +1,485 @@
+'use client'
+
+import { useCotizador } from '@/hooks/useCotizador'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Slider } from '@/components/ui/slider'
+import { useState, useEffect } from 'react'
+import { Camera, X, Loader2, Smartphone, Laptop, Watch, Tv, Gamepad2, Headphones, Wrench, Diamond, Package, Info, DollarSign, Percent, AlertTriangle, Sparkles, TrendingUp } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { useForm, useWatch } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { tasacionSchema, TasacionFormData } from '@/lib/validators/empeno-schemas'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form'
+import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
+
+const CATEGORIAS = [
+    { value: 'laptop', label: 'Laptop', icon: Laptop, tasaSugerida: 15 },
+    { value: 'celular', label: 'Celular', icon: Smartphone, tasaSugerida: 20 },
+    { value: 'tablet', label: 'Tablet', icon: Smartphone, tasaSugerida: 18 },
+    { value: 'tv', label: 'Televisor', icon: Tv, tasaSugerida: 22 },
+    { value: 'consola', label: 'Consola', icon: Gamepad2, tasaSugerida: 18 },
+    { value: 'audio', label: 'Audio', icon: Headphones, tasaSugerida: 20 },
+    { value: 'herramienta', label: 'Herramienta', icon: Wrench, tasaSugerida: 25 },
+    { value: 'joya_oro', label: 'Joya Oro', icon: Diamond, tasaSugerida: 10 },
+    { value: 'otro', label: 'Otro', icon: Package, tasaSugerida: 20 }
+]
+
+const ESTADOS = [
+    { value: 'NUEVO', label: 'Nuevo (Sellado)', color: 'bg-emerald-500', factor: 0.8 },
+    { value: 'EXCELENTE', label: 'Excelente (10/10)', color: 'bg-blue-500', factor: 0.7 },
+    { value: 'BUENO', label: 'Bueno (8/10)', color: 'bg-yellow-500', factor: 0.6 },
+    { value: 'REGULAR', label: 'Regular (6/10)', color: 'bg-orange-500', factor: 0.5 },
+    { value: 'MALO', label: 'Malo (Reparar)', color: 'bg-red-500', factor: 0.4 }
+]
+
+export default function TasacionStep() {
+    const {
+        detallesGarantia,
+        setDetallesGarantia,
+        montoPrestamo,
+        setMontoPrestamo,
+        tasaInteres,
+        setTasaInteres
+    } = useCotizador()
+
+    const form = useForm<TasacionFormData>({
+        resolver: zodResolver(tasacionSchema),
+        defaultValues: {
+            categoria: detallesGarantia.categoria,
+            marca: detallesGarantia.marca,
+            modelo: detallesGarantia.modelo,
+            serie: detallesGarantia.serie,
+            estado_bien: detallesGarantia.estado_bien as any,
+            descripcion: detallesGarantia.descripcion,
+            valorMercado: detallesGarantia.valorMercado,
+            montoPrestamo: montoPrestamo,
+            tasaInteres: tasaInteres,
+            fotos: detallesGarantia.fotos || []
+        },
+        mode: 'onChange'
+    })
+
+    const watchedValues = useWatch({ control: form.control })
+    const { categoria, marca, modelo, serie, estado_bien, descripcion, valorMercado, fotos, montoPrestamo: wMonto, tasaInteres: wTasa } = watchedValues
+
+    const [customCategory, setCustomCategory] = useState('')
+    const [frecuenciaPago, setFrecuenciaPago] = useState<'diario' | 'semanal' | 'quincenal' | 'mensual'>('mensual')
+    const [userSetMonto, setUserSetMonto] = useState(false) // Flag para detectar si el usuario ajustó manualmente
+
+    // 🧠 INTELIGENCIA 1: Auto-sugerir tasa según categoría
+    useEffect(() => {
+        if (categoria) {
+            const cat = CATEGORIAS.find(c => c.value === categoria)
+            if (cat && cat.tasaSugerida) {
+                form.setValue('tasaInteres', cat.tasaSugerida)
+            }
+        }
+    }, [categoria, form])
+
+    // 🧠 INTELIGENCIA 2: Auto-calcular monto sugerido al ingresar valor de mercado
+    useEffect(() => {
+        // Solo auto-sugerir si:
+        // 1. Hay un valor de mercado válido
+        // 2. El usuario NO ha ajustado el monto manualmente
+        // 3. El monto actual es 0 o muy bajo
+        if (valorMercado && valorMercado > 0 && !userSetMonto) {
+            const estadoInfo = ESTADOS.find(e => e.value === estado_bien)
+            const factor = estadoInfo?.factor || 0.6
+            const montoSugerido = Math.round(valorMercado * factor / 50) * 50 // Redondear a múltiplos de 50
+
+            if (!wMonto || wMonto < 10) {
+                form.setValue('montoPrestamo', montoSugerido)
+                toast.success(`Monto sugerido: S/ ${montoSugerido.toFixed(2)} (${(factor * 100).toFixed(0)}% del valor)`, {
+                    icon: <Sparkles className="h-4 w-4 text-purple-500" />
+                })
+            }
+        }
+    }, [valorMercado, estado_bien, userSetMonto, wMonto, form])
+
+    // Sync to context
+    useEffect(() => {
+        setDetallesGarantia({
+            categoria: categoria === 'otro' && customCategory ? customCategory : categoria || 'otro',
+            marca: marca || '',
+            modelo: modelo || '',
+            serie: serie || '',
+            estado_bien: estado_bien || 'BUENO',
+            descripcion: descripcion || '',
+            valorMercado: valorMercado || 0,
+            fotos: fotos || []
+        })
+    }, [categoria, customCategory, marca, modelo, serie, estado_bien, descripcion, valorMercado, fotos, setDetallesGarantia])
+
+    useEffect(() => {
+        if (wMonto) setMontoPrestamo(wMonto)
+    }, [wMonto, setMontoPrestamo])
+
+    useEffect(() => {
+        if (wTasa) setTasaInteres(wTasa)
+    }, [wTasa, setTasaInteres])
+
+    // Photo Upload Logic
+    const [previews, setPreviews] = useState<string[]>(detallesGarantia.fotos || [])
+    const [uploading, setUploading] = useState(false)
+
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files
+        if (!files || files.length === 0) return
+        setUploading(true)
+        const supabase = createClient()
+        const newUrls: string[] = []
+
+        try {
+            for (const file of Array.from(files)) {
+                if (file.size > 5 * 1024 * 1024) continue
+                const fileExt = file.name.split('.').pop()
+                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+                const { error } = await supabase.storage.from('garantias').upload(`garantias/${fileName}`, file)
+                if (error) continue
+                const { data } = supabase.storage.from('garantias').getPublicUrl(`garantias/${fileName}`)
+                newUrls.push(data.publicUrl)
+            }
+            if (newUrls.length > 0) {
+                const updated = [...previews, ...newUrls].slice(0, 10)
+                setPreviews(updated)
+                form.setValue('fotos', updated)
+            }
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setUploading(false)
+        }
+    }
+
+    // Financial Calcs
+    const interesMensual = (wMonto || 0) * ((wTasa || 0) / 100)
+    const totalPagar = (wMonto || 0) + interesMensual
+
+    // 🧠 Cálculo de cuota por frecuencia
+    const diasPorFrecuencia = {
+        'diario': 1,
+        'semanal': 7,
+        'quincenal': 15,
+        'mensual': 30
+    }
+    const diasPlazo = diasPorFrecuencia[frecuenciaPago]
+    const cuotaPorPeriodo = totalPagar / (30 / diasPlazo)
+
+    const ltv = wMonto && valorMercado ? (wMonto / valorMercado) * 100 : 0
+    const riskColor = ltv > 80 ? 'text-red-500' : ltv > 60 ? 'text-amber-500' : 'text-emerald-500'
+    const riskBg = ltv > 80 ? 'bg-red-500' : ltv > 60 ? 'bg-amber-500' : 'bg-emerald-500'
+    const riskLabel = ltv > 80 ? 'ALTO RIESGO' : ltv > 60 ? 'MODERADO' : 'SEGURO'
+
+    // Obtener el bien seleccionado para mostrarlo
+    const categoriaSeleccionada = CATEGORIAS.find(c => c.value === categoria)
+    const nombreBien = categoria === 'otro' && customCategory
+        ? customCategory
+        : (marca && modelo ? `${marca} ${modelo}` : categoriaSeleccionada?.label || 'Sin especificar')
+
+    return (
+        <Form {...form}>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
+
+                {/* COLUMNA IZQUIERDA: FICHA TÉCNICA (7 cols) */}
+                <div className="lg:col-span-7 space-y-6">
+                    <Card className="border-none shadow-lg bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-xl">
+                                <Info className="h-5 w-5 text-primary" />
+                                Ficha Técnica del Activo
+                            </CardTitle>
+                            <CardDescription>Registra las características físicas y estado del bien.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+
+                            {/* Categoría Grid */}
+                            <div>
+                                <Label className="mb-3 block">Categoría del Bien</Label>
+                                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                                    {CATEGORIAS.map((cat) => {
+                                        const Icon = cat.icon
+                                        const isSelected = categoria === cat.value
+                                        return (
+                                            <div
+                                                key={cat.value}
+                                                onClick={() => form.setValue('categoria', cat.value)}
+                                                className={cn(
+                                                    "cursor-pointer flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-200",
+                                                    isSelected
+                                                        ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                                                        : "border-slate-200 hover:border-primary/50 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
+                                                )}
+                                            >
+                                                <Icon className={cn("h-6 w-6 mb-2", isSelected ? "text-primary" : "text-slate-500")} />
+                                                <span className={cn("text-xs font-medium text-center", isSelected ? "text-primary" : "text-slate-600")}>{cat.label}</span>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+
+                                {/* 🧠 Campo Personalizado para "Otro" */}
+                                {categoria === 'otro' && (
+                                    <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700">
+                                        <Label className="mb-2 block text-sm">Especifica la Categoría</Label>
+                                        <Input
+                                            placeholder="Ej: Bicicleta, Moto, Instrumento Musical..."
+                                            value={customCategory}
+                                            onChange={(e) => setCustomCategory(e.target.value)}
+                                            className="bg-white dark:bg-slate-900"
+                                        />
+                                        <p className="text-xs text-slate-500 mt-1">Este nombre aparecerá en el contrato</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Inputs Principales */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="marca" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Marca</FormLabel>
+                                        <FormControl><Input placeholder="Ej: Apple" {...field} className="bg-slate-50/50" /></FormControl>
+                                    </FormItem>
+                                )} />
+                                <FormField control={form.control} name="modelo" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Modelo</FormLabel>
+                                        <FormControl><Input placeholder="Ej: iPhone 15 Pro" {...field} className="bg-slate-50/50" /></FormControl>
+                                    </FormItem>
+                                )} />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="serie" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Serie / IMEI</FormLabel>
+                                        <FormControl><Input placeholder="SN-123456789" className="font-mono bg-slate-50/50" {...field} /></FormControl>
+                                    </FormItem>
+                                )} />
+                                <FormField control={form.control} name="estado_bien" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Condición Estética</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger className="bg-slate-50/50">
+                                                    <SelectValue placeholder="Seleccione estado" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {ESTADOS.map(est => (
+                                                    <SelectItem key={est.value} value={est.value}>
+                                                        <div className="flex items-center gap-2">
+                                                            <div className={`w-2 h-2 rounded-full ${est.color}`} />
+                                                            {est.label}
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormDescription className="text-xs">
+                                            Afecta el monto sugerido del préstamo
+                                        </FormDescription>
+                                    </FormItem>
+                                )} />
+                            </div>
+
+                            <FormField control={form.control} name="descripcion" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Observaciones Adicionales</FormLabel>
+                                    <FormControl>
+                                        <Textarea placeholder="Detalles, accesorios incluidos, rayaduras..." className="resize-none bg-slate-50/50" {...field} />
+                                    </FormControl>
+                                </FormItem>
+                            )} />
+
+                            {/* Upload Zone */}
+                            <div>
+                                <Label className="mb-2 block">Evidencia Fotográfica</Label>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {previews.map((url, i) => (
+                                        <div key={i} className="relative aspect-square rounded-lg overflow-hidden border group">
+                                            <img src={url} className="w-full h-full object-cover" alt={`Foto ${i + 1}`} />
+                                            <button onClick={() => {
+                                                const n = previews.filter((_, idx) => idx !== i);
+                                                setPreviews(n);
+                                                form.setValue('fotos', n);
+                                            }} className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <X className="h-3 w-3" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    {previews.length < 4 && (
+                                        <label className="aspect-square rounded-lg border-2 border-dashed border-slate-300 hover:border-primary hover:bg-primary/5 flex flex-col items-center justify-center cursor-pointer transition-colors">
+                                            {uploading ? <Loader2 className="h-6 w-6 animate-spin text-primary" /> : <Camera className="h-6 w-6 text-slate-400" />}
+                                            <span className="text-xs text-slate-500 mt-1">Subir</span>
+                                            <input type="file" className="hidden" multiple accept="image/*" onChange={handleFileSelect} disabled={uploading} />
+                                        </label>
+                                    )}
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* COLUMNA DERECHA: CALCULADORA (5 cols) */}
+                <div className="lg:col-span-5">
+                    <div className="sticky top-6 space-y-6">
+                        <Card className="border-none shadow-xl bg-gradient-to-br from-slate-900 to-slate-800 text-white overflow-hidden relative">
+                            {/* Background Pattern */}
+                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+
+                            <CardHeader className="pb-2 relative z-10">
+                                <div className="flex items-start justify-between">
+                                    <div>
+                                        <CardTitle className="text-lg font-medium text-slate-200 flex items-center gap-2">
+                                            <Sparkles className="h-5 w-5 text-purple-400" />
+                                            Simulador Inteligente
+                                        </CardTitle>
+                                        <CardDescription className="text-slate-400 text-xs">El sistema sugiere valores óptimos automáticamente</CardDescription>
+                                    </div>
+                                </div>
+                                {/* Mostrar bien seleccionado */}
+                                {nombreBien && nombreBien !== 'Sin especificar' && (
+                                    <div className="mt-3 p-2 bg-slate-800/30 rounded-lg border border-slate-700">
+                                        <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Bien Tasando:</p>
+                                        <p className="text-sm font-semibold text-white">{nombreBien}</p>
+                                    </div>
+                                )}
+                            </CardHeader>
+                            <CardContent className="space-y-8 relative z-10">
+
+                                {/* Valor Mercado Input */}
+                                <div className="space-y-2">
+                                    <Label className="text-slate-400 text-xs uppercase tracking-wider">Valor de Tasación (Mercado)</Label>
+                                    <div className="relative">
+                                        <DollarSign className="absolute left-3 top-3 h-5 w-5 text-slate-500" />
+                                        <Input
+                                            type="number"
+                                            placeholder="0.00"
+                                            className="pl-10 bg-slate-800/50 border-slate-700 text-white text-xl font-bold focus-visible:ring-emerald-500"
+                                            value={valorMercado || ''}
+                                            onChange={(e) => form.setValue('valorMercado', parseFloat(e.target.value) || 0)}
+                                        />
+                                    </div>
+                                    <p className="text-xs text-slate-500">💡 El sistema calculará el monto sugerido</p>
+                                </div>
+
+                                {/* Slider Principal */}
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-end">
+                                        <Label className="text-slate-400 text-xs uppercase tracking-wider flex items-center gap-1">
+                                            Monto del Préstamo
+                                            <TrendingUp className="h-3 w-3 text-emerald-400" />
+                                        </Label>
+                                        <div className="text-3xl font-bold text-emerald-400">S/ {wMonto?.toFixed(2)}</div>
+                                    </div>
+                                    <Slider
+                                        value={[wMonto || 0]}
+                                        max={valorMercado || 1000}
+                                        step={10}
+                                        onValueChange={([v]) => {
+                                            form.setValue('montoPrestamo', v)
+                                            setUserSetMonto(true) // Marcar que el usuario ajustó manualmente
+                                        }}
+                                        className="py-4"
+                                    />
+                                    <div className="flex justify-between text-xs text-slate-500">
+                                        <span>Min: S/ 0</span>
+                                        <span>Max: S/ {valorMercado?.toFixed(2) || '0'}</span>
+                                    </div>
+                                </div>
+
+                                {/* Selector de Frecuencia de Pago */}
+                                <div className="space-y-3">
+                                    <Label className="text-slate-400 text-xs uppercase tracking-wider">Frecuencia de Pago</Label>
+                                    <div className="grid grid-cols-4 gap-2">
+                                        {[
+                                            { value: 'diario', label: 'Diario', icon: '📅' },
+                                            { value: 'semanal', label: 'Semanal', icon: '📆' },
+                                            { value: 'quincenal', label: 'Quincenal', icon: '📋' },
+                                            { value: 'mensual', label: 'Mensual', icon: '📊' }
+                                        ].map((frec) => (
+                                            <button
+                                                key={frec.value}
+                                                type="button"
+                                                onClick={() => setFrecuenciaPago(frec.value as any)}
+                                                className={cn(
+                                                    "p-2 rounded-lg border transition-all text-xs font-medium",
+                                                    frecuenciaPago === frec.value
+                                                        ? "bg-emerald-500/20 border-emerald-500 text-emerald-400"
+                                                        : "bg-slate-800/30 border-slate-700 text-slate-400 hover:border-slate-600"
+                                                )}
+                                            >
+                                                <div className="text-center">
+                                                    <div className="text-lg mb-1">{frec.icon}</div>
+                                                    <div>{frec.label}</div>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <div className="p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs text-slate-400">Cuota por {frecuenciaPago === 'diario' ? 'día' : frecuenciaPago === 'semanal' ? 'semana' : frecuenciaPago === 'quincenal' ? 'quincena' : 'mes'}:</span>
+                                            <span className="text-lg font-bold text-emerald-400">S/ {cuotaPorPeriodo.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Risk Indicator */}
+                                <div className={cn(
+                                    "flex items-center gap-2 p-3 rounded-lg border transition-all",
+                                    ltv > 80 ? "bg-red-500/10 border-red-500/50" : ltv > 60 ? "bg-amber-500/10 border-amber-500/50" : "bg-emerald-500/10 border-emerald-500/50"
+                                )}>
+                                    <div className={`h-2 w-2 rounded-full ${riskBg} animate-pulse`} />
+                                    <span className="text-sm text-slate-300">LTV (Préstamo/Valor): <span className={`${riskColor} font-bold`}>{ltv.toFixed(0)}%</span></span>
+                                    <span className={`ml-auto text-xs font-bold ${riskColor}`}>{riskLabel}</span>
+                                    {ltv > 80 && <AlertTriangle className="h-4 w-4 text-red-500" />}
+                                </div>
+
+                                {/* Tasa Interés */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-slate-400 text-xs flex items-center gap-1">
+                                            Tasa Mensual
+                                            <Sparkles className="h-3 w-3 text-purple-400" />
+                                        </Label>
+                                        <div className="relative">
+                                            <Input
+                                                type="number"
+                                                className="bg-slate-800/50 border-slate-700 text-white pr-8"
+                                                value={wTasa || ''}
+                                                onChange={(e) => form.setValue('tasaInteres', parseFloat(e.target.value) || 0)}
+                                            />
+                                            <Percent className="absolute right-3 top-2.5 h-4 w-4 text-slate-500" />
+                                        </div>
+                                        <p className="text-xs text-slate-500">Auto-ajustada por categoría</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-slate-400 text-xs">Interés (S/)</Label>
+                                        <div className="h-10 flex items-center px-3 rounded-md bg-slate-800/30 border border-slate-700 text-amber-400 font-mono font-bold">
+                                            {interesMensual.toFixed(2)}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Total Final */}
+                                <div className="pt-4 border-t border-slate-700">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-slate-400">Total a Pagar (30 días)</span>
+                                        <span className="text-2xl font-bold text-white">S/ {totalPagar.toFixed(2)}</span>
+                                    </div>
+                                </div>
+
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
+            </div>
+        </Form>
+    )
+}
