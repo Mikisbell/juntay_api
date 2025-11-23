@@ -54,18 +54,21 @@ BEGIN
     END IF;
 
     -- 3. CREAR GARANTÍA (El bien físico)
+    -- 3. CREAR GARANTÍA (El bien físico)
     INSERT INTO public.garantias (
         cliente_id,
         descripcion,
         valor_tasacion,
         estado,
-        categoria_id -- Aquí podrías buscar el ID de categoría basado en texto
+        categoria_id,
+        fotos_urls
     ) VALUES (
         v_cliente_id,
         p_garantia_data->>'descripcion',
         (p_garantia_data->>'valor_tasacion')::DECIMAL,
         'custodia',
-        NULL -- O lógica para buscar categoria
+        NULL, -- O lógica para buscar categoria
+        (SELECT ARRAY(SELECT jsonb_array_elements_text(p_garantia_data->'fotos')))
     ) RETURNING id INTO v_garantia_id;
 
     -- 4. CREAR CONTRATO (El acuerdo legal)

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Search, UserPlus, CheckCircle2, UserX } from 'lucide-react'
+import { Search, UserPlus, CheckCircle2, UserX, Loader2 } from 'lucide-react'
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { buscarClientePorDNI } from '@/lib/actions/clientes-actions'
@@ -16,21 +16,39 @@ import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { debounce } from '@/lib/utils/performance'
 
+import { handleAppError } from '@/lib/utils/error-handler'
+import { CardGridSkeleton } from '@/components/ui/loading-skeleton'
+import { useForm, useWatch } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { identificacionSchema, IdentificacionFormData } from '@/lib/validators/empeno-schemas'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+
 export default function IdentificacionStep() {
     const { cliente, setCliente } = useCotizador()
-    const [tipoDoc, setTipoDoc] = useState<'DNI' | 'RUC' | 'CE'>('DNI')
-    const [dniSearch, setDniSearch] = useState('')
     const [loading, setLoading] = useState(false)
     const [registroModalOpen, setRegistroModalOpen] = useState(false)
-    const [datosEntidad, setDatosEntidad] = useState<any>(null) // Datos desde RENIEC/SUNAT
+    const [datosEntidad, setDatosEntidad] = useState<any>(null)
     const [esClienteExistente, setEsClienteExistente] = useState(false)
 
     const searchParams = useSearchParams()
     const dniParam = searchParams.get('dni')
 
+    const form = useForm<IdentificacionFormData>({
+        resolver: zodResolver(identificacionSchema),
+        defaultValues: {
+            tipoDocumento: 'DNI',
+            numeroDocumento: ''
+        },
+        mode: 'onChange'
+    })
+
+    // Use useWatch for reactive values instead of form.watch
+    const tipoDoc = useWatch({ control: form.control, name: 'tipoDocumento' })
+    const dniSearch = useWatch({ control: form.control, name: 'numeroDocumento' })
+
     useEffect(() => {
         if (dniParam) {
-            setDniSearch(dniParam)
+            form.setValue('numeroDocumento', dniParam)
             handleSearch(dniParam)
         }
     }, [dniParam])
@@ -86,8 +104,7 @@ export default function IdentificacionStep() {
                 }
             }
         } catch (error) {
-            console.error('Error buscando cliente:', error)
-            toast.error('Error al buscar cliente. Intenta nuevamente', { id: loadingToast })
+            handleAppError(error, 'Error al buscar cliente')
             setCliente(null)
             setDatosEntidad(null)
         } finally {
@@ -106,24 +123,22 @@ export default function IdentificacionStep() {
         toast.success('✓ Cliente registrado exitosamente')
     }
 
-    // Debounced search - reduces API calls by 80%
-    // Only triggers search 300ms after user stops typing
+    // Debounced search
     const debouncedSearch = useMemo(
         () => debounce((dni: string) => {
-            if (dni) {
+            if (dni && !form.formState.errors.numeroDocumento) {
                 handleSearch(dni)
             }
         }, 300),
-        [tipoDoc] // Re-create when document type changes
+        [tipoDoc, form.formState.errors.numeroDocumento]
     )
 
     // Handle input change with debounce
-    const handleInputChange = useCallback((value: string) => {
-        setDniSearch(value)
-        if (value.trim()) {
-            debouncedSearch(value)
+    useEffect(() => {
+        if (dniSearch && dniSearch.trim()) {
+            debouncedSearch(dniSearch)
         }
-    }, [debouncedSearch])
+    }, [dniSearch, debouncedSearch])
 
     return (
         <div className="space-y-6">
@@ -133,47 +148,80 @@ export default function IdentificacionStep() {
                     Ingrese el DNI o RUC del cliente para iniciar la operación.
                 </p>
 
-                <div className="flex gap-3">
-                    {/* Selector de Tipo de Documento */}
-                    <div className="w-48">
-                        <Label className="text-left block mb-2">Tipo de Documento</Label>
-                        <Select value={tipoDoc} onValueChange={(v: any) => setTipoDoc(v)}>
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="bg-white">
-                                <SelectItem value="DNI">DNI (Natural)</SelectItem>
-                                <SelectItem value="RUC">RUC (Jurídica)</SelectItem>
-                                <SelectItem value="CE">Carnet Extranjería</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                <Form {...form}>
+                    <form onSubmit={(e) => e.preventDefault()} className="flex gap-3 items-start">
+                        {/* Selector de Tipo de Documento */}
+                        <FormField
+                            control={form.control}
+                            name="tipoDocumento"
+                            render={({ field }) => (
+                                <FormItem className="w-48 text-left">
+                                    <FormLabel>Tipo de Documento</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent className="bg-white">
+                                            <SelectItem value="DNI">DNI (Natural)</SelectItem>
+                                            <SelectItem value="RUC">RUC (Jurídica)</SelectItem>
+                                            <SelectItem value="CE">Carnet Extranjería</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                    {/* Campo de búsqueda */}
-                    <div className="flex-1 flex gap-2 items-end">
-                        <div className="relative flex-1">
-                            <Label className="text-left block mb-2">Número de Documento</Label>
-                            <div className="relative">
-                                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                <Input
-                                    placeholder={tipoDoc === 'DNI' ? '8 dígitos' : tipoDoc === 'RUC' ? '11 dígitos' : 'Número'}
-                                    className="pl-9"
-                                    value={dniSearch}
-                                    onChange={(e) => handleInputChange(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                                    maxLength={tipoDoc === 'DNI' ? 8 : tipoDoc === 'RUC' ? 11 : 20}
-                                />
-                            </div>
-                        </div>
-                        <Button onClick={() => handleSearch()} disabled={loading}>
-                            {loading ? 'Buscando...' : 'Buscar'}
-                        </Button>
-                    </div>
-                </div>
+                        {/* Campo de búsqueda */}
+                        <FormField
+                            control={form.control}
+                            name="numeroDocumento"
+                            render={({ field }) => (
+                                <FormItem className="flex-1 text-left">
+                                    <FormLabel>Número de Documento</FormLabel>
+                                    <div className="flex gap-2">
+                                        <div className="relative flex-1">
+                                            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                            <FormControl>
+                                                <Input
+                                                    placeholder={tipoDoc === 'DNI' ? '8 dígitos' : tipoDoc === 'RUC' ? '11 dígitos' : 'Número'}
+                                                    className="pl-9"
+                                                    {...field}
+                                                    maxLength={tipoDoc === 'DNI' ? 8 : tipoDoc === 'RUC' ? 11 : 20}
+                                                />
+                                            </FormControl>
+                                        </div>
+                                        <Button
+                                            type="button"
+                                            onClick={() => handleSearch()}
+                                            disabled={loading || !!form.formState.errors.numeroDocumento}
+                                        >
+                                            {loading ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                    Buscando...
+                                                </>
+                                            ) : (
+                                                'Buscar'
+                                            )}
+                                        </Button>
+                                    </div>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </form>
+                </Form>
             </div>
 
             {/* Resultado de la Búsqueda */}
-            {cliente && esClienteExistente ? (
+            {loading ? (
+                <div className="max-w-lg mx-auto">
+                    <CardGridSkeleton cards={1} />
+                </div>
+            ) : cliente && esClienteExistente ? (
                 <div className="bg-green-50 border-2 border-green-500 rounded-lg p-6 max-w-lg mx-auto">
                     <div className="flex items-start gap-4">
                         <div className="bg-green-500 p-3 rounded-full">

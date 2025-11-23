@@ -3,7 +3,11 @@
 import { useCotizador } from '@/hooks/useCotizador'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, Save, Trash2, Loader2, AlertCircle } from 'lucide-react'
+import { useAutoSave } from '@/hooks/useAutoSave'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 // Steps
 import IdentificacionStep from './steps/IdentificacionStep'
@@ -13,7 +17,78 @@ import AcuerdoStep from './steps/AcuerdoStep'
 import ResumenStep from './steps/ResumenStep'
 
 export default function CotizadorWizard() {
-    const { step, setStep, cliente } = useCotizador()
+    const {
+        step, setStep, cliente, setCliente,
+        tipoBien, setTipoBien,
+        gramaje, quilataje, setDatosOro,
+        categoria, marca, modelo, estado, valorMercado, setDatosElectro,
+        montoPrestamo, plazo, tasaInteres, setTasaInteres,
+        detallesGarantia, setDetallesGarantia,
+        frecuenciaPago, numeroCuotas, fechaInicio, cronograma, setFrecuenciaPago, setNumeroCuotas, setFechaInicio, setCronograma,
+        restoreState, reset
+    } = useCotizador()
+
+    // Construct draft data object with only persistent fields
+    const draftData = {
+        step,
+        cliente,
+        tipoBien,
+        gramaje, quilataje,
+        categoria, marca, modelo, estado, valorMercado,
+        montoPrestamo, plazo, tasaInteres,
+        detallesGarantia,
+        frecuenciaPago, numeroCuotas, fechaInicio, cronograma
+    }
+
+    const { lastSaved, isSaving, clearDraft, loadDraft } = useAutoSave(
+        'empeno_draft',
+        draftData,
+        true, // Enabled
+        30000 // Save every 30s or on change (debounced)
+    )
+
+    const [draftFound, setDraftFound] = useState(false)
+
+    // Check for draft on mount
+    useEffect(() => {
+        const savedDraft = loadDraft()
+        if (savedDraft && savedDraft.step > 1) {
+            setDraftFound(true)
+            toast.message('Borrador encontrado', {
+                description: '¿Deseas restaurar tu última sesión?',
+                action: {
+                    label: 'Restaurar',
+                    onClick: () => {
+                        restoreState(savedDraft)
+                        toast.success('Sesión restaurada correctamente')
+                        setDraftFound(false)
+                    }
+                },
+                cancel: {
+                    label: 'Descartar',
+                    onClick: () => {
+                        clearDraft()
+                        setDraftFound(false)
+                    }
+                },
+                duration: 10000,
+            })
+        }
+    }, []) // Run once on mount
+
+    const handleManualSave = () => {
+        // Force update by triggering a re-render or just rely on auto-save
+        // Since useAutoSave saves on data change, we can just show a toast
+        toast.success('Borrador guardado correctamente')
+    }
+
+    const handleDiscard = () => {
+        if (confirm('¿Estás seguro de descartar el borrador y reiniciar?')) {
+            clearDraft()
+            reset()
+            toast.success('Borrador descartado')
+        }
+    }
 
     const steps = [
         { number: 1, title: 'Identificación', component: IdentificacionStep },
@@ -61,6 +136,22 @@ export default function CotizadorWizard() {
                     <CardTitle className="text-base sm:text-lg flex items-center gap-2">
                         Paso {step}: {steps[step - 1].title}
                     </CardTitle>
+                    <div className="flex items-center gap-2">
+                        {isSaving && (
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                                Guardando...
+                            </span>
+                        )}
+                        {lastSaved && !isSaving && (
+                            <span className="text-xs text-muted-foreground">
+                                Guardado {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                        )}
+                        <Button variant="ghost" size="sm" onClick={handleDiscard} title="Descartar borrador">
+                            <Trash2 className="w-4 h-4 text-muted-foreground hover:text-red-500" />
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardContent className="p-3 sm:p-4 lg:p-6 min-h-[250px] sm:min-h-[300px] bg-white">
                     <CurrentStepComponent />

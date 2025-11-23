@@ -7,7 +7,12 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Calendar, Calculator, FileText } from 'lucide-react'
+
 import { useEffect, useMemo } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { cronogramaSchema, CronogramaFormData } from '@/lib/validators/empeno-schemas'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import {
     generarCronograma,
     calcularInteresFraccionado,
@@ -40,6 +45,34 @@ export default function CronogramaStep() {
         setFechaInicio,
         setCronograma
     } = useCotizador()
+
+    const form = useForm<CronogramaFormData>({
+        resolver: zodResolver(cronogramaSchema),
+        defaultValues: {
+            frecuenciaPago: frecuenciaPago,
+            numeroCuotas: numeroCuotas,
+            fechaInicio: fechaInicio || new Date(new Date().setDate(new Date().getDate() + 1))
+        },
+        mode: 'onChange'
+    })
+
+    // Watch specific fields for sync (optimized)
+    const watchedFrecuencia = useWatch({ control: form.control, name: 'frecuenciaPago' })
+    const watchedCuotas = useWatch({ control: form.control, name: 'numeroCuotas' })
+    const watchedFecha = useWatch({ control: form.control, name: 'fechaInicio' })
+
+    // Sync to context only when values actually change
+    useEffect(() => {
+        if (watchedFrecuencia) setFrecuenciaPago(watchedFrecuencia)
+    }, [watchedFrecuencia, setFrecuenciaPago])
+
+    useEffect(() => {
+        if (watchedCuotas) setNumeroCuotas(watchedCuotas)
+    }, [watchedCuotas, setNumeroCuotas])
+
+    useEffect(() => {
+        if (watchedFecha) setFechaInicio(watchedFecha)
+    }, [watchedFecha, setFechaInicio])
 
     // Generar cronograma automáticamente cuando cambien los parámetros
     useEffect(() => {
@@ -91,50 +124,76 @@ export default function CronogramaStep() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                        {/* Frecuencia de Pago */}
-                        <div className="space-y-2">
-                            <Label>Frecuencia de Pago *</Label>
-                            <Select
-                                value={frecuenciaPago}
-                                onValueChange={(v) => setFrecuenciaPago(v as FrecuenciaPago)}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent className="bg-white">
-                                    {FRECUENCIAS.map(freq => (
-                                        <SelectItem key={freq.value} value={freq.value}>
-                                            {freq.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        {/* Número de Cuotas */}
-                        <div className="space-y-2">
-                            <Label>Número de Cuotas *</Label>
-                            <Input
-                                type="number"
-                                min="1"
-                                max="52"
-                                value={numeroCuotas}
-                                onChange={(e) => setNumeroCuotas(parseInt(e.target.value) || 4)}
+                    <Form {...form}>
+                        <form className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                            {/* Frecuencia de Pago */}
+                            <FormField
+                                control={form.control}
+                                name="frecuenciaPago"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Frecuencia de Pago *</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent className="bg-white">
+                                                {FRECUENCIAS.map(freq => (
+                                                    <SelectItem key={freq.value} value={freq.value}>
+                                                        {freq.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                        </div>
 
-                        {/* Fecha de Inicio */}
-                        <div className="space-y-2">
-                            <Label>Fecha de Inicio *</Label>
-                            <Input
-                                type="date"
-                                value={fechaInicio ? new Date(fechaInicio).toISOString().split('T')[0] : ''}
-                                onChange={(e) => setFechaInicio(new Date(e.target.value))}
-                                min={new Date().toISOString().split('T')[0]}
+                            {/* Número de Cuotas */}
+                            <FormField
+                                control={form.control}
+                                name="numeroCuotas"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Número de Cuotas *</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                min="1"
+                                                max="52"
+                                                {...field}
+                                                onChange={e => field.onChange(parseInt(e.target.value) || 0)}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                        </div>
-                    </div>
+
+                            {/* Fecha de Inicio */}
+                            <FormField
+                                control={form.control}
+                                name="fechaInicio"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Fecha de Inicio *</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="date"
+                                                value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                                                onChange={(e) => field.onChange(new Date(e.target.value))}
+                                                min={new Date().toISOString().split('T')[0]}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </form>
+                    </Form>
 
                     {/* Información Clave */}
                     <div className="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">

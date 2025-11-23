@@ -14,9 +14,21 @@ import {
     Check,
     Printer,
     Send,
-    CheckCircle2,
-    Loader2
+    Loader2,
+    AlertTriangle,
+    CheckCircle2
 } from 'lucide-react'
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger
+} from '@/components/ui/alert-dialog'
 import {
     formatearMonto,
     formatearFecha,
@@ -27,6 +39,9 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
+import { handleAppError } from '@/lib/utils/error-handler'
+import { registrarEmpeno } from '@/lib/actions/contratos-actions'
+import { useRouter } from 'next/navigation'
 
 export default function ResumenStep() {
     const {
@@ -44,38 +59,63 @@ export default function ResumenStep() {
     const [imprimirAuto, setImprimirAuto] = useState(false)
     const [guardando, setGuardando] = useState(false)
     const [guardadoExitoso, setGuardadoExitoso] = useState(false)
+    const router = useRouter()
 
     const totalIntereses = cronograma.length > 0 ? calcularTotalIntereses(cronograma) : 0
     const totalAPagar = cronograma.length > 0 ? calcularTotalAPagar(cronograma) : 0
 
     const handleConfirmar = async () => {
+        if (!cliente || !fechaInicio) {
+            toast.error('Faltan datos requeridos para confirmar')
+            return
+        }
+
         setGuardando(true)
         const loadingToast = toast.loading('Guardando empeño...')
 
         try {
-            // TODO: Implementar server action para guardar
-            // - Crear registro en tabla creditos
-            // - Crear registro en tabla garantias
-            // - Subir fotos a Supabase Storage
-            // - Crear cuotas en tabla cuotas
-            // - Generar PDFs
-            // - Si enviarWhatsapp, enviar documentos
+            // Construir objeto completo para el server action
+            const datosEmpeno = {
+                cliente: {
+                    id: cliente.id,
+                    dni: cliente.dni,
+                    nombres: cliente.nombres,
+                    apellidos: cliente.apellidos
+                },
+                detallesGarantia: {
+                    ...detallesGarantia,
+                    // Asegurar que el estado sea uno de los valores permitidos por el schema
+                    estado_bien: detallesGarantia.estado_bien as any,
+                    montoPrestamo,
+                    tasaInteres
+                },
+                condicionesPago: {
+                    frecuenciaPago,
+                    numeroCuotas,
+                    fechaInicio
+                },
+                opciones: {
+                    enviarWhatsapp,
+                    imprimirAuto
+                }
+            }
 
-            await new Promise(resolve => setTimeout(resolve, 2000)) // Simulación
+            const contratoId = await registrarEmpeno(datosEmpeno)
 
             toast.success('¡Empeño registrado exitosamente!', {
                 id: loadingToast,
-                description: 'El contrato ha sido guardado y los documentos generados',
+                description: `Contrato #${contratoId} creado correctamente`,
                 duration: 5000
             })
             setGuardadoExitoso(true)
+
+            // Limpiar estado local de borrador si existe
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('empeno_draft')
+            }
+
         } catch (error) {
-            console.error('Error guardando:', error)
-            toast.error('Error al guardar el empeño', {
-                id: loadingToast,
-                description: 'Por favor intenta nuevamente o contacta soporte',
-                duration: 5000
-            })
+            handleAppError(error, 'Error al guardar el empeño')
         } finally {
             setGuardando(false)
         }
@@ -343,24 +383,76 @@ export default function ResumenStep() {
                         <Separator />
 
                         {/* Botón Confirmar */}
-                        <Button
-                            size="lg"
-                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-lg py-6"
-                            onClick={handleConfirmar}
-                            disabled={guardando}
-                        >
-                            {guardando ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                    Guardando Empeño...
-                                </>
-                            ) : (
-                                <>
-                                    <Check className="w-5 h-5 mr-2" />
-                                    Confirmar y Registrar Empeño
-                                </>
-                            )}
-                        </Button>
+                        {/* Botón Confirmar con Modal */}
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button
+                                    size="lg"
+                                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-lg py-6"
+                                    disabled={guardando}
+                                >
+                                    {guardando ? (
+                                        <>
+                                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                            Guardando Empeño...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Check className="w-5 h-5 mr-2" />
+                                            Confirmar y Registrar Empeño
+                                        </>
+                                    )}
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="max-w-md">
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle className="flex items-center gap-2 text-emerald-700">
+                                        <Check className="w-5 h-5" />
+                                        Confirmar Nuevo Empeño
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription asChild>
+                                        <div className="space-y-4 pt-2">
+                                            <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                                                <p className="font-semibold text-amber-900 flex items-center gap-2 mb-2">
+                                                    <AlertTriangle className="w-4 h-4" />
+                                                    Resumen de la Operación
+                                                </p>
+                                                <ul className="space-y-2 text-sm text-amber-800">
+                                                    <li className="flex justify-between">
+                                                        <span>Cliente:</span>
+                                                        <span className="font-medium">{cliente?.nombres} {cliente?.apellidos}</span>
+                                                    </li>
+                                                    <li className="flex justify-between">
+                                                        <span>Préstamo:</span>
+                                                        <span className="font-bold text-lg">{formatearMonto(montoPrestamo)}</span>
+                                                    </li>
+                                                    <li className="flex justify-between">
+                                                        <span>Interés:</span>
+                                                        <span className="font-medium">{tasaInteres}% ({formatearFrecuencia(frecuenciaPago)})</span>
+                                                    </li>
+                                                    <li className="flex justify-between">
+                                                        <span>Cuotas:</span>
+                                                        <span className="font-medium">{numeroCuotas} cuotas</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <p className="text-sm text-slate-600">
+                                                Al confirmar, se generarán los contratos legales y se registrará la salida de efectivo en caja. Esta acción no se puede deshacer.
+                                            </p>
+                                        </div>
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Revisar</AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={handleConfirmar}
+                                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                                    >
+                                        Confirmar Operación
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
 
                         <p className="text-xs text-center text-slate-600">
                             Al confirmar, se generarán los documentos del contrato y se guardará el empeño en el sistema

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
     title: "JUNTAY - Sistema de Casa de Empeño",
@@ -15,8 +16,10 @@ export default function RootLayout({
     return (
         <html lang="es">
             <body className="antialiased">
-                {children}
-                <Toaster />
+                <Providers>
+                    {children}
+                    <Toaster />
+                </Providers>
             </body>
         </html>
     );

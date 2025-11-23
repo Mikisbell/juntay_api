@@ -46,6 +46,27 @@ export interface PerfilCliente {
 }
 
 /**
+ * Obtener lista de clientes con búsqueda opcional
+ */
+export async function obtenerClientes(busqueda?: string) {
+    const supabase = getServiceClient()
+    let query = supabase.from('clientes').select('*').order('created_at', { ascending: false }).limit(50)
+
+    if (busqueda) {
+        query = query.or(`nombres.ilike.%${busqueda}%,apellido_paterno.ilike.%${busqueda}%,numero_documento.ilike.%${busqueda}%`)
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+        console.error('Error obteniendo clientes:', error)
+        return []
+    }
+
+    return data
+}
+
+/**
  * Búsqueda inteligente de cliente:
  * 1. Busca en BD local
  * 2. Si no existe, consulta API de ConsultasPeru

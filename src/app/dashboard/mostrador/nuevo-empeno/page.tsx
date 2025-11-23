@@ -2,27 +2,28 @@
 
 import dynamic from 'next/dynamic'
 import { WizardSkeleton } from '@/components/ui/loading-skeleton'
+import { PageHeader } from '@/components/layout/PageHeader'
+import { PageContainer } from '@/components/layout/PageContainer'
+import { FileText } from 'lucide-react'
+import { PAGE_TITLES, PAGE_DESCRIPTIONS } from '@/lib/constants/messages'
 
-// Lazy load the wizard - reduces initial bundle by ~60%
 const CotizadorWizard = dynamic(
-    () => import('@/components/cotizador/CotizadorWizard'),
+    () => import('@/components/cotizador/CotizadorWizard').then(mod => ({ default: mod.default })),
     {
         loading: () => <WizardSkeleton />,
-        ssr: false // Wizard is fully client-side interactive
+        ssr: false
     }
 )
 
 export default function NuevoEmpenoPage() {
     return (
-        <div className="container mx-auto py-6">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-slate-900">Nuevo Empeño</h1>
-                <p className="text-slate-600">
-                    Complete los pasos para registrar una nueva operación.
-                </p>
-            </div>
-
+        <PageContainer>
+            <PageHeader
+                title={PAGE_TITLES.nuevoEmpeno}
+                description={PAGE_DESCRIPTIONS.nuevoEmpeno}
+                icon={FileText}
+            />
             <CotizadorWizard />
-        </div>
+        </PageContainer>
     )
 }

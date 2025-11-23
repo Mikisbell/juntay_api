@@ -1,35 +1,57 @@
 import { obtenerContratosVigentes } from '@/lib/actions/contratos-list-actions'
-import { TablaContratos } from '@/components/business/TablaContratos'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { FileText, Clock } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Suspense } from 'react'
+import { TableSkeleton } from '@/components/ui/skeletons'
+import dynamic from 'next/dynamic'
+import { FileText, Search, Filter } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+
+const TablaContratos = dynamic(() => import('@/components/business/TablaContratos').then(mod => ({ default: mod.TablaContratos })), {
+    loading: () => <TableSkeleton />,
+    ssr: true
+})
 
 export default async function ContratosPage() {
     const contratos = await obtenerContratosVigentes()
 
     return (
-        <div className="container mx-auto py-8 max-w-[1600px]">
-            <div className="mb-8">
-                <div className="flex items-center gap-2 mb-2">
-                    <FileText className="h-8 w-8 text-blue-600" />
-                    <h1 className="text-3xl font-bold text-slate-900">Gestión de Contratos</h1>
+        <div className="space-y-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h2 className="text-3xl font-bold tracking-tight">Contratos</h2>
+                    <p className="text-muted-foreground">Gestione los contratos de empeño vigentes y su estado.</p>
                 </div>
-                <p className="text-slate-500">Renovaciones y desempeños rápidos</p>
+                <div className="flex items-center gap-2">
+                    <Button variant="outline">
+                        <Filter className="mr-2 h-4 w-4" />
+                        Filtrar
+                    </Button>
+                    <Button>
+                        Exportar
+                    </Button>
+                </div>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                        <span className="flex items-center gap-2">
-                            <Clock className="h-5 w-5" />
-                            Contratos Vigentes y Próximos a Vencer
-                        </span>
-                        <span className="text-sm font-normal text-slate-500">
-                            {contratos.length} contratos activos
-                        </span>
-                    </CardTitle>
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <CardTitle>Listado de Contratos</CardTitle>
+                            <CardDescription>
+                                {contratos.length} contratos activos encontrados en el sistema.
+                            </CardDescription>
+                        </div>
+                        <div className="relative w-full md:w-72">
+                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input placeholder="Buscar por cliente o código..." className="pl-8" />
+                        </div>
+                    </div>
                 </CardHeader>
                 <CardContent>
-                    <TablaContratos contratos={contratos} />
+                    <Suspense fallback={<TableSkeleton />}>
+                        <TablaContratos contratos={contratos} />
+                    </Suspense>
                 </CardContent>
             </Card>
         </div>

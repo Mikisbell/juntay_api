@@ -84,6 +84,7 @@ interface CotizadorState {
     setFechaInicio: (fecha: Date) => void
     setCronograma: (cronograma: Cuota[]) => void
 
+    restoreState: (state: Partial<CotizadorState>) => void
     reset: () => void
 }
 
@@ -187,6 +188,8 @@ export const useCotizador = create<CotizadorState>((set, get) => ({
 
     setMontoPrestamo: (monto) => set({ montoPrestamo: monto }),
     setPlazo: (plazo) => set({ plazo }),
+
+    restoreState: (state) => set((current) => ({ ...current, ...state })),
 
     reset: () => set({
         step: 1,

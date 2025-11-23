@@ -25,7 +25,7 @@ export default function ContratoExitoPage({ params }: { params: Promise<{ id: st
     const ticketRef = useRef<HTMLDivElement>(null)
 
     const handlePrint = useReactToPrint({
-        content: () => ticketRef.current,
+        contentRef: ticketRef,
         documentTitle: `Ticket-${mockData.id}`,
     })
 

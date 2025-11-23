@@ -8,8 +8,8 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Loader2, UserPlus, CheckCircle2, AlertTriangle, Clock } from 'lucide-react'
-import { buscarClientePorDNI, crearClienteDesdeRENIEC, type PerfilCliente } from '@/lib/actions/clientes-actions'
-import type { DatosRENIEC } from '@/lib/apis/consultasperu'
+import { buscarClientePorDNI, crearClienteDesdeEntidad, type PerfilCliente } from '@/lib/actions/clientes-actions'
+import type { DatosEntidad } from '@/lib/apis/consultasperu'
 
 interface Props {
     onClienteSeleccionado: (cliente: PerfilCliente) => void
@@ -20,7 +20,7 @@ export function BusquedaClienteRapida({ onClienteSeleccionado, autoFocus = true 
     const [dni, setDni] = useState('')
     const [loading, setLoading] = useState(false)
     const [perfil, setPerfil] = useState<PerfilCliente | null>(null)
-    const [datosRENIEC, setDatosRENIEC] = useState<DatosRENIEC | null>(null)
+    const [datosRENIEC, setDatosRENIEC] = useState<DatosEntidad | null>(null)
     const [error, setError] = useState<string | null>(null)
     const inputRef = useRef<HTMLInputElement>(null)
     const lastInputTime = useRef<number>(0)
@@ -99,11 +99,11 @@ export function BusquedaClienteRapida({ onClienteSeleccionado, autoFocus = true 
 
         setLoading(true)
         try {
-            const resultado = await crearClienteDesdeRENIEC(datosRENIEC)
+            const resultado = await crearClienteDesdeEntidad(datosRENIEC)
 
             if (resultado.success && resultado.cliente) {
                 // Buscar cliente recién creado con historial completo
-                const perfilCompleto = await buscarClientePorDNI(datosRENIEC.dni)
+                const perfilCompleto = await buscarClientePorDNI(datosRENIEC.numero_documento)
                 if (perfilCompleto.perfil) {
                     setPerfil(perfilCompleto.perfil)
                     setDatosRENIEC(null)
@@ -186,7 +186,7 @@ export function BusquedaClienteRapida({ onClienteSeleccionado, autoFocus = true 
                                 )}
                             </div>
                             {getEstadoBadge(perfil.estado_crediticio)}
-                            {perfil.verificado_reniec && (
+                            {perfil.verificado_entidad && (
                                 <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                             )}
                         </div>
@@ -239,7 +239,7 @@ export function BusquedaClienteRapida({ onClienteSeleccionado, autoFocus = true 
                             </Avatar>
                             <div className="flex-1">
                                 <h3 className="font-bold text-xl text-slate-900">{datosRENIEC.nombre_completo}</h3>
-                                <p className="text-sm text-slate-600">DNI: {datosRENIEC.dni}</p>
+                                <p className="text-sm text-slate-600">DNI: {datosRENIEC.numero_documento}</p>
                                 <p className="text-xs text-slate-500">{datosRENIEC.distrito}, {datosRENIEC.provincia}</p>
                             </div>
                             <Badge className="bg-blue-100 text-blue-800">

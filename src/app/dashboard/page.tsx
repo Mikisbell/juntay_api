@@ -1,27 +1,35 @@
 'use client'
 
 import { useEffect } from 'react'
-import { DashboardStats } from '@/components/dashboard/DashboardStats'
 import { Button } from '@/components/ui/button'
 import {
     PlusCircle,
-    Search,
     DollarSign,
-    AlertTriangle,
     Package,
-    RotateCcw
+    ArrowRight,
+    AlertTriangle,
+    Bell,
+    Search
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Badge } from '@/components/ui/badge'
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
 import {
     Table,
     TableBody,
     TableCell,
-    TableHead,
-    TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import { Badge } from '@/components/ui/badge'
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { StatsGrid } from '@/components/dashboard/StatsGrid'
+import { DashboardCharts } from '@/components/dashboard/Charts'
+import { KEYBOARD_SHORTCUTS } from '@/lib/constants/messages'
 
 export default function DashboardPage() {
     const router = useRouter()
@@ -29,15 +37,15 @@ export default function DashboardPage() {
     // Keyboard Shortcuts
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'F1') {
+            if (e.key === KEYBOARD_SHORTCUTS.nuevoEmpeno) {
                 e.preventDefault()
                 router.push('/dashboard/mostrador/nuevo-empeno')
             }
-            if (e.key === 'F2') {
+            if (e.key === KEYBOARD_SHORTCUTS.buscar) {
                 e.preventDefault()
                 router.push('/dashboard/buscar')
             }
-            if (e.key === 'F3') {
+            if (e.key === KEYBOARD_SHORTCUTS.caja) {
                 e.preventDefault()
                 router.push('/dashboard/caja')
             }
@@ -47,117 +55,144 @@ export default function DashboardPage() {
     }, [router])
 
     return (
-        <div className="p-6 space-y-8 max-w-[1600px] mx-auto">
-            {/* ENCABEZADO */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h2 className="text-3xl font-bold tracking-tight text-slate-900">Panel de Control</h2>
-                    <p className="text-slate-500">Bienvenido de nuevo, Admin.</p>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Link href="/dashboard/mostrador/nuevo-empeno">
-                        <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Nuevo Empeño (F1)
+        <div className="min-h-screen w-full bg-slate-50/50 dark:bg-slate-950/50 bg-grid-slate-100 dark:bg-grid-slate-900">
+            <div className="flex-1 space-y-8 p-8 pt-6">
+
+                {/* Header Section with Fade In */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 animate-in-fade-slide">
+                    <div>
+                        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Visión General</h2>
+                        <p className="text-muted-foreground">Resumen de posición financiera y operativa.</p>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                        <Button variant="outline" size="icon" className="rounded-full shadow-sm hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <Search className="h-4 w-4" />
                         </Button>
-                    </Link>
-                </div>
-            </div>
-
-            {/* KPIs DEL NEGOCIO */}
-            <DashboardStats />
-
-            {/* ZONA DE ACCIÓN (Accesos Directos Visuales) */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-
-                {/* Tarjeta de Acción 1 */}
-                <Link href="/dashboard/mostrador/nuevo-empeno" className="group">
-                    <div className="flex h-full flex-col justify-between rounded-xl border bg-white p-6 shadow-sm transition-all hover:border-blue-200 hover:shadow-md">
-                        <div className="space-y-2">
-                            <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                                <PlusCircle className="h-6 w-6" />
-                            </div>
-                            <h3 className="font-semibold text-slate-900">Nueva Operación</h3>
-                            <p className="text-sm text-slate-500">Registrar un nuevo contrato de empeño (Oro o Electro).</p>
-                        </div>
+                        <Button variant="outline" size="icon" className="rounded-full shadow-sm hover:bg-slate-100 dark:hover:bg-slate-800 relative">
+                            <Bell className="h-4 w-4" />
+                            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-950" />
+                        </Button>
+                        <Link href="/dashboard/mostrador/nuevo-empeno">
+                            <Button className="rounded-full shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all px-6">
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Nuevo Crédito
+                            </Button>
+                        </Link>
                     </div>
-                </Link>
-
-                {/* Tarjeta de Acción 2 */}
-                <Link href="/dashboard/caja" className="group">
-                    <div className="flex h-full flex-col justify-between rounded-xl border bg-white p-6 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md">
-                        <div className="space-y-2">
-                            <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                                <DollarSign className="h-6 w-6" />
-                            </div>
-                            <h3 className="font-semibold text-slate-900">Gestión de Caja</h3>
-                            <p className="text-sm text-slate-500">Apertura, cierre y arqueo de caja operativa.</p>
-                        </div>
-                    </div>
-                </Link>
-
-                {/* Tarjeta de Acción 3 */}
-                <Link href="/dashboard/inventario" className="group">
-                    <div className="flex h-full flex-col justify-between rounded-xl border bg-white p-6 shadow-sm transition-all hover:border-purple-200 hover:shadow-md">
-                        <div className="space-y-2">
-                            <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                                <Package className="h-6 w-6" />
-                            </div>
-                            <h3 className="font-semibold text-slate-900">Consultar Inventario</h3>
-                            <p className="text-sm text-slate-500">Buscar prendas en custodia o disponibles para remate.</p>
-                        </div>
-                    </div>
-                </Link>
-
-            </div>
-
-            {/* Danger Zone */}
-            <div className="space-y-4">
-                <div className="flex items-center gap-2 text-rose-600">
-                    <AlertTriangle className="w-6 h-6" />
-                    <h2 className="text-xl font-bold">Atención Requerida Hoy</h2>
                 </div>
 
-                <div className="rounded-md border bg-white">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Contrato</TableHead>
-                                <TableHead>Cliente</TableHead>
-                                <TableHead>Vencimiento</TableHead>
-                                <TableHead>Monto</TableHead>
-                                <TableHead>Estado</TableHead>
-                                <TableHead className="text-right">Acción</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {/* Mock Data - Replace with real data later */}
-                            <TableRow className="bg-rose-50 hover:bg-rose-100">
-                                <TableCell className="font-medium">CON-2024-001</TableCell>
-                                <TableCell>JUAN PEREZ</TableCell>
-                                <TableCell className="text-rose-700 font-bold">HOY</TableCell>
-                                <TableCell>S/ 1,050.00</TableCell>
-                                <TableCell><Badge variant="destructive">VENCE HOY</Badge></TableCell>
-                                <TableCell className="text-right">
-                                    <Button size="sm" variant="outline" className="border-rose-200 text-rose-700 hover:bg-rose-200">
-                                        Llamar
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                            <TableRow className="bg-amber-50 hover:bg-amber-100">
-                                <TableCell className="font-medium">CON-2024-002</TableCell>
-                                <TableCell>ANA MARTINEZ</TableCell>
-                                <TableCell>Mañana</TableCell>
-                                <TableCell>S/ 1,200.00</TableCell>
-                                <TableCell><Badge variant="secondary" className="bg-amber-100 text-amber-800">PRÓXIMO</Badge></TableCell>
-                                <TableCell className="text-right">
-                                    <Button size="sm" variant="outline" className="border-amber-200 text-amber-700 hover:bg-amber-200">
-                                        Ver
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
+                {/* Critical Alerts Section */}
+                <div className="animate-in-fade-slide delay-100">
+                    <Alert variant="destructive" className="border-red-200 bg-red-50/80 dark:bg-red-900/20 text-red-900 dark:text-red-200 [&>svg]:text-red-600 shadow-sm backdrop-blur-sm">
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertTitle className="font-semibold">Atención Requerida</AlertTitle>
+                        <AlertDescription className="text-red-800 dark:text-red-300">
+                            Hay <strong>3 contratos</strong> que vencen hoy y requieren gestión inmediata.
+                        </AlertDescription>
+                    </Alert>
+                </div>
+
+                {/* Financial Position */}
+                <StatsGrid />
+
+                {/* Main Content Grid */}
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 animate-in-fade-slide delay-200">
+                    {/* Charts Section */}
+                    <div className="col-span-4 space-y-6">
+                        <DashboardCharts />
+                    </div>
+
+                    {/* Right Column: Quick Actions & Notifications */}
+                    <div className="col-span-3 space-y-6">
+                        {/* Quick Access */}
+                        <Card className="glass-panel border-0 shadow-lg">
+                            <CardHeader>
+                                <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+                                    Accesos Directos
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="grid gap-4">
+                                <Link href="/dashboard/caja">
+                                    <div className="group flex items-center justify-between rounded-xl border border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 p-4 hover:bg-white hover:shadow-md transition-all cursor-pointer">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 group-hover:scale-110 transition-transform">
+                                                <DollarSign className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-slate-900 dark:text-white">Terminal de Caja</p>
+                                                <p className="text-xs text-muted-foreground">Apertura, cierre y movimientos</p>
+                                            </div>
+                                        </div>
+                                        <ArrowRight className="h-5 w-5 text-slate-300 group-hover:text-primary transition-colors" />
+                                    </div>
+                                </Link>
+
+                                <Link href="/dashboard/inventario">
+                                    <div className="group flex items-center justify-between rounded-xl border border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 p-4 hover:bg-white hover:shadow-md transition-all cursor-pointer">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30 group-hover:scale-110 transition-transform">
+                                                <Package className="h-5 w-5 text-blue-700 dark:text-blue-400" />
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-slate-900 dark:text-white">Bóveda de Garantías</p>
+                                                <p className="text-xs text-muted-foreground">Consultar inventario físico</p>
+                                            </div>
+                                        </div>
+                                        <ArrowRight className="h-5 w-5 text-slate-300 group-hover:text-primary transition-colors" />
+                                    </div>
+                                </Link>
+                            </CardContent>
+                        </Card>
+
+                        {/* Recent Alerts Table */}
+                        <Card className="glass-panel border-0 shadow-lg">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+                                    Alertas de Cartera
+                                </CardTitle>
+                                <Bell className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                <Table>
+                                    <TableBody>
+                                        <TableRow className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                                            <TableCell className="font-medium py-3 pl-6">
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-medium text-slate-900 dark:text-white">Juan Pérez</span>
+                                                    <span className="text-xs text-muted-foreground">CON-001</span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-right py-3 pr-6">
+                                                <Badge variant="destructive" className="font-normal shadow-sm">Vence Hoy</Badge>
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                                            <TableCell className="font-medium py-3 pl-6">
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-medium text-slate-900 dark:text-white">Maria Garcia</span>
+                                                    <span className="text-xs text-muted-foreground">CON-002</span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-right py-3 pr-6">
+                                                <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800 font-normal">Mañana</Badge>
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 border-0">
+                                            <TableCell className="font-medium py-3 pl-6">
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-medium text-slate-900 dark:text-white">Carlos Ruiz</span>
+                                                    <span className="text-xs text-muted-foreground">CON-003</span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-right py-3 pr-6">
+                                                <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800 font-normal">2 días</Badge>
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
             </div>
         </div>

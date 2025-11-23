@@ -1,64 +1,106 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { ContratoSchema, NuevaOperacion } from '@/lib/validators/contrato-schema'
+import { EmpenoCompletoData } from '@/lib/validators/empeno-schemas'
 import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
 
-export async function crearContratoAction(data: z.infer<typeof ContratoSchema>) {
+export async function obtenerCajaAbierta(usuarioId: string) {
     const supabase = await createClient()
 
-    // 1. Validación Zod (Seguridad de Tipos)
-    const parsed = ContratoSchema.safeParse(data)
-    if (!parsed.success) {
-        return { error: "Datos inválidos: " + parsed.error.message }
+    const { data, error } = await supabase
+        .from('cajas_operativas')
+        .select('id, numero_caja')
+        .eq('usuario_id', usuarioId)
+        .eq('estado', 'abierta')
+        .single()
+
+    if (error) {
+        // Si no encuentra caja (PGRST116 es el código de 'no rows returned' en Postgrest)
+        if (error.code !== 'PGRST116') {
+            console.error('Error obteniendo caja abierta:', error)
+        }
+        return null
     }
-    const { cajaId, cliente, garantia, credito } = parsed.data
 
-    try {
-        // 2. Verificar Reglas de Negocio (System Settings)
-        // Leemos la configuración global antes de proceder
-        const { data: settings } = await supabase
-            .from('system_settings')
-            .select('*')
-            .single()
+    return data
+}
 
-        // NOTA: Si system_settings está vacío en dev, esto fallará.
-        // Para robustez en dev, permitimos continuar si no hay settings, o lanzamos error según política.
-        // El usuario pidió: "if (!settings) throw new Error..."
-        // Pero como es dev inicial, podría bloquearse. 
-        // Sin embargo, seguiré la instrucción estricta del usuario.
+export async function registrarEmpeno(data: EmpenoCompletoData) {
+    const supabase = await createClient()
 
-        // if (!settings) throw new Error("Error crítico: Configuración no cargada")
-
-        // 3. Ejecutar la Transacción Atómica (RPC)
-        const { data: contratoId, error: rpcError } = await supabase.rpc('crear_contrato_oficial', {
-            p_caja_id: cajaId,
-            p_cliente_doc_tipo: cliente.tipoDoc,
-            p_cliente_doc_num: cliente.numeroDoc,
-            p_cliente_nombre: cliente.nombreCompleto,
-            p_garantia_data: {
-                descripcion: garantia.descripcion,
-                valor_tasacion: garantia.valorTasacion,
-                metadata: garantia.detalles
-            },
-            p_contrato_data: {
-                monto: credito.montoPrestamo,
-                interes: credito.tasaInteres,
-                dias: credito.diasPlazo,
-                fecha_venc: credito.fechaVencimiento.split('T')[0] // Solo fecha YYYY-MM-DD
-            }
-        })
-
-        if (rpcError) throw new Error(rpcError.message)
-
-        // 4. Revalidar Caché (Para que la tabla de dashboard se actualice)
-        revalidatePath('/dashboard')
-
-        return { success: true, contratoId }
-
-    } catch (err: any) {
-        console.error("Error al crear contrato:", err)
-        return { error: err.message || "Error desconocido en el servidor" }
+    // 1. Validar sesión
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+        throw new Error('No autorizado. Por favor inicia sesión nuevamente.')
     }
+
+    // 2. Obtener caja abierta
+    const caja = await obtenerCajaAbierta(user.id)
+    if (!caja) {
+        throw new Error('No tienes una caja abierta. Debes abrir caja antes de registrar operaciones.')
+    }
+
+    // 3. Preparar datos para RPC
+
+    // Inferir tipo de documento si no está explícito
+    const docLength = data.cliente.dni.length
+    const tipoDoc = docLength === 8 ? 'DNI' : docLength === 11 ? 'RUC' : 'CE'
+
+    const garantiaData = {
+        descripcion: data.detallesGarantia.descripcion || '',
+        categoria: data.detallesGarantia.categoria,
+        valor_tasacion: data.detallesGarantia.valorMercado,
+        estado: data.detallesGarantia.estado_bien,
+        marca: data.detallesGarantia.marca,
+        modelo: data.detallesGarantia.modelo,
+        serie: data.detallesGarantia.serie,
+        fotos: data.detallesGarantia.fotos || []
+    }
+
+    // Calcular fecha de vencimiento
+    const dias = calculateTotalDays(data.condicionesPago.numeroCuotas, data.condicionesPago.frecuenciaPago)
+    const fechaInicio = new Date(data.condicionesPago.fechaInicio)
+    const fechaVenc = new Date(fechaInicio)
+    fechaVenc.setDate(fechaVenc.getDate() + dias)
+
+    const contratoData = {
+        monto: data.detallesGarantia.montoPrestamo,
+        interes: data.detallesGarantia.tasaInteres,
+        dias: dias,
+        fecha_venc: fechaVenc.toISOString().split('T')[0] // YYYY-MM-DD
+    }
+
+    // 4. Llamar al RPC
+    const { data: contratoId, error } = await supabase.rpc('crear_contrato_oficial', {
+        p_caja_id: caja.id,
+        p_cliente_doc_tipo: tipoDoc,
+        p_cliente_doc_num: data.cliente.dni,
+        p_cliente_nombre: `${data.cliente.nombres} ${data.cliente.apellidos}`.trim(),
+        p_garantia_data: garantiaData,
+        p_contrato_data: contratoData
+    })
+
+    if (error) {
+        console.error('Error RPC crear_contrato_oficial:', error)
+        throw new Error(`Error al registrar contrato: ${error.message}`)
+    }
+
+    revalidatePath('/dashboard')
+    return contratoId
+}
+
+// Helpers
+function getDiasPorFrecuencia(frecuencia: string): number {
+    switch (frecuencia) {
+        case 'DIARIO': return 1;
+        case 'SEMANAL': return 7;
+        case 'QUINCENAL': return 15;
+        case 'TRES_SEMANAS': return 21;
+        case 'MENSUAL': return 30;
+        default: return 30;
+    }
+}
+
+function calculateTotalDays(cuotas: number, frecuencia: string): number {
+    return cuotas * getDiasPorFrecuencia(frecuencia);
 }

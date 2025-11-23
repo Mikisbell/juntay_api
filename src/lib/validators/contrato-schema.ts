@@ -17,7 +17,7 @@ export const ContratoSchema = z.object({
         descripcion: z.string().min(5),
         categoria: z.enum(["ORO", "ELECTRO"]),
         valorTasacion: z.number().positive(),
-        detalles: z.record(z.any()), // JSON con kilates, gramaje, etc.
+        detalles: z.record(z.string(), z.any()), // JSON con kilates, gramaje, etc.
     }),
 
     // Condiciones Financieras

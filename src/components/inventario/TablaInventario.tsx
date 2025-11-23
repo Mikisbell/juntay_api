@@ -13,8 +13,6 @@ import { Button } from "@/components/ui/button"
 import { InventarioItem, cambiarEstadoGarantia } from "@/lib/actions/inventario-actions"
 import { useState } from "react"
 import { Loader2, Gavel, Archive } from "lucide-react"
-import { useToast } from "@/hooks/use-toast" // We might need to create this hook if it doesn't exist, or use simple alert for now.
-// Assuming standard shadcn toast or simple alert. I'll use simple alert for now to avoid dependency hell if hook is missing.
 
 export function TablaInventario({ items }: { items: InventarioItem[] }) {
     const [loadingId, setLoadingId] = useState<string | null>(null)

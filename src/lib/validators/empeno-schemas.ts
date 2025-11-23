@@ -4,9 +4,7 @@ import { z } from 'zod'
  * Schema de validación para el paso de identificación del cliente
  */
 export const identificacionSchema = z.object({
-    tipoDocumento: z.enum(['DNI', 'RUC', 'CE'], {
-        required_error: "Selecciona un tipo de documento",
-    }),
+    tipoDocumento: z.enum(['DNI', 'RUC', 'CE']),
     numeroDocumento: z.string()
         .min(1, "El número de documento es obligatorio")
         .refine((val) => {
@@ -24,27 +22,17 @@ export const tasacionSchema = z.object({
     marca: z.string().min(1, "La marca es obligatoria"),
     modelo: z.string().min(1, "El modelo es obligatorio"),
     serie: z.string().optional(),
-    estado: z.enum(['Nuevo', 'Excelente', 'Bueno', 'Regular', 'Malo'], {
-        required_error: "Selecciona el estado del bien",
-    }),
+    estado_bien: z.enum(['NUEVO', 'EXCELENTE', 'BUENO', 'REGULAR', 'MALO']),
     descripcion: z.string().optional(),
-    valorMercado: z.number({
-        required_error: "El valor de mercado es obligatorio",
-        invalid_type_error: "Debe ser un número válido",
-    })
+    valorMercado: z.number()
         .positive("El valor debe ser mayor a 0")
         .max(1000000, "Valor excesivo, verifica el monto"),
-    montoPrestamo: z.number({
-        required_error: "El monto a prestar es obligatorio",
-        invalid_type_error: "Debe ser un número válido",
-    })
+    montoPrestamo: z.number()
         .positive("El monto debe ser mayor a 0"),
-    tasaInteres: z.number({
-        required_error: "La tasa de interés es obligatoria",
-        invalid_type_error: "Debe ser un número válido",
-    })
+    tasaInteres: z.number()
         .min(0, "La tasa no puede ser negativa")
         .max(100, "La tasa no puede exceder 100%"),
+    fotos: z.array(z.string()).optional(),
 }).refine(
     (data) => data.montoPrestamo <= data.valorMercado,
     {
@@ -57,20 +45,12 @@ export const tasacionSchema = z.object({
  * Schema de validación para el paso de cronograma de pagos
  */
 export const cronogramaSchema = z.object({
-    frecuenciaPago: z.enum(['diario', 'semanal', 'quincenal', 'tres_semanas', 'mensual'], {
-        required_error: "Selecciona la frecuencia de pago",
-    }),
-    numeroCuotas: z.number({
-        required_error: "El número de cuotas es obligatorio",
-        invalid_type_error: "Debe ser un número válido",
-    })
+    frecuenciaPago: z.enum(['DIARIO', 'SEMANAL', 'QUINCENAL', 'TRES_SEMANAS', 'MENSUAL']),
+    numeroCuotas: z.number()
         .int("Debe ser un número entero")
         .positive("Debe tener al menos 1 cuota")
         .max(120, "Máximo 120 cuotas permitidas"),
-    fechaInicio: z.date({
-        required_error: "La fecha de inicio es obligatoria",
-        invalid_type_error: "Debe ser una fecha válida",
-    })
+    fechaInicio: z.date()
         .refine((date) => date >= new Date(new Date().setHours(0, 0, 0, 0)), {
             message: "La fecha no puede ser del pasado",
         }),
