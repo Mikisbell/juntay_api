@@ -111,12 +111,21 @@ export function formatearFrecuencia(frecuencia: FrecuenciaPago): string {
 /**
  * Formatea una fecha para mostrar en cronograma
  */
-export function formatearFecha(fecha: Date): string {
+export function formatearFecha(fecha: Date | string): string {
+    // Convertir a Date si es string
+    const fechaObj = typeof fecha === 'string' ? new Date(fecha) : fecha
+
+    // Validar que sea una fecha válida
+    if (isNaN(fechaObj.getTime())) {
+        console.error('Fecha inválida:', fecha)
+        return 'Fecha inválida'
+    }
+
     return new Intl.DateTimeFormat('es-PE', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'
-    }).format(fecha)
+    }).format(fechaObj)
 }
 
 /**

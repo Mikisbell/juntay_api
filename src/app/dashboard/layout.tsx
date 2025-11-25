@@ -19,12 +19,16 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { PrintProvider } from "@/components/printing/PrintProvider"
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 
 export default function DashboardLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
+    // Activar atajos de teclado globales
+    useKeyboardShortcuts()
+
     return (
         <PrintProvider>
             <SidebarProvider>
