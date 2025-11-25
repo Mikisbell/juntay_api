@@ -19,7 +19,7 @@ export const identificacionSchema = z.object({
  */
 export const tasacionSchema = z.object({
     categoria: z.string().min(1, "Selecciona una categoría"),
-    subcategoria: z.string().optional(), // Opcional hasta que se seleccione categoría
+    subcategoria: z.string().min(1, "Selecciona una subcategoría"), // ✅ OBLIGATORIA para cálculo de valorMercado
     marcaBien: z.string().optional(), // Marca del bien (ej: Apple, Samsung) - opcional
     marca: z.string().optional(), // Mantener para compatibilidad, ahora opcional
     modelo: z.string().min(1, "El modelo es obligatorio"),
@@ -46,6 +46,8 @@ export const tasacionSchema = z.object({
     // Campos específicos para Joyas
     peso: z.number().optional(),
     quilataje: z.string().optional(),
+    // Campos específicos para Electrodomésticos
+    capacidad: z.string().optional(),
     // Campos manuales para "Otro"
     subcategoria_manual: z.string().optional(),
     marca_manual: z.string().optional(),
@@ -96,6 +98,10 @@ export const tasacionSchema = z.object({
     if (data.categoria === 'joyas') {
         if (!data.peso) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "El peso es obligatorio", path: ["peso"] })
         if (!data.quilataje) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "El quilataje es obligatorio", path: ["quilataje"] })
+    }
+
+    if (data.categoria === 'electrodomesticos') {
+        if (!data.capacidad) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "La capacidad es obligatoria", path: ["capacidad"] })
     }
 })
 

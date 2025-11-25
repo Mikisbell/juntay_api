@@ -52,7 +52,11 @@ export default function TasacionStep() {
         montoPrestamo,
         setMontoPrestamo,
         tasaInteres,
-        setTasaInteres
+        setTasaInteres,
+        setNumeroCuotas,
+        frecuenciaPago,
+        setFrecuenciaPago,
+        plazo
     } = useCotizador()
 
     const form = useForm<TasacionFormData>({
@@ -236,20 +240,17 @@ export default function TasacionStep() {
         form.setValue('fotos', updatedPhotos, { shouldValidate: true })
     }
 
-    // Estado para frecuencia de pago
-    const [frecuenciaPago, setFrecuenciaPago] = useState<'diario' | 'semanal' | 'quincenal' | 'trisemanal' | 'mensual'>('mensual')
-
     // 🔥 SOLUCIÓN: Usar useWatch para leer valores del formulario en tiempo real (SIN defaultValue para que lea el valor real)
     const watchedMonto = useWatch({ control: form.control, name: 'montoPrestamo' })
     const watchedTasa = useWatch({ control: form.control, name: 'tasaInteres' })
 
     // Días por frecuencia de pago
     const diasPorFrecuencia = {
-        'diario': 1,
-        'semanal': 7,
-        'quincenal': 14,
-        'trisemanal': 21,
-        'mensual': 30
+        'DIARIO': 1,
+        'SEMANAL': 7,
+        'QUINCENAL': 14,
+        'TRES_SEMANAS': 21,
+        'MENSUAL': 30
     }
 
     // 💰 CÁLCULOS FINANCIEROS CORRECTOS (Interés proporcional al período)
@@ -476,7 +477,8 @@ export default function TasacionStep() {
                                                                 placeholder="Ej: 2022"
                                                                 className="bg-white"
                                                                 {...field}
-                                                                onChange={e => field.onChange(e.target.valueAsNumber)}
+                                                                value={field.value ?? ""}
+                                                                onChange={e => field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber)}
                                                             />
                                                         </FormControl>
                                                         <FormMessage />
@@ -508,7 +510,37 @@ export default function TasacionStep() {
                                                                 placeholder="Ej: 45000"
                                                                 className="bg-white"
                                                                 {...field}
-                                                                onChange={e => field.onChange(e.target.valueAsNumber)}
+                                                                value={field.value ?? ""}
+                                                                onChange={e => field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber)}
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {watchedCategoria === 'electrodomesticos' && (
+                                    <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 space-y-4">
+                                        <h4 className="text-sm font-semibold text-blue-800 flex items-center gap-2">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                                            Datos del Electrodoméstico
+                                        </h4>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <FormField
+                                                control={form.control}
+                                                name="capacidad"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel className="text-slate-700">Capacidad / Tamaño</FormLabel>
+                                                        <FormControl>
+                                                            <Input
+                                                                placeholder="Ej: 15kg, 500L, 55 pulgadas"
+                                                                className="bg-white"
+                                                                {...field}
+                                                                value={field.value || ""}
                                                             />
                                                         </FormControl>
                                                         <FormMessage />
@@ -538,7 +570,8 @@ export default function TasacionStep() {
                                                                 placeholder="Ej: 120"
                                                                 className="bg-white"
                                                                 {...field}
-                                                                onChange={e => field.onChange(e.target.valueAsNumber)}
+                                                                value={field.value ?? ""}
+                                                                onChange={e => field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber)}
                                                             />
                                                         </FormControl>
                                                         <FormMessage />
@@ -597,7 +630,8 @@ export default function TasacionStep() {
                                                                 placeholder="Ej: 5.5"
                                                                 className="bg-white"
                                                                 {...field}
-                                                                onChange={e => field.onChange(e.target.valueAsNumber)}
+                                                                value={field.value ?? ""}
+                                                                onChange={e => field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber)}
                                                             />
                                                         </FormControl>
                                                         <FormMessage />
@@ -816,7 +850,8 @@ export default function TasacionStep() {
                                                         type="number"
                                                         className="pl-12 h-14 text-2xl font-bold text-slate-900 border-slate-200 bg-slate-50 focus:bg-white transition-all"
                                                         {...field}
-                                                        onChange={e => field.onChange(parseFloat(e.target.value))}
+                                                        value={field.value ?? ""}
+                                                        onChange={e => field.onChange(e.target.value === "" ? 0 : parseFloat(e.target.value))}
                                                     />
                                                 </div>
                                             </FormControl>
@@ -847,11 +882,11 @@ export default function TasacionStep() {
 
                                     <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                                         {[
-                                            { value: 'diario', label: '1 Día', dias: 1 },
-                                            { value: 'semanal', label: '1 Sem', dias: 7 },
-                                            { value: 'quincenal', label: '2 Sem', dias: 14 },
-                                            { value: 'trisemanal', label: '3 Sem', dias: 21 },
-                                            { value: 'mensual', label: '1 Mes', dias: 30 }
+                                            { value: 'DIARIO', label: '1 Día', dias: 1 },
+                                            { value: 'SEMANAL', label: '1 Sem', dias: 7 },
+                                            { value: 'QUINCENAL', label: '2 Sem', dias: 14 },
+                                            { value: 'TRES_SEMANAS', label: '3 Sem', dias: 21 },
+                                            { value: 'MENSUAL', label: '1 Mes', dias: 30 }
                                         ].map((frec) => {
                                             const isSelected = frecuenciaPago === frec.value
                                             // Calcular interés referencial para este plazo
@@ -861,7 +896,10 @@ export default function TasacionStep() {
                                                 <button
                                                     key={frec.value}
                                                     type="button"
-                                                    onClick={() => setFrecuenciaPago(frec.value as any)}
+                                                    onClick={() => {
+                                                        setFrecuenciaPago(frec.value as any)
+                                                        setNumeroCuotas(1)
+                                                    }}
                                                     className={`
                                                         relative flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-200
                                                         ${isSelected
@@ -924,7 +962,7 @@ export default function TasacionStep() {
                                                         const hoy = new Date()
                                                         let vencimiento
 
-                                                        if (frecuenciaPago === 'mensual') {
+                                                        if (frecuenciaPago === 'MENSUAL') {
                                                             vencimiento = addMonths(hoy, 1)
                                                         } else {
                                                             const dias = diasPorFrecuencia[frecuenciaPago]

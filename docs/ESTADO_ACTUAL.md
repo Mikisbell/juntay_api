@@ -1,7 +1,7 @@
 # Estado Actual del Proyecto
 
-**Última Actualización:** 23 Noviembre 2025
-**Versión:** 3.2.0 (Release "Creative & AI")
+**Última Actualización:** 24 Noviembre 2025
+**Versión:** 3.3.0 (Release "Intelligent Catalog")
 
 ## ✅ Hitos Alcanzados
 
@@ -46,7 +46,16 @@ El proyecto ha completado una transformación mayor hacia una arquitectura y dis
 | Clientes | ✅ Nuevo | CRUD Actions | Directory UI |
 | Tesorería | ✅ Nuevo | Boveda Actions | Manager UI |
 | Reportes | ✅ Nuevo | Analytics Actions | BI Dashboards |
+| Reportes | ✅ Nuevo | Analytics Actions | BI Dashboards |
 | AI Features | ✅ Nuevo | Regex Heuristics | Smart Components |
+| Catálogo | ✅ Dinámico | RPC + Sugerencias | Formulario Jerárquico |
+
+### 5. Nuevas Funcionalidades (v3.3.0)
+
+- [x] **Sistema "Otro (Especificar)":** Captura inteligente de datos no listados con aprendizaje automático (tabla de sugerencias).
+- [x] **Expansión de Catálogo:** Nueva categoría "Billetera / Cartera" con marcas de lujo.
+- [x] **Campos Dinámicos:** Input de "Capacidad" para electrodomésticos y validación contextual.
+- [x] **Estabilidad:** Corrección de errores de serialización y manejo de inputs numéricos.
 
 ## 📝 Próximos Pasos (Roadmap)
 

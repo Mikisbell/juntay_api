@@ -4,10 +4,12 @@ import { createClient } from '@/lib/supabase/server'
 import { EmpenoCompletoData } from '@/lib/validators/empeno-schemas'
 import { revalidatePath } from 'next/cache'
 
+const DEV_USER_ID = '00000000-0000-0000-0000-000000000011' // Cajero from seed
+
 export async function obtenerCajaAbierta(usuarioId: string) {
     const supabase = await createClient()
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
         .from('cajas_operativas')
         .select('id, numero_caja')
         .eq('usuario_id', usuarioId)
@@ -19,9 +21,11 @@ export async function obtenerCajaAbierta(usuarioId: string) {
         if (error.code !== 'PGRST116') {
             console.error('Error obteniendo caja abierta:', error)
         }
+        console.log('[INFO] No se encontró caja abierta para usuario:', usuarioId)
         return null
     }
 
+    console.log('[INFO] Caja encontrada:', data)
     return data
 }
 
@@ -29,15 +33,29 @@ export async function registrarEmpeno(data: EmpenoCompletoData) {
     const supabase = await createClient()
 
     // 1. Validar sesión
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    let { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    // DEV MODE: Mock session
+    if ((authError || !user) && process.env.NODE_ENV === 'development') {
+        console.log('DEV MODE: Using mock user session')
+        user = { id: DEV_USER_ID } as any
+        authError = null
+    }
+
     if (authError || !user) {
         throw new Error('No autorizado. Por favor inicia sesión nuevamente.')
     }
 
     // 2. Obtener caja abierta
+    console.log('[DEV] Attempting to get caja for user:', user.id, '| NODE_ENV:', process.env.NODE_ENV)
     const caja = await obtenerCajaAbierta(user.id)
+    console.log('[DEV] Caja result:', caja)
+
     if (!caja) {
-        throw new Error('No tienes una caja abierta. Debes abrir caja antes de registrar operaciones.')
+        const errorMsg = process.env.NODE_ENV === 'development'
+            ? `No tienes una caja abierta (User ID: ${user.id}). Auto-creación falló. Debes abrir caja manualmente.`
+            : 'No tienes una caja abierta. Debes abrir caja antes de registrar operaciones.'
+        throw new Error(errorMsg)
     }
 
     // 3. Preparar datos para RPC
@@ -46,14 +64,56 @@ export async function registrarEmpeno(data: EmpenoCompletoData) {
     const docLength = data.cliente.dni.length
     const tipoDoc = docLength === 8 ? 'DNI' : docLength === 11 ? 'RUC' : 'CE'
 
+    // ⚠️ VALIDACIÓN CRÍTICA: valorMercado es NOT NULL en la BD
+    // Asegurar que valorMercado tiene un valor válido antes de crear la garantía
+    let valorMercado = data.detallesGarantia.valorMercado || 0
+    const montoPrestamo = data.detallesGarantia.montoPrestamo || 0
+
+    console.log('[DEBUG] valorMercado recibido:', valorMercado)
+    console.log('[DEBUG] montoPrestamo recibido:', montoPrestamo)
+    console.log('[DEBUG] detallesGarantia completo:', JSON.stringify(data.detallesGarantia, null, 2))
+
+    if (!valorMercado || valorMercado === 0) {
+        if (montoPrestamo && montoPrestamo > 0) {
+            // Estimamos que el préstamo es ~65% del valor de mercado (LTV típico)
+            valorMercado = Math.round(montoPrestamo / 0.65)
+            console.log(`[AUTO-CALC] valorMercado estimado desde montoPrestamo: ${montoPrestamo} -> ${valorMercado}`)
+        } else {
+            // ❌ Error crítico: No podemos crear garantía sin valor de tasación
+            console.error('[ERROR CRÍTICO] No hay valorMercado ni montoPrestamo:', {
+                categoria: data.detallesGarantia.categoria,
+                valorMercado: data.detallesGarantia.valorMercado,
+                montoPrestamo: data.detallesGarantia.montoPrestamo
+            })
+            throw new Error(
+                'Error en datos de tasación: Debe completar el valor de mercado del bien o el monto del préstamo. ' +
+                'Verifique que haya seleccionado categoría, subcategoría y estado del bien en el paso de tasación.'
+            )
+        }
+    }
+
+    // ⚠️ Validación LTV (Loan-to-Value): Advertencia si excede, pero permite continuar
+    if (montoPrestamo > valorMercado) {
+        const ltv = ((montoPrestamo / valorMercado) * 100).toFixed(2)
+        console.warn(`[WARNING LTV] Préstamo excede valor de mercado:`)
+        console.warn(`  - Monto Préstamo: S/ ${montoPrestamo}`)
+        console.warn(`  - Valor Mercado: S/ ${valorMercado}`)
+        console.warn(`  - LTV: ${ltv}% (>100% - ALTO RIESGO)`)
+        console.warn(`  - Cliente: ${data.cliente.nombres} ${data.cliente.apellidos}`)
+        console.warn(`  - Categoría: ${data.detallesGarantia.categoria}`)
+        console.warn(`  ⚠️ OPERACIÓN PERMITIDA - Revisar con gerencia si es necesario`)
+        // NO lanzamos error, solo advertimos. El negocio puede decidir aprobar estos casos.
+    }
+
     const garantiaData = {
         descripcion: data.detallesGarantia.descripcion || '',
         categoria: data.detallesGarantia.categoria,
-        valor_tasacion: data.detallesGarantia.valorMercado,
+        valor_tasacion: valorMercado,
         estado: data.detallesGarantia.estado_bien,
         marca: data.detallesGarantia.marca,
         modelo: data.detallesGarantia.modelo,
         serie: data.detallesGarantia.serie,
+        subcategoria: (data.detallesGarantia as any).subcategoria || null,  // ✅ NUEVO CAMPO
         fotos: data.detallesGarantia.fotos || []
     }
 

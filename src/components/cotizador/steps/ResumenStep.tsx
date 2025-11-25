@@ -41,6 +41,9 @@ import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { handleAppError } from '@/lib/utils/error-handler'
 import { registrarEmpeno } from '@/lib/actions/contratos-actions'
+import { usePrint } from '@/hooks/usePrint'
+import { TicketTemplate } from '@/components/printing/TicketTemplate'
+import { ContratoLegal } from '@/components/printing/ContratoLegal'
 import { useRouter } from 'next/navigation'
 
 export default function ResumenStep() {
@@ -59,6 +62,7 @@ export default function ResumenStep() {
     const [imprimirAuto, setImprimirAuto] = useState(false)
     const [guardando, setGuardando] = useState(false)
     const [guardadoExitoso, setGuardadoExitoso] = useState(false)
+    const [contratoIdGenerado, setContratoIdGenerado] = useState<string | null>(null)
     const router = useRouter()
 
     const totalIntereses = cronograma.length > 0 ? calcularTotalIntereses(cronograma) : 0
@@ -87,7 +91,8 @@ export default function ResumenStep() {
                     // Asegurar que el estado sea uno de los valores permitidos por el schema
                     estado_bien: detallesGarantia.estado_bien as any,
                     montoPrestamo,
-                    tasaInteres
+                    tasaInteres,
+                    subcategoria: detallesGarantia.subcategoria
                 },
                 condicionesPago: {
                     frecuenciaPago,
@@ -100,7 +105,12 @@ export default function ResumenStep() {
                 }
             }
 
+            console.log('[DEBUG] datosEmpeno being sent:', JSON.stringify(datosEmpeno, null, 2))
+            console.log('[DEBUG] detallesGarantia.valorMercado:', detallesGarantia.valorMercado)
+            console.log('[DEBUG] montoPrestamo:', montoPrestamo)
+
             const contratoId = await registrarEmpeno(datosEmpeno)
+            setContratoIdGenerado(contratoId)
 
             toast.success('¡Empeño registrado exitosamente!', {
                 id: loadingToast,
@@ -121,21 +131,107 @@ export default function ResumenStep() {
         }
     }
 
+    const { print } = usePrint()
+
+    const handleImprimirTicket = () => {
+        if (!cliente || !detallesGarantia) return
+
+        print(
+            <TicketTemplate
+                contratoId={contratoIdGenerado || 'PENDIENTE'}
+                cliente={{
+                    nombres: cliente.nombres,
+                    apellidos: cliente.apellidos,
+                    documento: cliente.dni // Assuming dni is the document number
+                }}
+                garantia={{
+                    descripcion: detallesGarantia.descripcion,
+                    marca: detallesGarantia.marca,
+                    modelo: detallesGarantia.modelo,
+                    serie: detallesGarantia.serie
+                }}
+                prestamo={{
+                    monto: montoPrestamo,
+                    interes: tasaInteres,
+                    plazo: cronograma.length * (frecuenciaPago === 'DIARIO' ? 1 : frecuenciaPago === 'SEMANAL' ? 7 : 30), // Estimado
+                    fechaVencimiento: cronograma.length > 0 ? new Date(cronograma[cronograma.length - 1].fecha) : new Date(),
+                    totalPagar: totalAPagar
+                }}
+                fechaEmision={new Date()}
+            />
+        )
+    }
+
+    const handleImprimirContrato = () => {
+        if (!cliente || !detallesGarantia) return
+
+        print(
+            <ContratoLegal
+                contratoId={contratoIdGenerado || 'PENDIENTE'}
+                cliente={{
+                    nombres: cliente.nombres,
+                    apellidos: cliente.apellidos,
+                    tipoDocumento: 'DNI', // Default or derived
+                    numeroDocumento: cliente.dni, // Assuming dni is the document number
+                    direccion: '' // Optional in interface
+                }}
+                garantia={{
+                    descripcion: detallesGarantia.descripcion,
+                    marca: detallesGarantia.marca,
+                    modelo: detallesGarantia.modelo,
+                    serie: detallesGarantia.serie,
+                    estado: detallesGarantia.estado_bien,
+                    valorTasacion: detallesGarantia.valorMercado
+                }}
+                prestamo={{
+                    monto: montoPrestamo,
+                    tasaInteres: tasaInteres,
+                    plazo: cronograma.length,
+                    fechaInicio: fechaInicio || new Date(),
+                    fechaVencimiento: cronograma.length > 0 ? new Date(cronograma[cronograma.length - 1].fecha) : new Date(),
+                    totalPagar: totalAPagar
+                }}
+            />
+        )
+    }
+
     if (guardadoExitoso) {
         return (
-            <div className="flex flex-col items-center justify-center py-12">
-                <div className="bg-green-100 p-6 rounded-full mb-6">
-                    <CheckCircle2 className="w-16 h-16 text-green-600" />
+            <div className="flex flex-col items-center justify-center py-12 space-y-6 animate-in fade-in zoom-in duration-500">
+                <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                    <CheckCircle2 className="w-12 h-12 text-green-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-green-900 mb-2">¡Empeño Registrado Exitosamente!</h2>
-                <p className="text-slate-600 mb-6">El contrato ha sido guardado y los documentos generados.</p>
-                <div className="flex gap-3">
-                    <Button variant="outline">
-                        <Printer className="w-4 h-4 mr-2" />
-                        Ver Documentos
+                <h2 className="text-3xl font-bold text-slate-800">¡Empeño Registrado!</h2>
+                <p className="text-slate-500 text-center max-w-md">
+                    El contrato ha sido generado exitosamente. Puedes imprimir los documentos o ir al dashboard.
+                </p>
+
+                <div className="flex flex-col gap-3 w-full max-w-sm">
+                    <Button
+                        size="lg"
+                        className="w-full gap-2 bg-slate-800 hover:bg-slate-700"
+                        onClick={handleImprimirTicket}
+                    >
+                        <Printer className="w-5 h-5" />
+                        Imprimir Ticket (80mm)
                     </Button>
-                    <Button onClick={() => window.location.reload()}>
-                        Nuevo Empeño
+
+                    <Button
+                        size="lg"
+                        variant="outline"
+                        className="w-full gap-2"
+                        onClick={handleImprimirContrato}
+                    >
+                        <FileText className="w-5 h-5" />
+                        Imprimir Contrato (A4)
+                    </Button>
+
+                    <Button
+                        variant="ghost"
+                        className="w-full mt-4"
+                        onClick={() => router.push('/dashboard')}
+                    >
+                        Volver al Dashboard
                     </Button>
                 </div>
             </div>
@@ -213,6 +309,28 @@ export default function ResumenStep() {
                             </p>
                         </div>
                     </div>
+
+                    {/* ⚠️ ADVERTENCIA LTV si préstamo excede valor de mercado */}
+                    {montoPrestamo > detallesGarantia.valorMercado && (
+                        <div className="mt-4 p-3 bg-amber-50 border-l-4 border-amber-500 rounded">
+                            <div className="flex items-start gap-2">
+                                <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                                <div className="flex-1">
+                                    <p className="font-semibold text-amber-900 text-sm">
+                                        ⚠️ Préstamo excede el valor de mercado
+                                    </p>
+                                    <p className="text-xs text-amber-700 mt-1">
+                                        El monto prestado (S/ {montoPrestamo.toFixed(2)}) es mayor al valor de mercado del bien
+                                        (S/ {detallesGarantia.valorMercado.toFixed(2)}).
+                                        LTV: {((montoPrestamo / detallesGarantia.valorMercado) * 100).toFixed(1)}%
+                                    </p>
+                                    <p className="text-xs text-amber-600 mt-1 font-medium">
+                                        Esta operación representa un riesgo elevado. Verificar con gerencia si es necesario.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {detallesGarantia.descripcion && (
                         <div>

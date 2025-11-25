@@ -14,15 +14,11 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, MoreHorizontal, ShieldCheck, ShieldAlert, UserPlus, Phone, Mail } from 'lucide-react'
+import { Search, MoreHorizontal, ShieldCheck, Phone, Mail } from 'lucide-react'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -33,8 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Link from 'next/link'
 
-import { SmartPasteButton } from "@/components/ui/smart-paste-button"
-import { toast } from "sonner"
+import { ClientesActions } from './ClientesActions'
 
 export default async function ClientesPage({
     searchParams,
@@ -55,15 +50,7 @@ export default async function ClientesPage({
                         <p className="text-muted-foreground">Gestión centralizada de perfiles y riesgo crediticio.</p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <SmartPasteButton onParsed={(data) => {
-                            // Aquí abriríamos el modal de "Nuevo Cliente" con los datos pre-llenados
-                            console.log("Datos AI:", data)
-                            toast.info(`IA detectó: ${data.dni || '?'} - ${data.nombre || '?'}`)
-                        }} />
-                        <Button className="gap-2 shadow-lg shadow-primary/20">
-                            <UserPlus className="h-4 w-4" />
-                            Nuevo Cliente
-                        </Button>
+                        <ClientesActions />
                     </div>
                 </div>
 
