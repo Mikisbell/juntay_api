@@ -25,15 +25,15 @@ const nextConfig = {
             'date-fns',
             'sonner',
         ],
-        // Turbo mode for faster reloads
-        turbo: {
-            rules: {
-                '*.svg': {
-                    loaders: ['@svgr/webpack'],
-                    as: '*.js',
-                },
-            },
-        },
+        // Turbo mode temporarily disabled - causes Server Action errors in Next.js 15
+        // turbo: {
+        //     rules: {
+        //         '*.svg': {
+        //             loaders: ['@svgr/webpack'],
+        //             as: '*.js',
+        //         },
+        //     },
+        // },
     },
 
     // Compiler optimizations
