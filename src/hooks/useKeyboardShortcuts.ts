@@ -94,30 +94,22 @@ export function useKeyboardShortcuts() {
 }
 
 function mostrarAyudaAtajos() {
+    const atajos = [
+        'Ctrl+N → Nuevo Empeño',
+        'F2 → Buscar Cliente',
+        'F3 → Registrar Pago',
+        'F5 → Dashboard',
+        'Ctrl+K → Búsqueda Global',
+        'ESC → Cerrar modal'
+    ]
+
     toast.info(
-        <div className="space-y-1 text-sm" >
-    <p className="font-bold mb-2" >⌨️ Atajos de Teclado </p>
-    < div className = "flex justify-between gap-4" >
-    <kbd className="px-2 py-1 bg-slate-200 rounded text-xs" > Ctrl + N </kbd>
-    < span > Nuevo Empeño </span>
-    </div>
-    < div className = "flex justify-between gap-4" >
-    <kbd className="px-2 py-1 bg-slate-200 rounded text-xs" > F2 </kbd>
-    < span > Buscar Cliente </span>
-    </div>
-    < div className = "flex justify-between gap-4" >
-    <kbd className="px-2 py-1 bg-slate-200 rounded text-xs" > F3 </kbd>
-    < span > Registrar Pago </span>
-    </div>
-    < div className = "flex justify-between gap-4" >
-    <kbd className="px-2 py-1 bg-slate-200 rounded text-xs" > F5 </kbd>
-    < span > Dashboard </span>
-    </div>
-    < div className = "flex justify-between gap-4" >
-    <kbd className="px-2 py-1 bg-slate-200 rounded text-xs" > Ctrl + K </kbd>
-    < span > Búsqueda Global </span>
-    </div>
-    </div>,
-        { duration: 8000 }
+        `⌨️ Atajos de Teclado\n\n${atajos.join('\n')}`,
+        {
+            duration: 8000,
+            style: {
+                whiteSpace: 'pre-line'
+            }
+        }
     )
 }
