@@ -96,22 +96,15 @@ export function BusquedaClienteRapida({ onClienteSeleccionado, autoFocus = true 
 
         setLoading(true)
         try {
-            const resultado = await crearClienteDesdeEntidad(datosRENIEC)
+            const nuevoCliente = await crearClienteDesdeEntidad(datosRENIEC)
 
-            if (resultado.success && resultado.cliente) {
-                // Buscar cliente recién creado con historial completo
-                const perfilCompleto = await buscarClientePorDNI(datosRENIEC.numero_documento)
-                if (perfilCompleto.perfil) {
-                    setPerfil(perfilCompleto.perfil)
-                    setDatosRENIEC(null)
-                    onClienteSeleccionado(perfilCompleto.perfil)
-                }
-            } else {
-                setError(resultado.error || 'Error al crear cliente')
-            }
-        } catch (err) {
-            setError('Error al crear cliente')
-            console.error(err)
+            // Cliente creado exitosamente, usarlo directamente
+            setPerfil(nuevoCliente)
+            setDatosRENIEC(null)
+            onClienteSeleccionado(nuevoCliente)
+        } catch (error: any) {
+            setError(error.message || 'Error al crear cliente')
+            console.error(error) // Added console.error for debugging
         } finally {
             setLoading(false)
         }
@@ -178,48 +171,21 @@ export function BusquedaClienteRapida({ onClienteSeleccionado, autoFocus = true 
                             <div className="flex-1">
                                 <h3 className="font-bold text-xl text-slate-900">{perfil.nombre_completo}</h3>
                                 <p className="text-sm text-slate-600">DNI: {perfil.numero_documento}</p>
-                                {perfil.telefono && (
-                                    <p className="text-sm text-slate-600">Tel: {perfil.telefono}</p>
+                                {perfil.telefono_principal && (
+                                    <p className="text-sm text-slate-600">Tel: {perfil.telefono_principal}</p>
                                 )}
                             </div>
-                            {getEstadoBadge(perfil.estado_crediticio)}
-                            {perfil.verificado_entidad && (
-                                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                            )}
+                            {/* TODO: Re-implement estado and verification badges when fields are added */}
                         </div>
                     </CardHeader>
                     <CardContent className="pt-4">
-                        <div className="grid grid-cols-3 gap-4 text-center">
-                            <div>
-                                <p className="text-2xl font-bold text-slate-900">{perfil.total_contratos}</p>
-                                <p className="text-xs text-slate-500">Contratos</p>
-                            </div>
-                            <div>
-                                <p className={`text-2xl font-bold ${perfil.deuda_total > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
-                                    S/ {perfil.deuda_total.toFixed(2)}
-                                </p>
-                                <p className="text-xs text-slate-500">Deuda Pendiente</p>
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold text-blue-600">
-                                    {perfil.contratos.filter(c => c.estado === 'VIGENTE').length}
-                                </p>
-                                <p className="text-xs text-slate-500">Vigentes</p>
-                            </div>
+                        {/* TODO: Re-add statistics when aggregated fields are available in ClienteCompleto */}
+                        <div className="text-sm text-slate-600 py-4">
+                            <p><strong>DNI:</strong> {perfil.numero_documento}</p>
+                            <p><strong>Score Crediticio:</strong> {perfil.score_crediticio}/1000</p>
+                            {perfil.email && <p><strong>Email:</strong> {perfil.email}</p>}
                         </div>
-
-                        {perfil.contratos.length > 0 && (
-                            <div className="mt-4 space-y-2">
-                                <p className="text-xs font-medium text-slate-600">ÚLTIMOS CONTRATOS:</p>
-                                {perfil.contratos.slice(0, 3).map((contrato) => (
-                                    <div key={contrato.id} className="flex justify-between text-sm border-l-2 border-blue-400 pl-3 py-1">
-                                        <span className="font-mono text-slate-600">{contrato.numero_contrato}</span>
-                                        <span className="font-semibold">S/ {contrato.monto_prestado.toFixed(2)}</span>
-                                        <Badge variant="outline" className="text-xs">{contrato.estado}</Badge>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                        {/* TODO: Re-add last contracts section when contratos aggregation is available */}
                     </CardContent>
                 </Card>
             )}

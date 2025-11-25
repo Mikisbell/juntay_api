@@ -26,45 +26,33 @@ export async function invitarEmpleado(empleadoId: string, email: string) {
 
     // 2. Crear usuario en Supabase Auth (usando Admin API)
     // Nota: Esto requiere configurar las credenciales de servicio
-    try {
-        const { data: authData, error: authError } = await supabase.auth.admin.inviteUserByEmail(email, {
-            data: {
-                empleado_id: empleadoId,
-                nombres: empleado.nombres,
-                apellido_paterno: empleado.apellido_paterno,
-                apellido_materno: empleado.apellido_materno,
-                cargo: empleado.cargo
-            }
-        })
+    const { data, error } = await supabase.auth.admin.inviteUserByEmail(email, {
+        data: {
+            empleado_id: empleadoId,
+            persona_id: empleado.persona_id,
+            nombres: empleado.nombres,
+            apellido_paterno: empleado.apellido_paterno,
+            cargo: empleado.cargo
+        },
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
+    })
 
-        if (authError) throw authError
-
-        // 3. Vincular user_id al empleado
-        if (authData.user) {
-            await supabase
-                .from('empleados')
-                .update({ user_id: authData.user.id })
-                .eq('id', empleadoId)
-        }
-
-        return { success: true, message: 'Invitación enviada al email del empleado' }
-    } catch (error: any) {
-        // Si el error es porque el email ya existe, intentar vincular
-        if (error.message?.includes('already registered')) {
-            const { data: existingUser } = await supabase.auth.admin.getUserByEmail(email)
-
-            if (existingUser?.user) {
-                await supabase
-                    .from('empleados')
-                    .update({ user_id: existingUser.user.id })
-                    .eq('id', empleadoId)
-
-                return { success: true, message: 'Empleado vinculado a cuenta existente' }
-            }
-        }
-
-        throw error
+    if (error) {
+        // If email already registered, user needs to sign in first
+        // TODO: Implement manual linking flow for existing users
+        console.error('Error inviting user:', error)
+        throw new Error(error.message || 'Error al enviar invitación')
     }
+
+    // 3. Vincular user_id al empleado
+    if (data.user) {
+        await supabase
+            .from('empleados')
+            .update({ user_id: data.user.id })
+            .eq('id', empleadoId)
+    }
+
+    return { success: true, message: 'Invitación enviada al email del empleado' }
 }
 
 /**

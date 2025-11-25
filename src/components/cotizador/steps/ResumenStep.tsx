@@ -90,10 +90,10 @@ export default function ResumenStep() {
                 detallesGarantia: {
                     ...detallesGarantia,
                     // Asegurar que el estado sea uno de los valores permitidos por el schema
-                    estado_bien: detallesGarantia.estado_bien as any,
+                    estado_bien: detallesGarantia.estado_bien as 'NUEVO' | 'BUENO' | 'REGULAR' | 'MALO' | 'EXCELENTE',
                     montoPrestamo,
                     tasaInteres,
-                    subcategoria: detallesGarantia.subcategoria
+                    subcategoria: detallesGarantia.categoria // Use categoria as subcategoria fallback
                 },
                 condicionesPago: {
                     frecuenciaPago,

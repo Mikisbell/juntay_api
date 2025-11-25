@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Loader2, Search, CheckCircle2, Phone, Mail, MapPin, MessageSquare, Send } from 'lucide-react'
+import { toast } from 'sonner'
 import { consultarEntidad, type DatosEntidad } from '@/lib/apis/consultasperu'
 import { enviarCodigoWhatsapp, verificarCodigoWhatsapp } from '@/lib/actions/whatsapp-actions'
 import { crearClienteDesdeEntidad } from '@/lib/actions/clientes-actions'
@@ -224,18 +225,16 @@ export function RegistroClienteCompleto({ initialTipoDoc, initialDNI, onClienteR
                 whatsapp_verificado: true
             }
 
-            const res = await crearClienteDesdeEntidad(datosFinales)
+            const nuevoCliente = await crearClienteDesdeEntidad(datosFinales)
 
-            if (res.success && res.cliente) {
-                if (onClienteRegistrado) {
-                    // Modo modal: llamar callback
-                    onClienteRegistrado(res.cliente)
-                } else {
-                    // Modo standalone: redirigir
-                    router.push(`/dashboard/mostrador/nuevo-empeno?dni=${datosEntidad.numero_documento}`)
-                }
+            if (onClienteRegistrado) {
+                // Modo modal: llamar callback
+                onClienteRegistrado(nuevoCliente)
+                toast.success('Cliente registrado exitosamente')
             } else {
-                setError(res.error || 'Error al guardar cliente')
+                // Modo standalone: navegar a detalle
+                router.push(`/dashboard/clientes/${nuevoCliente.id}`)
+                toast.success('Cliente registrado exitosamente')
             }
         } catch (err) {
             setError('Error inesperado al guardar cliente')

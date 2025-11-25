@@ -133,35 +133,60 @@ export const obtenerClientes = listarClientes
 export async function crearClienteDesdeEntidad(datos: {
     tipo_documento: string
     numero_documento: string
-    nombres: string
+    nombre_completo: string
+    nombres?: string
     apellido_paterno?: string
     apellido_materno?: string
-    nombre_completo?: string
+    apellidos?: string
     telefono?: string
     email?: string
     direccion?: string
 }) {
-    // Separar apellidos si vienen juntos
+    // Extraer nombres y apellidos si no vienen separados
+    let nombres = datos.nombres || ''
     let apellido_paterno = datos.apellido_paterno || ''
     let apellido_materno = datos.apellido_materno || ''
 
-    if (!apellido_paterno && !apellido_materno && datos.nombre_completo) {
-        const partes = datos.nombre_completo.split(' ')
-        if (partes.length >= 3) {
-            apellido_paterno = partes[1] || ''
-            apellido_materno = partes[2] || ''
+    // Si no hay nombres, intentar extraer de nombre_completo
+    if (!nombres && datos.nombre_completo) {
+        // Formato típico: "APELLIDO_PATERNO APELLIDO_MATERNO, NOMBRES"
+        if (datos.nombre_completo.includes(',')) {
+            const [apellidos, nombresStr] = datos.nombre_completo.split(',').map(s => s.trim())
+            nombres = nombresStr
+            const partesApellidos = apellidos.split(' ')
+            apellido_paterno = partesApellidos[0] || ''
+            apellido_materno = partesApellidos.slice(1).join(' ') || ''
+        } else {
+            // Formato: "NOMBRES APELLIDO_PATERNO APELLIDO_MATERNO"
+            const partes = datos.nombre_completo.split(' ')
+            if (partes.length >= 3) {
+                nombres = partes[0] || ''
+                apellido_paterno = partes[1] || ''
+                apellido_materno = partes.slice(2).join(' ') || ''
+            } else if (partes.length === 2) {
+                nombres = partes[0] || ''
+                apellido_paterno = partes[1] || ''
+            } else {
+                nombres = datos.nombre_completo
+            }
         }
+    }
+
+    // Si vienen apellidos juntos, separarlos
+    if (!apellido_paterno && !apellido_materno && datos.apellidos) {
+        const partes = datos.apellidos.split(' ')
+        apellido_paterno = partes[0] || ''
+        apellido_materno = partes.slice(1).join(' ') || ''
     }
 
     return crearCliente({
         tipo_documento: datos.tipo_documento,
         numero_documento: datos.numero_documento,
-        nombres: datos.nombres,
-        apellido_paterno,
-        apellido_materno,
+        nombres: nombres || 'SIN NOMBRE',
+        apellido_paterno: apellido_paterno || 'SIN APELLIDO',
+        apellido_materno: apellido_materno || '',
         telefono: datos.telefono,
         email: datos.email,
         direccion: datos.direccion
     })
 }
-
