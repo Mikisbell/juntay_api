@@ -99,7 +99,7 @@ export async function registrarEmpeno(data: EmpenoCompletoData) {
         console.warn(`  - Monto Préstamo: S/ ${montoPrestamo}`)
         console.warn(`  - Valor Mercado: S/ ${valorMercado}`)
         console.warn(`  - LTV: ${ltv}% (>100% - ALTO RIESGO)`)
-        console.warn(`  - Cliente: ${data.cliente.nombres} ${data.cliente.apellidos}`)
+        console.warn(`  - Cliente: ${data.cliente.nombres} ${data.cliente.apellido_paterno} ${data.cliente.apellido_materno}`)
         console.warn(`  - Categoría: ${data.detallesGarantia.categoria}`)
         console.warn(`  ⚠️ OPERACIÓN PERMITIDA - Revisar con gerencia si es necesario`)
         // NO lanzamos error, solo advertimos. El negocio puede decidir aprobar estos casos.
@@ -135,7 +135,7 @@ export async function registrarEmpeno(data: EmpenoCompletoData) {
         p_caja_id: caja.id,
         p_cliente_doc_tipo: tipoDoc,
         p_cliente_doc_num: data.cliente.dni,
-        p_cliente_nombre: `${data.cliente.nombres} ${data.cliente.apellidos}`.trim(),
+        p_cliente_nombre: `${data.cliente.nombres} ${data.cliente.apellido_paterno} ${data.cliente.apellido_materno}`.trim(),
         p_garantia_data: garantiaData,
         p_contrato_data: contratoData
     })

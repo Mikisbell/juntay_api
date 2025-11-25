@@ -84,7 +84,8 @@ export default function ResumenStep() {
                     id: cliente.id,
                     dni: cliente.dni,
                     nombres: cliente.nombres,
-                    apellidos: cliente.apellidos
+                    apellido_paterno: cliente.apellido_paterno,
+                    apellido_materno: cliente.apellido_materno
                 },
                 detallesGarantia: {
                     ...detallesGarantia,
@@ -141,7 +142,7 @@ export default function ResumenStep() {
                 contratoId={contratoIdGenerado || 'PENDIENTE'}
                 cliente={{
                     nombres: cliente.nombres,
-                    apellidos: cliente.apellidos,
+                    apellidos: `${cliente.apellido_paterno} ${cliente.apellido_materno}`.trim(),
                     documento: cliente.dni // Assuming dni is the document number
                 }}
                 garantia={{
@@ -170,7 +171,7 @@ export default function ResumenStep() {
                 contratoId={contratoIdGenerado || 'PENDIENTE'}
                 cliente={{
                     nombres: cliente.nombres,
-                    apellidos: cliente.apellidos,
+                    apellidos: `${cliente.apellido_paterno} ${cliente.apellido_materno}`.trim(),
                     tipoDocumento: 'DNI', // Default or derived
                     numeroDocumento: cliente.dni, // Assuming dni is the document number
                     direccion: '' // Optional in interface
@@ -259,7 +260,7 @@ export default function ResumenStep() {
                         <div>
                             <p className="text-xs text-slate-500 mb-1">Nombre Completo</p>
                             <p className="font-semibold text-slate-900">
-                                {cliente?.nombres} {cliente?.apellidos}
+                                {cliente?.nombres} {cliente?.apellido_paterno} {cliente?.apellido_materno}
                             </p>
                         </div>
                         <div>
@@ -538,7 +539,7 @@ export default function ResumenStep() {
                                                 <ul className="space-y-2 text-sm text-amber-800">
                                                     <li className="flex justify-between">
                                                         <span>Cliente:</span>
-                                                        <span className="font-medium">{cliente?.nombres} {cliente?.apellidos}</span>
+                                                        <span className="font-medium">{cliente?.nombres} {cliente?.apellido_paterno} {cliente?.apellido_materno}</span>
                                                     </li>
                                                     <li className="flex justify-between">
                                                         <span>Préstamo:</span>

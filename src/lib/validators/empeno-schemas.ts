@@ -129,7 +129,8 @@ export const empenoCompletoSchema = z.object({
         id: z.string().optional(),
         dni: z.string(),
         nombres: z.string().min(1, "Los nombres son obligatorios"),
-        apellidos: z.string().min(1, "Los apellidos son obligatorios"),
+        apellido_paterno: z.string().min(1, "El apellido paterno es obligatorio"),
+        apellido_materno: z.string().min(1, "El apellido materno es obligatorio"),
     }),
 
     // Paso 2: Tasación

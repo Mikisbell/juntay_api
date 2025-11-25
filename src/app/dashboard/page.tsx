@@ -30,6 +30,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { StatsGrid } from '@/components/dashboard/StatsGrid'
 import { DashboardCharts } from '@/components/dashboard/Charts'
 import { KEYBOARD_SHORTCUTS } from '@/lib/constants/messages'
+import { RiskTrafficLight } from '@/components/dashboard/widgets/RiskTrafficLight'
+import { ExpirationTimeline } from '@/components/dashboard/widgets/ExpirationTimeline'
 
 export default function DashboardPage() {
     const router = useRouter()
@@ -92,8 +94,8 @@ export default function DashboardPage() {
                     </Alert>
                 </div>
 
-                {/* Financial Position */}
-                <StatsGrid />
+                {/* Financial Position & Risk */}
+                <RiskTrafficLight />
 
                 {/* Main Content Grid */}
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 animate-in-fade-slide delay-200">
@@ -104,6 +106,10 @@ export default function DashboardPage() {
 
                     {/* Right Column: Quick Actions & Notifications */}
                     <div className="col-span-3 space-y-6">
+
+                        {/* Timeline Widget */}
+                        <ExpirationTimeline />
+
                         {/* Quick Access */}
                         <Card className="glass-panel border-0 shadow-lg">
                             <CardHeader>
@@ -141,55 +147,6 @@ export default function DashboardPage() {
                                         <ArrowRight className="h-5 w-5 text-slate-300 group-hover:text-primary transition-colors" />
                                     </div>
                                 </Link>
-                            </CardContent>
-                        </Card>
-
-                        {/* Recent Alerts Table */}
-                        <Card className="glass-panel border-0 shadow-lg">
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
-                                    Alertas de Cartera
-                                </CardTitle>
-                                <Bell className="h-4 w-4 text-muted-foreground" />
-                            </CardHeader>
-                            <CardContent className="p-0">
-                                <Table>
-                                    <TableBody>
-                                        <TableRow className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                                            <TableCell className="font-medium py-3 pl-6">
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-medium text-slate-900 dark:text-white">Juan Pérez</span>
-                                                    <span className="text-xs text-muted-foreground">CON-001</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-right py-3 pr-6">
-                                                <Badge variant="destructive" className="font-normal shadow-sm">Vence Hoy</Badge>
-                                            </TableCell>
-                                        </TableRow>
-                                        <TableRow className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                                            <TableCell className="font-medium py-3 pl-6">
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-medium text-slate-900 dark:text-white">Maria Garcia</span>
-                                                    <span className="text-xs text-muted-foreground">CON-002</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-right py-3 pr-6">
-                                                <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800 font-normal">Mañana</Badge>
-                                            </TableCell>
-                                        </TableRow>
-                                        <TableRow className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 border-0">
-                                            <TableCell className="font-medium py-3 pl-6">
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-medium text-slate-900 dark:text-white">Carlos Ruiz</span>
-                                                    <span className="text-xs text-muted-foreground">CON-003</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-right py-3 pr-6">
-                                                <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800 font-normal">2 días</Badge>
-                                            </TableCell>
-                                        </TableRow>
-                                    </TableBody>
-                                </Table>
                             </CardContent>
                         </Card>
                     </div>

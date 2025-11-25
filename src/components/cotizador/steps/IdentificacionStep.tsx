@@ -77,7 +77,8 @@ export default function IdentificacionStep() {
                     id: res.perfil.id,
                     dni: res.perfil.numero_documento,
                     nombres: res.perfil.nombres || '',
-                    apellidos: `${res.perfil.apellido_paterno || ''} ${res.perfil.apellido_materno || ''}`.trim()
+                    apellido_paterno: res.perfil.apellido_paterno || '',
+                    apellido_materno: res.perfil.apellido_materno || ''
                 })
                 // También guardar datos para mostrar
                 setDatosEntidad({
@@ -117,7 +118,8 @@ export default function IdentificacionStep() {
             id: nuevoCliente.id,
             dni: nuevoCliente.numero_documento,
             nombres: nuevoCliente.nombres || '',
-            apellidos: `${nuevoCliente.apellido_paterno || ''} ${nuevoCliente.apellido_materno || ''}`.trim()
+            apellido_paterno: nuevoCliente.apellido_paterno || '',
+            apellido_materno: nuevoCliente.apellido_materno || ''
         })
         setRegistroModalOpen(false)
         toast.success('✓ Cliente registrado exitosamente')

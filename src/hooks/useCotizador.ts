@@ -24,7 +24,8 @@ interface CotizadorState {
         id?: string
         dni: string
         nombres: string
-        apellidos: string
+        apellido_paterno: string
+        apellido_materno: string
     } | null
     setCliente: (cliente: any) => void
 
