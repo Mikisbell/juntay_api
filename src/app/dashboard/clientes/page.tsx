@@ -31,13 +31,12 @@ import Link from 'next/link'
 
 import { ClientesActions } from './ClientesActions'
 
-export default async function ClientesPage({
-    searchParams,
-}: {
-    searchParams: { q?: string }
+export default async function ClientesPage(props: {
+    searchParams: Promise<{ q?: string }>
 }) {
+    const searchParams = await props.searchParams
     const query = searchParams.q || ""
-    const clientes = await obtenerClientes(query)
+    const clientes = await obtenerClientes()
 
     return (
         <div className="min-h-screen w-full bg-slate-50/50 dark:bg-slate-950/50 bg-grid-slate-100 dark:bg-grid-slate-900">
@@ -123,10 +122,10 @@ export default async function ClientesPage({
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex flex-col gap-1">
-                                                    {cliente.telefono && (
+                                                    {cliente.telefono_principal && (
                                                         <div className="flex items-center text-xs text-muted-foreground">
                                                             <Phone className="mr-1 h-3 w-3" />
-                                                            {cliente.telefono}
+                                                            {cliente.telefono_principal}
                                                         </div>
                                                     )}
                                                     {cliente.email && (

@@ -76,19 +76,16 @@ export function BusquedaClienteRapida({ onClienteSeleccionado, autoFocus = true 
         try {
             const resultado = await buscarClientePorDNI(dniToSearch)
 
-            if (resultado.error) {
-                setError(resultado.error)
-            } else if (resultado.encontrado && resultado.perfil) {
+            if (resultado.encontrado && resultado.perfil) {
                 // Cliente existe en BD
                 setPerfil(resultado.perfil)
                 onClienteSeleccionado(resultado.perfil)
-            } else if (resultado.datos_reniec) {
-                // Cliente no existe pero DNI válido en RENIEC
-                setDatosRENIEC(resultado.datos_reniec)
+            } else {
+                // Cliente NO existe - user needs to register manually
+                setError('Cliente no encontrado. Use el botón de registro para crear el cliente.')
             }
-        } catch (err) {
-            setError('Error al buscar cliente. Intente nuevamente.')
-            console.error(err)
+        } catch (error: any) {
+            setError(error.message || 'Error al buscar cliente')
         } finally {
             setLoading(false)
         }

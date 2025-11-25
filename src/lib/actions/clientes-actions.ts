@@ -23,6 +23,12 @@ export interface ClienteCompleto {
 }
 
 /**
+ * Alias para compatibilidad con código existente
+ */
+export type PerfilCliente = ClienteCompleto
+
+
+/**
  * Buscar cliente por DNI usando la vista clientes_completo
  */
 export async function buscarClientePorDNI(dni: string) {
@@ -115,3 +121,47 @@ export async function listarClientes() {
 
     return data as ClienteCompleto[]
 }
+
+/**
+ * Alias para compatibilidad con código existente
+ */
+export const obtenerClientes = listarClientes
+
+/**
+ * Crear cliente desde datos de entidad (RENIEC/SUNAT)
+ */
+export async function crearClienteDesdeEntidad(datos: {
+    tipo_documento: string
+    numero_documento: string
+    nombres: string
+    apellido_paterno?: string
+    apellido_materno?: string
+    nombre_completo?: string
+    telefono?: string
+    email?: string
+    direccion?: string
+}) {
+    // Separar apellidos si vienen juntos
+    let apellido_paterno = datos.apellido_paterno || ''
+    let apellido_materno = datos.apellido_materno || ''
+
+    if (!apellido_paterno && !apellido_materno && datos.nombre_completo) {
+        const partes = datos.nombre_completo.split(' ')
+        if (partes.length >= 3) {
+            apellido_paterno = partes[1] || ''
+            apellido_materno = partes[2] || ''
+        }
+    }
+
+    return crearCliente({
+        tipo_documento: datos.tipo_documento,
+        numero_documento: datos.numero_documento,
+        nombres: datos.nombres,
+        apellido_paterno,
+        apellido_materno,
+        telefono: datos.telefono,
+        email: datos.email,
+        direccion: datos.direccion
+    })
+}
+

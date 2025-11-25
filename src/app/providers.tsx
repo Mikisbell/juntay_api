@@ -11,8 +11,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
             queries: {
                 // Cache data for 5 minutes before considering it stale
                 staleTime: 5 * 60 * 1000,
-                // Keep unused data in cache for 10 minutes
-                cacheTime: 10 * 60 * 1000,
+                // Keep unused data in cache for 10 minutes (gcTime in v5)
+                gcTime: 10 * 60 * 1000,
                 // Refetch on window focus (good UX for dashboard apps)
                 refetchOnWindowFocus: true,
                 // Retry failed requests once
