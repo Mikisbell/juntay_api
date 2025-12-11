@@ -192,6 +192,12 @@ export default function IdentificacionStep() {
                                                     className="pl-9"
                                                     {...field}
                                                     maxLength={tipoDoc === 'DNI' ? 8 : tipoDoc === 'RUC' ? 11 : 20}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter' && !loading && !form.formState.errors.numeroDocumento) {
+                                                            e.preventDefault()
+                                                            handleSearch()
+                                                        }
+                                                    }}
                                                 />
                                             </FormControl>
                                         </div>

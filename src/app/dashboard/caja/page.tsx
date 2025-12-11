@@ -1,106 +1,127 @@
 'use client'
 
 import { AperturaCaja } from '@/components/caja/AperturaCaja'
-import { CierreCaja } from '@/components/caja/CierreCaja'
+import { CajeroTerminal } from '@/components/caja/CajeroTerminal'
 import { useQuery } from '@tanstack/react-query'
-import { obtenerEstadoCaja } from '@/lib/actions/caja-actions'
+import { obtenerCajaCompleta, obtenerRolUsuario } from '@/lib/actions/caja-actions'
 import { CardSkeleton } from '@/components/ui/skeletons'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { DollarSign, AlertCircle, CheckCircle2, Clock } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { AlertCircle, Wallet, Monitor } from 'lucide-react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 export default function CajaPage() {
-    const { data: estadoCaja, isLoading } = useQuery({
-        queryKey: ['caja-estado'],
-        queryFn: () => obtenerEstadoCaja(),
-        staleTime: 1 * 60 * 1000,
-        refetchInterval: 2 * 60 * 1000,
+    const { data: caja, isLoading: loadingCaja } = useQuery({
+        queryKey: ['caja', 'completa'],
+        queryFn: () => obtenerCajaCompleta(),
+        staleTime: 0, // Siempre fresco
+        refetchInterval: 60 * 1000,
         refetchOnWindowFocus: true,
     })
 
+    const { data: rol, isLoading: loadingRol } = useQuery({
+        queryKey: ['usuario-rol'],
+        queryFn: () => obtenerRolUsuario(),
+        staleTime: 5 * 60 * 1000, // 5 minutos
+    })
+
+    const isLoading = loadingCaja || loadingRol
+    const isAdmin = rol === 'admin' || rol === 'gerente'
+
     if (isLoading) {
         return (
-            <div className="space-y-6 max-w-2xl mx-auto">
+            <div className="space-y-6 max-w-4xl mx-auto">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Caja Operativa</h2>
-                    <p className="text-muted-foreground">Gestione la apertura y cierre de su turno.</p>
+                    <h2 className="text-3xl font-bold tracking-tight">Terminal de Caja</h2>
+                    <p className="text-muted-foreground">Gestione su turno operativo.</p>
                 </div>
                 <CardSkeleton />
             </div>
         )
     }
 
-    return (
-        <div className="space-y-6 max-w-2xl mx-auto">
-            <div>
-                <h2 className="text-3xl font-bold tracking-tight">Caja Operativa</h2>
-                <p className="text-muted-foreground">Gestione la apertura y cierre de su turno.</p>
+    // Si tiene caja abierta, mostrar terminal
+    if (caja) {
+        return (
+            <div className="max-w-7xl mx-auto">
+                {isAdmin ? (
+                    <Tabs defaultValue="terminal" className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h2 className="text-3xl font-bold tracking-tight">Terminal de Caja</h2>
+                                <p className="text-muted-foreground">Gestione su turno operativo.</p>
+                            </div>
+                            <TabsList>
+                                <TabsTrigger value="terminal" className="gap-2">
+                                    <Wallet className="h-4 w-4" />
+                                    Mi Terminal
+                                </TabsTrigger>
+                                <TabsTrigger value="monitor" className="gap-2">
+                                    <Monitor className="h-4 w-4" />
+                                    Monitor
+                                </TabsTrigger>
+                            </TabsList>
+                        </div>
+
+                        <TabsContent value="terminal" className="space-y-6">
+                            <CajeroTerminal caja={caja} />
+                        </TabsContent>
+
+                        <TabsContent value="monitor" className="space-y-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Monitor de Cajas</CardTitle>
+                                    <CardDescription>
+                                        Supervise todas las cajas activas en tiempo real.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <Button asChild>
+                                        <Link href="/dashboard/admin/monitor-cajas">
+                                            Ir al Monitor Completo
+                                        </Link>
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                    </Tabs>
+                ) : (
+                    <div className="space-y-6">
+                        <div>
+                            <h2 className="text-3xl font-bold tracking-tight">Terminal de Caja</h2>
+                            <p className="text-muted-foreground">Gestione su turno operativo.</p>
+                        </div>
+                        <CajeroTerminal caja={caja} />
+                    </div>
+                )}
             </div>
+        )
+    }
 
-            {estadoCaja ? (
-                <div className="space-y-6">
-                    <Alert className="border-emerald-200 bg-emerald-50 text-emerald-900">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                        <AlertTitle className="text-emerald-800 font-semibold">Caja Abierta</AlertTitle>
-                        <AlertDescription className="text-emerald-700">
-                            Turno iniciado el {new Date(estadoCaja.fechaApertura).toLocaleString('es-PE', { dateStyle: 'full', timeStyle: 'short' })}.
-                        </AlertDescription>
-                    </Alert>
-
-                    <Card>
-                        <CardHeader>
-                            <div className="flex items-center justify-between">
-                                <CardTitle>Resumen del Turno</CardTitle>
-                                <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
-                                    Activo
-                                </Badge>
-                            </div>
-                            <CardDescription>
-                                Información en tiempo real de su caja.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex items-center gap-4 p-4 rounded-lg border bg-muted/50">
-                                <div className="p-2 bg-background rounded-full border">
-                                    <Clock className="h-5 w-5 text-muted-foreground" />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Tiempo transcurrido</p>
-                                    <p className="text-lg font-bold">Calculando...</p>
-                                </div>
-                            </div>
-
-                            <div className="pt-4 border-t">
-                                <h4 className="text-sm font-medium mb-4">Acciones Disponibles</h4>
-                                <CierreCaja />
-                            </div>
-                        </CardContent>
-                    </Card>
+    // Si no tiene caja abierta, mostrar formulario de apertura
+    return (
+        <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+            <div className="w-full max-w-sm space-y-4">
+                <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold tracking-tight text-slate-800">Terminal de Caja</h2>
+                    <p className="text-sm text-muted-foreground">Inicia tu turno operativo</p>
                 </div>
-            ) : (
-                <div className="space-y-6">
-                    <Alert variant="destructive" className="border-amber-200 bg-amber-50 text-amber-900 [&>svg]:text-amber-600">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle className="text-amber-800 font-semibold">Caja Cerrada</AlertTitle>
-                        <AlertDescription className="text-amber-700">
-                            Debe realizar la apertura de caja para comenzar a operar.
-                        </AlertDescription>
-                    </Alert>
 
-                    <Card className="border-l-4 border-l-primary">
-                        <CardHeader>
-                            <CardTitle>Apertura de Caja</CardTitle>
-                            <CardDescription>
-                                Ingrese el monto inicial para comenzar su turno.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <AperturaCaja />
-                        </CardContent>
-                    </Card>
+                <div className="bg-white border rounded-lg shadow-sm overflow-hidden">
+                    <AperturaCaja />
                 </div>
-            )}
+
+                {isAdmin && (
+                    <div className="text-center pt-4">
+                        <Link href="/dashboard/admin/monitor-cajas" className="text-sm text-slate-500 hover:text-primary flex items-center justify-center gap-1 transition-colors">
+                            <Monitor className="h-3 w-3" />
+                            <span>Supervisar cajas activas</span>
+                        </Link>
+                    </div>
+                )}
+            </div>
         </div>
     )
 }

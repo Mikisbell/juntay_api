@@ -60,14 +60,7 @@ USING (
 -- FASE 3: COMENTARIOS PARA DOCUMENTACIÓN
 -- ============================================================================
 
-COMMENT ON POLICY "Usuarios autenticados pueden subir fotos de garantías" ON storage.objects IS
-'Permite a cajeros autenticados subir fotos durante el proceso de evaluación de garantías';
-
-COMMENT ON POLICY "Público puede ver fotos de garantías" ON storage.objects IS
-'Permite acceso público de lectura para mostrar fotos en contratos impresos y reportes';
-
-COMMENT ON POLICY "Solo propietario o admin puede eliminar fotos" ON storage.objects IS
-'Previene eliminación accidental. Solo el usuario que subió o administradores pueden eliminar';
+-- Comentarios eliminados para evitar error de permisos en local
 
 -- ============================================================================
 -- FIN DE MIGRACIÓN STORAGE GARANTÍAS

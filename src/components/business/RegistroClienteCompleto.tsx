@@ -15,15 +15,26 @@ import { enviarCodigoWhatsapp, verificarCodigoWhatsapp } from '@/lib/actions/wha
 import { crearClienteDesdeEntidad } from '@/lib/actions/clientes-actions'
 import { useRouter } from 'next/navigation'
 import { obtenerDepartamentos, obtenerProvincias, obtenerDistritos, obtenerUbicacionDefault } from '@/lib/actions/ubicacion-actions'
+import { SmartLocationSelector } from '@/components/ui/smart-location-selector'
+import { SmartPasteInput } from '@/components/ui/smart-paste-input'
 
 interface RegistroClienteCompletoProps {
     initialTipoDoc?: 'DNI' | 'RUC' | 'CE'
     initialDNI?: string
     onClienteRegistrado?: (cliente: any) => void
     hideHeader?: boolean
+    disablePersistence?: boolean
+    embedded?: boolean
 }
 
-export function RegistroClienteCompleto({ initialTipoDoc, initialDNI, onClienteRegistrado, hideHeader }: RegistroClienteCompletoProps = {}) {
+export function RegistroClienteCompleto({
+    initialTipoDoc,
+    initialDNI,
+    onClienteRegistrado,
+    hideHeader,
+    disablePersistence = false,
+    embedded = false
+}: RegistroClienteCompletoProps = {}) {
     const router = useRouter()
     // Estado del formulario
     const [tipoDoc, setTipoDoc] = useState<'DNI' | 'RUC' | 'CE'>(initialTipoDoc || 'DNI')
@@ -63,6 +74,49 @@ export function RegistroClienteCompleto({ initialTipoDoc, initialDNI, onClienteR
         }
     }, []) // Solo al montar
 
+    // ============================================
+    // PERSISTENCIA: Guardar y restaurar formulario
+    // ============================================
+    const STORAGE_KEY = 'juntay_registro_cliente_draft'
+
+    // Restaurar datos guardados al montar
+    useEffect(() => {
+        if (disablePersistence) return // No restaurar si está deshabilitado
+
+        const saved = localStorage.getItem(STORAGE_KEY)
+        if (saved && !initialDNI) { // No restaurar si viene con datos del modal
+            try {
+                const data = JSON.parse(saved)
+                if (data.numeroDoc) setNumeroDoc(data.numeroDoc)
+                if (data.tipoDoc) setTipoDoc(data.tipoDoc)
+                if (data.celular) setCelular(data.celular)
+                if (data.email) setEmail(data.email)
+                if (data.direccion) setDireccion(data.direccion)
+                if (data.referencia) setReferencia(data.referencia)
+                if (data.nombreManual) setNombreManual(data.nombreManual)
+                if (data.apellidosManual) setApellidosManual(data.apellidosManual)
+                if (data.modoManual) setModoManual(data.modoManual)
+                if (data.datosEntidad) setDatosEntidad(data.datosEntidad)
+            } catch (e) {
+                console.error('Error restaurando draft:', e)
+            }
+        }
+    }, [initialDNI, disablePersistence])
+
+    // Guardar cada cambio
+    useEffect(() => {
+        const draft = {
+            numeroDoc, tipoDoc, celular, email, direccion, referencia,
+            nombreManual, apellidosManual, modoManual, datosEntidad
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(draft))
+    }, [numeroDoc, tipoDoc, celular, email, direccion, referencia, nombreManual, apellidosManual, modoManual, datosEntidad])
+
+    // Limpiar draft después de guardar exitoso
+    const limpiarDraft = () => {
+        localStorage.removeItem(STORAGE_KEY)
+    }
+
     // Cargar departamentos y ubicación default al montar
     useEffect(() => {
         const cargarDatos = async () => {
@@ -99,10 +153,31 @@ export function RegistroClienteCompleto({ initialTipoDoc, initialDNI, onClienteR
         setWhatsappStep('IDLE')
 
         try {
+            // 1. PRIMERO: Buscar en base de datos local (Cliente ya registrado)
+            if (tipoDoc === 'DNI') {
+                const { buscarClientePorDNI } = await import('@/lib/actions/clientes-actions')
+                const local = await buscarClientePorDNI(numeroDoc)
+
+                if (local.encontrado && local.perfil) {
+                    toast.success('Cliente encontrado en base de datos', {
+                        description: `Seleccionando a ${local.perfil.nombres}`
+                    })
+
+                    // Auto-seleccionar y limpiar draft
+                    if (onClienteRegistrado) {
+                        onClienteRegistrado(local.perfil)
+                        limpiarDraft()
+                        setNumeroDoc('') // Reset visual
+                        return // Salir, ya terminamos
+                    }
+                }
+            }
+
+            // 2. SEGUNDO: Si no existe, buscar en API Externa (RENIEC/SUNAT)
             if (tipoDoc === 'CE') {
                 // Para CE no hay API gratuita confiable, permitir ingreso manual
                 setDatosEntidad({
-                    tipo_documento: 'CE' as any, // Ajuste temporal de tipos
+                    tipo_documento: 'CE' as any,
                     numero_documento: numeroDoc,
                     nombre_completo: '',
                     direccion: '',
@@ -132,68 +207,98 @@ export function RegistroClienteCompleto({ initialTipoDoc, initialDNI, onClienteR
                 }
             }
         } catch (err) {
+            console.error(err)
             setError('Error en la búsqueda.')
         } finally {
             setLoading(false)
         }
     }
 
-    const handleEnviarCodigo = async () => {
-        console.log('[DEBUG] handleEnviarCodigo iniciado')
-        console.log('[DEBUG] Celular:', celular)
+    // Función para limpiar todo (Reset manual)
+    const handleLimpiar = () => {
+        setNumeroDoc('')
+        setTipoDoc('DNI')
+        setDatosEntidad(null)
+        setReferencia('')
+        setCelular('')
+        setEmail('')
+        setDireccion('')
+        setNombreManual('')
+        setApellidosManual('')
+        setModoManual(false)
+        setError(null)
+        limpiarDraft()
+    }
 
+    const handleEnviarCodigo = async () => {
         if (!celular || celular.length !== 9) {
             setError('Ingrese un número de celular válido (9 dígitos)')
             return
         }
+
         setLoadingWhatsapp(true)
         setError(null)
+
         try {
-            console.log('[DEBUG] Llamando enviarCodigoWhatsapp...')
             const res = await enviarCodigoWhatsapp(celular)
-            console.log('[DEBUG] Respuesta recibida:', JSON.stringify(res))
 
             if (res.success) {
-                console.log('[DEBUG] Éxito! Cambiando whatsappStep a SENT')
-
-                // FORZAR actualización de estado
                 setWhatsappStep('SENT')
-
-                // Alert SIEMPRE para debug
-                alert(`✅ CÓDIGO: ${res.debug_code || 'SIN CÓDIGO'}\n\nwhatsappStep cambiado a: SENT`)
-
-                // Solo mostrar alerta si está en modo DEMO (debug_code presente)
-                if (res.debug_code) {
-                    console.log('[DEBUG] Modo demo, código:', res.debug_code)
-                } else {
-                    console.log('[DEBUG] Envío real exitoso')
-                    setError(null)
-                }
+                toast.success('Código enviado por WhatsApp', {
+                    description: `Revisa tu WhatsApp +51${celular}`
+                })
             } else {
-                console.log('[DEBUG] Error en respuesta:', res.error)
                 setError(res.error || 'Error enviando código')
+                toast.error('Error', {
+                    description: res.error || 'No se pudo enviar el código'
+                })
             }
         } catch (err) {
-            console.error('[DEBUG] Excepción capturada:', err)
+            console.error('Error enviando código:', err)
             setError('Error de conexión WhatsApp')
+            toast.error('Error de conexión')
         } finally {
-            console.log('[DEBUG] Finalizando, loadingWhatsapp = false')
             setLoadingWhatsapp(false)
         }
     }
 
     const handleVerificarCodigo = async () => {
+        if (!codigoVerificacion || codigoVerificacion.length !== 6) {
+            setError('Ingrese un código de 6 dígitos')
+            return
+        }
+
         setLoadingWhatsapp(true)
+        setError(null)
+
         try {
             const res = await verificarCodigoWhatsapp(celular, codigoVerificacion)
+
             if (res.success) {
                 setWhatsappStep('VERIFIED')
-                setError(null)
+                setCodigoVerificacion('')
+                toast.success('¡Teléfono verificado!', {
+                    description: 'WhatsApp validado correctamente'
+                })
             } else {
+                // Código incorrecto o expirado
+                setCodigoVerificacion('') // Limpiar para reintentar
                 setError(res.error || 'Código incorrecto')
+                toast.error('Código inválido', {
+                    description: res.error || 'Verifica el código e intenta nuevamente',
+                    action: {
+                        label: 'Reenviar',
+                        onClick: () => {
+                            setWhatsappStep('IDLE')
+                            handleEnviarCodigo()
+                        }
+                    }
+                })
             }
         } catch (err) {
+            console.error('Error verificando código:', err)
             setError('Error verificando código')
+            toast.error('Error de verificación')
         } finally {
             setLoadingWhatsapp(false)
         }
@@ -201,6 +306,17 @@ export function RegistroClienteCompleto({ initialTipoDoc, initialDNI, onClienteR
 
     const handleGuardarCliente = async () => {
         if (!datosEntidad) return
+
+        // Validar campos requeridos
+        if (!numeroDoc) {
+            setError('Número de documento es requerido')
+            return
+        }
+        if (modoManual && (!nombreManual || !apellidosManual)) {
+            setError('Nombres y apellidos son requeridos')
+            return
+        }
+
         setLoading(true)
 
         try {
@@ -209,28 +325,49 @@ export function RegistroClienteCompleto({ initialTipoDoc, initialDNI, onClienteR
             const provinciaNombre = provincias.find(p => p.id === provinciaId)?.nombre || ''
             const distritoNombre = distritos.find(d => d.id === distritoId)?.nombre || ''
 
-            // Construir datos finales
+            // Construir datos finales - ASEGURAR tipo_documento y numero_documento
             const datosFinales = {
                 ...datosEntidad,
+                // CRÍTICO: Usar valores del estado si datosEntidad no los tiene
+                tipo_documento: datosEntidad.tipo_documento || tipoDoc,
+                numero_documento: datosEntidad.numero_documento || numeroDoc,
                 // Si es modo manual, usar los campos manuales
-                nombre_completo: modoManual ? `${nombreManual} ${apellidosManual}`.trim() : datosEntidad.nombre_completo,
-                nombres: modoManual ? nombreManual : datosEntidad.nombres,
-                apellidos: modoManual ? apellidosManual : datosEntidad.apellidos,
-                celular,
+                nombre_completo: modoManual ? `${nombreManual} ${apellidosManual}`.trim() : (datosEntidad.nombre_completo || `${nombreManual} ${apellidosManual}`.trim()),
+                nombres: modoManual ? nombreManual : (datosEntidad.nombres || nombreManual || 'SIN NOMBRE'),
+                apellidos: modoManual ? apellidosManual : (datosEntidad.apellidos || apellidosManual || ''),
+                telefono: celular,
                 email,
-                direccion: `${direccion}${referencia ? ' - ' + referencia : ''}`, // Combinar dirección con referencia
+                direccion: `${direccion}${referencia ? ' - ' + referencia : ''}`,
                 departamento: departamentoNombre,
                 provincia: provinciaNombre,
                 distrito: distritoNombre,
+                ubigeo_cod: distritoId,
                 whatsapp_verificado: true
+            }
+
+            // DEBUG: Validar que tipo_documento existe
+            console.log('📋 datosFinales:', {
+                tipo_documento: datosFinales.tipo_documento,
+                numero_documento: datosFinales.numero_documento,
+                tipoDoc_estado: tipoDoc,
+                numeroDoc_estado: numeroDoc
+            })
+
+            // Validación final antes de enviar
+            if (!datosFinales.tipo_documento || !datosFinales.numero_documento) {
+                setError('Error: Tipo o número de documento no definido. Por favor recarga la página.')
+                setLoading(false)
+                return
             }
 
             const nuevoCliente = await crearClienteDesdeEntidad(datosFinales)
 
+            // Limpiar el borrador guardado
+            limpiarDraft()
+
             if (onClienteRegistrado) {
-                // Modo modal: llamar callback
+                // Modo embedded: notificar al padre
                 onClienteRegistrado(nuevoCliente)
-                toast.success('Cliente registrado exitosamente')
             } else {
                 // Modo standalone: navegar a detalle
                 router.push(`/dashboard/clientes/${nuevoCliente.id}`)
@@ -244,18 +381,47 @@ export function RegistroClienteCompleto({ initialTipoDoc, initialDNI, onClienteR
     }
 
     return (
-        <div className={hideHeader ? "space-y-4" : "max-w-2xl mx-auto space-y-6"}>
-            {/* Solo mostrar búsqueda si NO viene desde modal */}
-            {!hideHeader && (
-                <Card className="border-t-4 border-t-blue-600 shadow-lg">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Search className="h-5 w-5 text-blue-600" />
-                            Identificación del Cliente
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {/* Selector y Búsqueda */}
+        <div className={hideHeader && !embedded ? "space-y-4" : embedded ? "space-y-4" : "max-w-2xl mx-auto space-y-6"}>
+            {/* Mostrar búsqueda si no está oculto el header O si está en modo embedded */}
+            {(!hideHeader || embedded) && (
+                embedded ? (
+                    // Layout minimalista para Smart POS (Embedded)
+                    <div className="space-y-4 animate-in fade-in">
+                        <SmartPasteInput
+                            onDataExtracted={(data) => {
+                                if (data.dni) {
+                                    setTipoDoc('DNI')
+                                    setNumeroDoc(data.dni)
+                                    if (data.dni.length === 8) {
+                                        setTimeout(() => {
+                                            const btn = document.getElementById('btn-buscar-cliente')
+                                            if (btn) btn.click()
+                                        }, 100)
+                                    }
+                                }
+                                if (data.celular) setCelular(data.celular)
+                                if (data.nombres) {
+                                    setModoManual(true)
+                                    const parts = data.nombres.split(' ')
+                                    if (parts.length > 2) {
+                                        setNombreManual(parts.slice(0, 2).join(' '))
+                                        setApellidosManual(parts.slice(2).join(' '))
+                                    } else {
+                                        setNombreManual(data.nombres)
+                                    }
+                                    setDatosEntidad({
+                                        tipo_documento: 'DNI',
+                                        numero_documento: data.dni || 'SIN-DNI',
+                                        nombre_completo: data.nombres,
+                                        nombres: data.nombres,
+                                        apellidos: '',
+                                        verificado_api: false,
+                                        direccion: '',
+                                        ubigeo: ''
+                                    })
+                                }
+                            }}
+                        />
                         <div className="flex gap-4">
                             <div className="w-1/3">
                                 <Label>Tipo Documento</Label>
@@ -281,20 +447,115 @@ export function RegistroClienteCompleto({ initialTipoDoc, initialDNI, onClienteR
                                         className="font-mono text-lg"
                                         maxLength={tipoDoc === 'DNI' ? 8 : 11}
                                     />
-                                    <Button onClick={handleBuscar} disabled={loading}>
+                                    <Button id="btn-buscar-cliente" onClick={handleBuscar} disabled={loading} title="Buscar Cliente">
                                         {loading ? <Loader2 className="animate-spin" /> : <Search />}
+                                    </Button>
+                                    <Button variant="ghost" onClick={handleLimpiar} title="Limpiar formulario">
+                                        Limpiar
                                     </Button>
                                 </div>
                             </div>
                         </div>
-
                         {error && (
                             <Alert variant="destructive">
                                 <AlertDescription>{error}</AlertDescription>
                             </Alert>
                         )}
-                    </CardContent>
-                </Card>
+                    </div>
+                ) : (
+                    // Layout Estándar con Card (Original)
+                    <Card className="border-t-4 border-t-blue-600 shadow-lg">
+                        <CardHeader className="bg-slate-50 border-b pb-4">
+                            <CardTitle className="text-xl text-slate-800 flex items-center gap-2">
+                                <Search className="h-5 w-5 text-blue-600" />
+                                Búsqueda de Cliente
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="pt-6 space-y-4">
+                            <SmartPasteInput
+                                onDataExtracted={(data) => {
+                                    if (data.dni) {
+                                        setTipoDoc('DNI')
+                                        setNumeroDoc(data.dni)
+                                        // Trigger search automatically if we have a full DNI
+                                        if (data.dni.length === 8) {
+                                            // Small delay to let state update
+                                            setTimeout(() => {
+                                                const btn = document.getElementById('btn-buscar-cliente')
+                                                if (btn) btn.click()
+                                            }, 100)
+                                        }
+                                    }
+                                    if (data.celular) setCelular(data.celular)
+                                    if (data.nombres) {
+                                        setModoManual(true)
+                                        // Try to split names if possible, otherwise put everything in names
+                                        const parts = data.nombres.split(' ')
+                                        if (parts.length > 2) {
+                                            setNombreManual(parts.slice(0, 2).join(' '))
+                                            setApellidosManual(parts.slice(2).join(' '))
+                                        } else {
+                                            setNombreManual(data.nombres)
+                                        }
+                                        // Create a fake entity to show the form
+                                        setDatosEntidad({
+                                            tipo_documento: 'DNI',
+                                            numero_documento: data.dni || 'SIN-DNI',
+                                            nombre_completo: data.nombres,
+                                            nombres: data.nombres,
+                                            apellidos: '',
+                                            verificado_api: false,
+                                            direccion: '',
+                                            ubigeo: ''
+                                        })
+                                    }
+                                }}
+                            />
+
+                            {/* Selector y Búsqueda */}
+                            <div className="flex gap-4">
+                                <div className="w-1/3">
+                                    <Label>Tipo Documento</Label>
+                                    <Select value={tipoDoc} onValueChange={(v: any) => setTipoDoc(v)}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="DNI">DNI (Natural)</SelectItem>
+                                            <SelectItem value="RUC">RUC (Jurídica)</SelectItem>
+                                            <SelectItem value="CE">Carnet Extranjería</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="flex-1">
+                                    <Label>Número de Documento</Label>
+                                    <div className="flex gap-2">
+                                        <Input
+                                            value={numeroDoc}
+                                            onChange={(e) => setNumeroDoc(e.target.value)}
+                                            onKeyDown={(e) => e.key === 'Enter' && handleBuscar()}
+                                            placeholder={tipoDoc === 'DNI' ? '8 dígitos' : '11 dígitos'}
+                                            className="font-mono text-lg"
+                                            maxLength={tipoDoc === 'DNI' ? 8 : 11}
+                                        />
+                                        <Button id="btn-buscar-cliente" onClick={handleBuscar} disabled={loading}>
+                                            {loading ? <Loader2 className="animate-spin" /> : <Search />}
+                                        </Button>
+                                        <Button variant="ghost" onClick={handleLimpiar} title="Limpiar formulario">
+                                            Limpiar
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {error && (
+                                <Alert variant="destructive">
+                                    <AlertDescription>{error}</AlertDescription>
+                                </Alert>
+                            )}
+                        </CardContent>
+                    </Card>
+                )
             )}
 
             {/* Formulario de Datos (Solo aparece si se encontró entidad O modo manual) */}
@@ -380,32 +641,48 @@ export function RegistroClienteCompleto({ initialTipoDoc, initialDNI, onClienteR
                                     )}
                                 </div>
 
-                                {/* DEBUG: Mostrar estado actual */}
-                                <div className="text-xs text-gray-500 mt-1">
-                                    Estado WhatsApp: {whatsappStep}
-                                </div>
-
-                                {/* Input de Código - SIEMPRE VISIBLE PARA DEBUG */}
-                                <div className="flex gap-2 mt-2 animate-in fade-in slide-in-from-top-2">
-                                    <Input
-                                        placeholder="Código de 6 dígitos"
-                                        value={codigoVerificacion}
-                                        onChange={(e) => setCodigoVerificacion(e.target.value)}
-                                        className="w-40"
-                                        disabled={whatsappStep === 'IDLE'}
-                                    />
-                                    <Button
-                                        size="sm"
-                                        onClick={handleVerificarCodigo}
-                                        disabled={loadingWhatsapp || whatsappStep === 'IDLE'}
-                                    >
-                                        Verificar
-                                    </Button>
-                                </div>
-
+                                {/* Input de Código - Solo visible cuando se envió */}
                                 {whatsappStep === 'SENT' && (
-                                    <div className="text-xs bg-green-50 border border-green-200 text-green-700 p-2 rounded">
-                                        ✅ Código enviado al WhatsApp +51{celular}. Ingrese el código recibido.
+                                    <div className="space-y-3 mt-3 animate-in fade-in slide-in-from-top-2">
+                                        <div className="flex gap-2">
+                                            <Input
+                                                placeholder="Código de 6 dígitos"
+                                                value={codigoVerificacion}
+                                                onChange={(e) => setCodigoVerificacion(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' && codigoVerificacion.length === 6) {
+                                                        handleVerificarCodigo()
+                                                    }
+                                                }}
+                                                maxLength={6}
+                                                className="w-40 text-center text-lg font-mono"
+                                                autoFocus
+                                            />
+                                            <Button
+                                                size="sm"
+                                                onClick={handleVerificarCodigo}
+                                                disabled={loadingWhatsapp || codigoVerificacion.length !== 6}
+                                                className="bg-blue-600 hover:bg-blue-700"
+                                            >
+                                                {loadingWhatsapp ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Verificar'}
+                                            </Button>
+                                        </div>
+
+                                        <div className="flex items-center justify-between text-xs">
+                                            <span className="text-green-700 bg-green-50 px-2 py-1 rounded">
+                                                ✓ Código enviado a +51{celular}
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setWhatsappStep('IDLE')
+                                                    handleEnviarCodigo()
+                                                }}
+                                                className="text-blue-600 hover:underline font-medium"
+                                            >
+                                                Reenviar código
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -451,81 +728,33 @@ export function RegistroClienteCompleto({ initialTipoDoc, initialDNI, onClienteR
                                 />
                             </div>
 
-                            {/* Ubicación Geográfica - Selects en Cascada */}
-                            <div className="space-y-2">
-                                <Label>Departamento *</Label>
-                                <Select
-                                    value={departamentoId}
-                                    onValueChange={async (value) => {
-                                        setDepartamentoId(value)
-                                        setProvinciaId('')
-                                        setDistritoId('')
-                                        const { provincias: provs } = await obtenerProvincias(value)
-                                        setProvincias(provs)
-                                        setDistritos([])
+                            {/* Ubicación Geográfica - Smart Component */}
+                            <div className="pt-2">
+                                <SmartLocationSelector
+                                    defaultValues={{
+                                        departamentoId: '12', // Default Junín
+                                        provinciaId: '1201',  // Default Huancayo
+                                        distritoId: '120114'  // Default El Tambo
                                     }}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Seleccione departamento" />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-white max-h-[200px]">
-                                        {departamentos.map((dept) => (
-                                            <SelectItem key={dept.id} value={dept.id}>
-                                                {dept.nombre}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                                    onLocationChange={(loc) => {
+                                        setDepartamentoId(loc.departamentoId)
+                                        setProvinciaId(loc.provinciaId)
+                                        setDistritoId(loc.distritoId)
 
-                            <div className="space-y-2">
-                                <Label>Provincia *</Label>
-                                <Select
-                                    value={provinciaId}
-                                    onValueChange={async (value) => {
-                                        setProvinciaId(value)
-                                        setDistritoId('')
-                                        const { distritos: dists } = await obtenerDistritos(value)
-                                        setDistritos(dists)
+                                        // Actualizar form values ocultos si es necesario
+                                        // form.setValue('departamento', loc.departamento)
                                     }}
-                                    disabled={!departamentoId}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder={departamentoId ? "Seleccione provincia" : "Primero seleccione departamento"} />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-white max-h-[200px]">
-                                        {provincias.map((prov) => (
-                                            <SelectItem key={prov.id} value={prov.id}>
-                                                {prov.nombre}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Distrito *</Label>
-                                <Select
-                                    value={distritoId}
-                                    onValueChange={setDistritoId}
-                                    disabled={!provinciaId}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder={provinciaId ? "Seleccione distrito" : "Primero seleccione provincia"} />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-white max-h-[200px]">
-                                        {distritos.map((dist) => (
-                                            <SelectItem key={dist.id} value={dist.id}>
-                                                {dist.nombre}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                />
                             </div>
                         </div>
 
                         {/* Botón Final */}
-                        <div className="pt-4 border-t">
+                        <div className="pt-4 border-t space-y-2">
+                            {(!celular || celular.length !== 9) && (
+                                <p className="text-sm text-amber-600 text-center">
+                                    ⚠️ Ingresa un celular de 9 dígitos para continuar
+                                </p>
+                            )}
                             <Button
                                 className="w-full h-12 text-lg"
                                 disabled={!celular || celular.length !== 9}
@@ -533,7 +762,7 @@ export function RegistroClienteCompleto({ initialTipoDoc, initialDNI, onClienteR
                             >
                                 <span className="flex items-center gap-2">
                                     <CheckCircle2 className="h-5 w-5" />
-                                    Registrar Cliente {whatsappStep !== 'VERIFIED' ? '(Sin Validar)' : ''}
+                                    Registrar Cliente {whatsappStep !== 'VERIFIED' ? '(Sin Validar WhatsApp)' : '✓'}
                                 </span>
                             </Button>
                         </div>

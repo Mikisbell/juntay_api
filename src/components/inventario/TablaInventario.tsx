@@ -36,10 +36,16 @@ export function TablaInventario({ items }: { items: InventarioItem[] }) {
 
     const getBadgeVariant = (estado: string) => {
         switch (estado.toLowerCase()) {
-            case 'custodia': return 'default' // Primary/Black
-            case 'remate': return 'destructive' // Red
-            case 'vendido': return 'secondary' // Gray/Greenish depending on theme
-            default: return 'outline'
+            case 'custodia':
+                return 'default' // Green - Active
+            case 'vencido':
+                return 'secondary' // Yellow - Warning
+            case 'remate':
+                return 'destructive' // Red - Critical
+            case 'vendido':
+                return 'outline' // Gray - Completed
+            default:
+                return 'outline'
         }
     }
 

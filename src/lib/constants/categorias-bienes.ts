@@ -208,6 +208,26 @@ export const FACTORES_ESTADO = {
     'MALO': 0.30
 } as const
 
+// Tipo para precios de oro dinámicos (desde API)
+export type PreciosOroPorQuilate = {
+    24: number
+    22?: number
+    21?: number
+    18: number
+    14: number
+    10: number
+}
+
+// Precios por defecto (fallback si no hay API) - Dic 2024
+const PRECIOS_ORO_DEFAULT: PreciosOroPorQuilate = {
+    24: 505,
+    22: 463,
+    21: 442,
+    18: 379,
+    14: 295,
+    10: 211
+}
+
 // Calcular valor de mercado INTELIGENTE
 export function calcularValorMercado(params: {
     categoria: string
@@ -219,6 +239,7 @@ export function calcularValorMercado(params: {
     peso?: number // Para joyas (gramos)
     quilates?: number // Para joyas
     precioFactorMarca?: number // Factor de la marca (viene de marcas-por-subcategoria.ts)
+    preciosOro?: PreciosOroPorQuilate // Precios dinámicos del oro (desde GoldAPI)
 }): number {
     const config = getCategoriaConfig(params.categoria)
     if (!config) return 500
@@ -247,14 +268,9 @@ export function calcularValorMercado(params: {
 
     // 4. Para joyas: ajustar por peso y quilates
     if (params.categoria === 'joyas_oro' && params.peso && params.quilates) {
-        // Precio aproximado del oro por gramo según quilates
-        const precioPorGramo = {
-            24: 220, // Oro 24K
-            18: 165, // Oro 18K
-            14: 128, // Oro 14K
-            10: 92   // Oro 10K
-        }
-        const precioOro = precioPorGramo[params.quilates as keyof typeof precioPorGramo] || 128
+        // Usar precios dinámicos si están disponibles, sino defaults
+        const preciosActivos = params.preciosOro || PRECIOS_ORO_DEFAULT
+        const precioOro = preciosActivos[params.quilates as keyof typeof preciosActivos] || preciosActivos[18]
         precioBase = params.peso * precioOro
     }
 

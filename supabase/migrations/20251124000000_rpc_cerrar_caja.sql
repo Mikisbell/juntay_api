@@ -73,13 +73,15 @@ BEGIN
     WHERE id = p_caja_id;
 
     -- 6. REGISTRAR EL MOVIMIENTO DE CIERRE
+    -- 6. REGISTRAR EL MOVIMIENTO DE CIERRE
     INSERT INTO public.movimientos_caja_operativa (
         caja_operativa_id, tipo, motivo, monto, 
         saldo_anterior, saldo_nuevo,
-        descripcion, metadata
+        descripcion, metadata,
+        usuario_id  -- <--- CORRECCIÓN: Campo obligatorio
     ) VALUES (
-        p_caja_id, 'INFO', 'CIERRE_CAJA', 0,
-        v_saldo_sistema, v_saldo_sistema, 
+        p_caja_id, 'INFO', 'CIERRE_CAJA', 0.01, -- Fix monto > 0 constraint (simbólico) o ajustar constraint
+        v_saldo_sistema, 0, -- Saldo nuevo es 0 tras cierre
         'Cierre de caja. Estado: ' || v_estado_cierre || '. Diferencia: ' || v_diferencia,
         jsonb_build_object(
             'estado', v_estado_cierre,
@@ -87,7 +89,8 @@ BEGIN
             'monto_fisico', p_monto_fisico,
             'saldo_sistema', v_saldo_sistema,
             'observaciones', p_observaciones
-        )
+        ),
+        v_caja.usuario_id -- <--- CORRECCIÓN: Valor del usuario
     );
 
     -- 7. RETORNAR REPORTE

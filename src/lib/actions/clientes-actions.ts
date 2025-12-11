@@ -36,7 +36,7 @@ export async function buscarClientePorDNI(dni: string) {
 
     const { data, error } = await supabase
         .from('clientes_completo')
-        .select('*')
+        .select('id, persona_id, empresa_id, score_crediticio, activo, created_at, tipo_documento, numero_documento, nombres, apellido_paterno, apellido_materno, nombre_completo, email, telefono_principal, telefono_secundario, direccion')
         .eq('numero_documento', dni)
         .single()
 
@@ -54,6 +54,23 @@ export async function buscarClientePorDNI(dni: string) {
 }
 
 /**
+ * Buscar cliente por ID (UUID)
+ */
+export async function getClienteById(id: string) {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase
+        .from('clientes_completo')
+        .select('id, persona_id, empresa_id, score_crediticio, activo, created_at, tipo_documento, numero_documento, nombres, apellido_paterno, apellido_materno, nombre_completo, email, telefono_principal, telefono_secundario, direccion')
+        .eq('id', id)
+        .single()
+
+    if (error) return null
+
+    return data as ClienteCompleto
+}
+
+/**
  * Crear nuevo cliente (usando RPC que maneja personas)
  */
 export async function crearCliente(datos: {
@@ -65,6 +82,10 @@ export async function crearCliente(datos: {
     telefono?: string
     email?: string
     direccion?: string
+    ubigeo_cod?: string
+    departamento?: string
+    provincia?: string
+    distrito?: string
 }) {
     const supabase = await createClient()
 
@@ -82,13 +103,44 @@ export async function crearCliente(datos: {
 
     if (personaError) throw personaError
 
+    // 1.5. Verificar si el CLIENTE ya existe (aunque la persona exista, el registro de cliente podría existir o no)
+    const { data: clienteExistente } = await supabase
+        .from('clientes')
+        .select('id')
+        .eq('numero_documento', datos.numero_documento)
+        .maybeSingle()
+
+    if (clienteExistente) {
+        // Retornar cliente existente sin error
+        const { data: clienteCompleto } = await supabase
+            .from('clientes_completo')
+            .select('*')
+            .eq('id', clienteExistente.id)
+            .single()
+
+        return clienteCompleto as ClienteCompleto
+    }
+
     // 2. Crear cliente referenciando la persona
     const { data: cliente, error: clienteError } = await supabase
         .from('clientes')
         .insert({
             persona_id: personaId,
+            // CRÍTICO: Estos campos son NOT NULL en la tabla clientes
+            tipo_documento: datos.tipo_documento,
+            numero_documento: datos.numero_documento,
+            nombres: datos.nombres,
+            apellido_paterno: datos.apellido_paterno,
+            apellido_materno: datos.apellido_materno,
+            email: datos.email || null,
+            telefono_principal: datos.telefono || null,
+            direccion: datos.direccion || null,
             score_crediticio: 500, // Score inicial
-            activo: true
+            activo: true,
+            ubigeo_cod: datos.ubigeo_cod,
+            departamento: datos.departamento,
+            provincia: datos.provincia,
+            distrito: datos.distrito
         })
         .select()
         .single()
@@ -108,18 +160,195 @@ export async function crearCliente(datos: {
 /**
  * Listar todos los clientes
  */
-export async function listarClientes() {
-    const supabase = await createClient()
+// Definición de tipos de respuesta
+export interface ResumenCartera {
+    totalClientes: number
+    clientesCriticos: number
+    montoCritico: number
+    vencimientosSemana: number
+    montoPorVencer: number
+    pagination: {
+        page: number
+        pageSize: number
+        totalPages: number
+        totalRecords: number
+    }
+}
 
-    const { data, error } = await supabase
+/**
+ * Listar clientes con KPIs, filtros avanzados y paginación
+ */
+export async function listarClientes(filtros?: {
+    busqueda?: string,
+    estado?: string,
+    page?: number,
+    pageSize?: number
+}) {
+    const supabase = await createClient()
+    const page = filtros?.page || 1
+    const pageSize = filtros?.pageSize || 10
+    const from = (page - 1) * pageSize
+    const to = from + pageSize - 1
+
+    // 1. Query Base para Contar Total (sin paginación, pero con filtros de búsqueda si aplica)
+    // NOTA: Para KPIs globales necesitamos TODOS los activos.
+    // Para la tabla necesitamos PAGINADOS.
+    // Estrategia:
+    // A. Traer todos los activos para KPIs (costoso pero necesario para "Monto Total en Riesgo" global).
+    // B. O traer solo los de la página.
+    // Dado que el Dashboard Táctico muestra TOTALES DE CARTERA, necesitamos procesar todos los activos para los KPIs Cards,
+    // pero solo devolver los registros de la página actual para la tabla.
+
+    // Paso A: Obtener IDs y Datos básicos de TODOS los activos para KPIs Dashboard
+    const { data: todosClientesBase, error } = await supabase
         .from('clientes_completo')
-        .select('*')
+        .select('id, nombre_completo, numero_documento, telefono_principal, nombres, activo') // Solo lo necesario para filtrar y relacionar
         .eq('activo', true)
         .order('created_at', { ascending: false })
 
     if (error) throw error
 
-    return data as ClienteCompleto[]
+    // 2. Obtener TODA la deuda vigente (Optimizado: Solo columnas de cálculo)
+    const { data: creditosActivos } = await supabase
+        .from('creditos')
+        .select('cliente_id, saldo_pendiente, fecha_vencimiento, estado_detallado')
+        .in('estado_detallado', ['vigente', 'por_vencer', 'vencido', 'en_mora'])
+
+    // Estructuras de KPIs Globales
+    const mapaDeuda = new Map<string, number>()
+    const mapaVencimiento = new Map<string, string>()
+    const mapaRiesgo = new Map<string, 'critico' | 'alerta' | 'normal'>()
+
+    // Acumuladores KPI Dashboard (Globales)
+    let clientesCriticos = 0
+    let montoCritico = 0
+    let vencimientosSemana = 0
+    let montoPorVencer = 0
+
+    const hoy = new Date()
+    const en7dias = new Date()
+    en7dias.setDate(hoy.getDate() + 7)
+
+    // Agrupar créditos y calcular KPIs
+    if (creditosActivos) {
+        const creditosPorCliente = new Map<string, typeof creditosActivos>()
+        creditosActivos.forEach(c => {
+            const list = creditosPorCliente.get(c.cliente_id) || []
+            list.push(c)
+            creditosPorCliente.set(c.cliente_id, list)
+        })
+
+        creditosPorCliente.forEach((listaCreditos, clienteId) => {
+            let totalDeuda = 0
+            let peorVencimiento: string | null = null
+            let esCritico = false
+            let esAlerta = false
+
+            listaCreditos.forEach(c => {
+                totalDeuda += Number(c.saldo_pendiente)
+                // Vencimiento
+                if (!peorVencimiento || new Date(c.fecha_vencimiento) < new Date(peorVencimiento)) {
+                    peorVencimiento = c.fecha_vencimiento
+                }
+                // Estados
+                if (['vencido', 'en_mora'].includes(c.estado_detallado)) esCritico = true
+                if (new Date(c.fecha_vencimiento) <= en7dias && c.estado_detallado === 'vigente') esAlerta = true
+            })
+
+            mapaDeuda.set(clienteId, totalDeuda)
+            if (peorVencimiento) mapaVencimiento.set(clienteId, peorVencimiento)
+
+            if (esCritico) {
+                mapaRiesgo.set(clienteId, 'critico')
+                clientesCriticos++
+                montoCritico += totalDeuda
+            } else if (esAlerta || (peorVencimiento && new Date(peorVencimiento!) <= en7dias)) {
+                mapaRiesgo.set(clienteId, 'alerta')
+                vencimientosSemana++
+                montoPorVencer += totalDeuda
+            } else {
+                mapaRiesgo.set(clienteId, 'normal')
+            }
+        })
+    }
+
+    // 3. Filtrado en Memoria (Búsqueda y Estado) sobre el universo total
+    // Se hace en memoria porque los KPIs de riesgo son calculados, no están en BD base.
+    let clientesFiltrados = todosClientesBase.map(c => ({
+        ...c,
+        deuda_total: mapaDeuda.get(c.id) || 0,
+        proximo_vencimiento: mapaVencimiento.get(c.id) || null,
+        riesgo_calculado: mapaRiesgo.get(c.id) || 'normal'
+    }))
+
+    if (filtros?.busqueda) {
+        const q = filtros.busqueda.toLowerCase()
+        clientesFiltrados = clientesFiltrados.filter(c =>
+            c.nombre_completo?.toLowerCase().includes(q) ||
+            c.numero_documento?.includes(q) ||
+            c.telefono_principal?.includes(q) ||
+            c.nombres?.toLowerCase().includes(q)
+        )
+    }
+
+    if (filtros?.estado) {
+        if (filtros.estado === 'critico') {
+            clientesFiltrados = clientesFiltrados.filter(c => c.riesgo_calculado === 'critico')
+        } else if (filtros.estado === 'alerta') {
+            clientesFiltrados = clientesFiltrados.filter(c => c.riesgo_calculado === 'alerta')
+        }
+    }
+
+    // 4. Paginación
+    const totalRecords = clientesFiltrados.length
+    const totalPages = Math.ceil(totalRecords / pageSize)
+    const clientesPaginados = clientesFiltrados.slice(from, to + 1) // slice end is exclusive, so to + 1
+
+    // Recuperar datos completos solo para la página actual (Optimización final)
+    // No necesitamos re-leer de BD porque clients_completo ya tiene casi todo,
+    // pero si faltaran campos específicos, se haría un fetch aquí por IDs.
+    // Como `todosClientesBase` ya tenía lo básico, y calculamos lo financiero,
+    // solo nos falta, por ejemplo, `apellido_paterno` si no vino en el select inicial.
+    // Para simplificar y asegurar datos, haremos un mapeo final enriquecido o asumimos `clientes_completo` tiene todo.
+    // En el paso 1 pedimos select('*') en la version anterior. Ahora pedí select reducido.
+    // CORRECCIÓN: Pedir todo en paso 1 es más simple si no son millones. Con 100-5000 registros es OK.
+    // Revertimos a select('*') en paso 1 para simplificar, o hacemos fetch por IDs de la página.
+    // Haremos fetch por IDs para ser puristas en performance si crece mucho.
+
+    const idsPagina = clientesPaginados.map(c => c.id)
+    const { data: detallesFinal } = await supabase
+        .from('clientes_completo')
+        .select('*')
+        .in('id', idsPagina)
+        .order('created_at', { ascending: false })
+
+    // Mezclar detalles con cálculos
+    const dataFinal = detallesFinal?.map(d => {
+        const calculado = clientesPaginados.find(p => p.id === d.id)
+        return {
+            ...d,
+            deuda_total: calculado?.deuda_total || 0,
+            proximo_vencimiento: calculado?.proximo_vencimiento || null,
+            riesgo_calculado: calculado?.riesgo_calculado || 'normal'
+        }
+    }) || []
+
+    return {
+        meta: {
+            totalClientes: todosClientesBase.length,
+            clientesCriticos,
+            montoCritico,
+            vencimientosSemana,
+            montoPorVencer,
+            pagination: {
+                page,
+                pageSize,
+                totalPages,
+                totalRecords
+            }
+        },
+        data: dataFinal as (ClienteCompleto & { deuda_total: number, proximo_vencimiento: string | null, riesgo_calculado: string })[]
+    }
 }
 
 /**
@@ -141,6 +370,10 @@ export async function crearClienteDesdeEntidad(datos: {
     telefono?: string
     email?: string
     direccion?: string
+    ubigeo_cod?: string
+    departamento?: string
+    provincia?: string
+    distrito?: string
 }) {
     // Extraer nombres y apellidos si no vienen separados
     let nombres = datos.nombres || ''
@@ -187,6 +420,121 @@ export async function crearClienteDesdeEntidad(datos: {
         apellido_materno: apellido_materno || '',
         telefono: datos.telefono,
         email: datos.email,
-        direccion: datos.direccion
+        direccion: datos.direccion,
+        ubigeo_cod: datos.ubigeo_cod,
+        departamento: datos.departamento,
+        provincia: datos.provincia,
+        distrito: datos.distrito
     })
+}
+
+/**
+ * Obtener resumen financiero del cliente para el Centro de Comunicación
+ */
+export async function getClienteResumenFinanciero(clienteId: string) {
+    const supabase = await createClient()
+
+    // 1. Obtener TODOS los créditos (activos e históricos) para saber si es nuevo y para buscar pagos
+    const { data: todosCreditos, error: creditosError } = await supabase
+        .from('creditos')
+        .select('id, saldo_pendiente, fecha_vencimiento, estado_detallado, monto_prestado')
+        .eq('cliente_id', clienteId)
+
+    if (creditosError) {
+        console.error('Error fetching creditos:', creditosError)
+        return null
+    }
+
+    // Filtrar vigentes
+    const creditosVigentes = todosCreditos.filter(c =>
+        ['vigente', 'por_vencer', 'vencido', 'en_mora'].includes(c.estado_detallado)
+    )
+
+    // Calcular deuda
+    const deudaTotal = creditosVigentes.reduce((sum, c) => sum + Number(c.saldo_pendiente), 0)
+
+    // Próximo vencimiento (solo de vigentes)
+    let proximoVencimiento = null
+    let diasParaVencimiento = null
+
+    if (creditosVigentes.length > 0) {
+        const ordenados = [...creditosVigentes].sort((a, b) =>
+            new Date(a.fecha_vencimiento).getTime() - new Date(b.fecha_vencimiento).getTime()
+        )
+        const masProximo = ordenados[0]
+        proximoVencimiento = masProximo.fecha_vencimiento
+
+        const hoy = new Date()
+        const venc = new Date(masProximo.fecha_vencimiento)
+        const diffTime = venc.getTime() - hoy.getTime()
+        diasParaVencimiento = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    }
+
+    // Último pago (buscar en tabla pagos filtrando por los IDs de todos los créditos del cliente)
+    let ultimoPago = null
+    if (todosCreditos.length > 0) {
+        const creditosIds = todosCreditos.map(c => c.id)
+
+        const { data: pagos } = await supabase
+            .from('pagos')
+            .select('fecha_pago, monto_total')
+            .in('credito_id', creditosIds)
+            .order('fecha_pago', { ascending: false })
+            .limit(1)
+
+        if (pagos && pagos.length > 0) {
+            ultimoPago = {
+                fecha: new Date(pagos[0].fecha_pago).toLocaleDateString('es-PE'),
+                monto: Number(pagos[0].monto_total)
+            }
+        }
+    }
+
+    return {
+        creditosActivos: creditosVigentes.length,
+        deudaTotal,
+        proximoVencimiento: proximoVencimiento ? new Date(proximoVencimiento).toLocaleDateString('es-PE', { day: 'numeric', month: 'short', year: 'numeric' }) : null,
+        diasParaVencimiento,
+        esClienteNuevo: todosCreditos.length === 0,
+        ultimoPago
+    }
+}
+/**
+ * Eliminar un cliente por ID
+ * Valida que no tenga créditos activos antes de eliminar.
+ */
+export async function eliminarCliente(id: string) {
+    const supabase = await createClient()
+
+    // 1. Validar si tiene créditos (activos o históricos)
+    // Se es estricto: Si tiene CUALQUIER historial, mejor no borrar para auditoría.
+    // O si el usuario pide "eliminar", asumimos que sabe lo que hace si no hay deuda VIGENTE?
+    // Regla de negocio segura: No eliminar si tiene créditos VIGENTES o con DEUDA.
+    // Si tiene créditos pagados, se podría permitir (aunque perdemos historia).
+    // Para MVP: No eliminar si existe CUALQUIER registro en creditos para evitar integrity errors.
+
+    const { count, error: countError } = await supabase
+        .from('creditos')
+        .select('*', { count: 'exact', head: true })
+        .eq('cliente_id', id)
+
+    if (countError) throw countError
+
+    if (count && count > 0) {
+        return {
+            success: false,
+            message: 'No se puede eliminar el cliente porque tiene historial de créditos. Considere desactivarlo.'
+        }
+    }
+
+    // 2. Eliminar (Cascada debería manejar lo demás si está configurado, sino error)
+    // Intentamos eliminar.
+    const { error } = await supabase
+        .from('clientes')
+        .delete()
+        .eq('id', id)
+
+    if (error) throw error
+
+    return { success: true, message: 'Cliente eliminado correctamente' }
 }

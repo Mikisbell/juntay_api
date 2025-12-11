@@ -1,12 +1,7 @@
 'use server'
 
 import { createClient } from '@supabase/supabase-js'
-import { enviarWhatsApp } from '@/lib/utils/whatsapp'
-
-// Mock store para códigos de verificación (en producción usar Redis o DB)
-// Como las server actions son stateless, esto solo funcionará en memoria del proceso actual
-// Para persistencia real necesitamos una tabla, pero por ahora simulemos
-const verificationCodes = new Map<string, string>()
+import { sendMessage } from '@/lib/actions/waha-actions'
 
 const getServiceClient = () => {
     return createClient(
@@ -29,58 +24,52 @@ export async function enviarCodigoWhatsapp(telefono: string) {
     // Generar código de 6 dígitos
     const codigo = Math.floor(100000 + Math.random() * 900000).toString()
 
-    // Guardar código (simulado en memoria por ahora)
-    verificationCodes.set(limpio, codigo)
-
-    // SIMULACIÓN DE ENVÍO WHATSAPP
-    // Aquí iría la llamada a Twilio / Meta Cloud API
-    console.log(`📲 [WHATSAPP MOCK] Enviando código ${codigo} al número ${limpio}`)
-
-    // ---------------------------------------------------------
-    // MODO RENDER (WAHA WHATSAPP HTTP API)
-    // ---------------------------------------------------------
-    let enviado = false
     try {
-        console.log(`📲 [WHATSAPP RENDER] Intentando enviar a ${limpio} vía Render...`)
+        const supabase = getServiceClient()
 
-        const mensaje = `🔐 Tu código de verificación JUNTAY es: *${codigo}*\n\nNo lo compartas con nadie.`
-        const resultado = await enviarWhatsApp(limpio, mensaje)
+        // Limpiar códigos anteriores del mismo número (no verificados)
+        await supabase
+            .from('verificacion_whatsapp')
+            .delete()
+            .eq('telefono', limpio)
+            .eq('verificado', false)
 
-        if (resultado && !resultado.error) {
-            console.log('✅ [WHATSAPP RENDER] Mensaje enviado exitosamente:', resultado)
-            enviado = true
-        } else {
-            console.warn('⚠️ [WHATSAPP RENDER] Error:', resultado?.error || 'Error desconocido')
+        // Guardar nuevo código en BD con expiración de 5 minutos
+        const expiraEn = new Date(Date.now() + 5 * 60 * 1000) // 5 minutos
+
+        const { error: dbError } = await supabase
+            .from('verificacion_whatsapp')
+            .insert({
+                telefono: limpio,
+                codigo: codigo,
+                expira_en: expiraEn.toISOString(),
+                verificado: false
+            })
+
+        if (dbError) {
+            console.error('Error guardando código en BD:', dbError)
+            return { success: false, error: 'Error guardando código de verificación' }
         }
-    } catch (error) {
-        console.warn('⚠️ [WHATSAPP RENDER] Error de conexión:', error)
-    }
 
-    // ---------------------------------------------------------
-    // SIEMPRE RETORNAR ÉXITO (Para desarrollo y testing)
-    // ---------------------------------------------------------
-    // En desarrollo, siempre mostramos el código en consola
-    console.log(`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`)
-    console.log(`📱 CÓDIGO DE VERIFICACIÓN WHATSAPP`)
-    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`)
-    console.log(`Teléfono: +51${limpio}`)
-    console.log(`Código:   ${codigo}`)
-    console.log(`Estado:   ${enviado ? '✅ ENVIADO por WhatsApp' : '⚠️ SOLO EN CONSOLA (WhatsApp falló)'}`)
-    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`)
+        // Enviar código por WhatsApp usando WAHA
+        const mensaje = `🔐 Tu código de verificación JUNTAY es: *${codigo}*\n\nVálido por 5 minutos.\nNo lo compartas con nadie.`
 
-    // Si NO se envió, retornamos con debug_code para que la UI muestre alerta
-    // Si SÍ se envió, retornamos sin debug_code (se assume que llegó al WhatsApp real)
-    if (!enviado) {
+        const resultado = await sendMessage(limpio, mensaje)
+
+        if (!resultado.success) {
+            console.error('Error enviando WhatsApp:', resultado.error)
+            return { success: false, error: 'Error enviando mensaje de WhatsApp. Verifica que el servicio esté conectado.' }
+        }
+
+        console.log(`✅ Código ${codigo} enviado a ${limpio}`)
         return {
             success: true,
-            message: 'Código generado (revisa consola del servidor)',
-            debug_code: codigo
+            message: 'Código enviado por WhatsApp'
         }
-    }
 
-    return {
-        success: true,
-        message: 'Código enviado por WhatsApp'
+    } catch (error) {
+        console.error('Error en enviarCodigoWhatsapp:', error)
+        return { success: false, error: 'Error de conexión' }
     }
 }
 
@@ -90,17 +79,116 @@ export async function enviarCodigoWhatsapp(telefono: string) {
 export async function verificarCodigoWhatsapp(telefono: string, codigo: string) {
     const limpio = telefono.replace(/\D/g, '')
 
-    // En producción, consultar DB/Redis
-    const codigoGuardado = verificationCodes.get(limpio)
+    try {
+        const supabase = getServiceClient()
 
-    if (!codigoGuardado) {
-        return { success: false, error: 'El código ha expirado o no se ha solicitado.' }
+        // Buscar código válido (no expirado, no verificado)
+        const { data, error } = await supabase
+            .from('verificacion_whatsapp')
+            .select('*')
+            .eq('telefono', limpio)
+            .eq('codigo', codigo)
+            .eq('verificado', false)
+            .gt('expira_en', new Date().toISOString())
+            .order('creado_en', { ascending: false })
+            .limit(1)
+            .single()
+
+        if (error || !data) {
+            return { success: false, error: 'Código incorrecto o expirado.' }
+        }
+
+        // Marcar como verificado
+        await supabase
+            .from('verificacion_whatsapp')
+            .update({ verificado: true })
+            .eq('id', data.id)
+
+        return { success: true, message: 'Teléfono verificado correctamente' }
+
+    } catch (error) {
+        console.error('Error verificando código:', error)
+        return { success: false, error: 'Error verificando código' }
+    }
+}
+
+// ============================================
+// MENSAJES A CLIENTES
+// ============================================
+
+/**
+ * Envía un mensaje personalizado a un cliente
+ */
+export async function enviarMensajeCliente(
+    telefono: string,
+    mensaje: string,
+    nombreCliente?: string
+) {
+    const limpio = telefono.replace(/\D/g, '')
+
+    if (!limpio || limpio.length < 9) {
+        return { success: false, error: 'Número de teléfono inválido' }
     }
 
-    if (codigoGuardado === codigo) {
-        verificationCodes.delete(limpio) // Consumir código
-        return { success: true, message: 'Teléfono verificado correctamente' }
-    } else {
-        return { success: false, error: 'Código incorrecto. Intente nuevamente.' }
+    try {
+        // Personalizar mensaje si tiene nombre
+        const mensajeFinal = nombreCliente
+            ? `Hola ${nombreCliente},\n\n${mensaje}\n\n— JUNTAY Financiera`
+            : `${mensaje}\n\n— JUNTAY Financiera`
+
+        const resultado = await sendMessage(limpio, mensajeFinal)
+
+        if (!resultado.success) {
+            return { success: false, error: 'Error enviando mensaje. Verifica que WhatsApp esté conectado.' }
+        }
+
+        console.log(`✅ Mensaje enviado a ${limpio}`)
+        return { success: true, message: 'Mensaje enviado correctamente' }
+
+    } catch (error) {
+        console.error('Error en enviarMensajeCliente:', error)
+        return { success: false, error: 'Error de conexión' }
+    }
+}
+
+/**
+ * Envía un recordatorio de pago al cliente
+ */
+export async function enviarRecordatorioCliente(
+    telefono: string,
+    nombreCliente: string,
+    codigoCredito: string,
+    diasRestantes: number,
+    montoPendiente: number
+) {
+    const limpio = telefono.replace(/\D/g, '')
+
+    if (!limpio || limpio.length < 9) {
+        return { success: false, error: 'Número de teléfono inválido' }
+    }
+
+    try {
+        let mensaje: string
+
+        if (diasRestantes > 0) {
+            mensaje = `🔔 *Recordatorio de Pago*\n\nHola ${nombreCliente},\n\nTu crédito *#${codigoCredito}* vence en *${diasRestantes} día${diasRestantes > 1 ? 's' : ''}*.\n\n💰 Monto pendiente: *S/ ${montoPendiente.toFixed(2)}*\n\n¿Deseas renovar o cancelar? Responde a este mensaje.\n\n— JUNTAY Financiera`
+        } else if (diasRestantes === 0) {
+            mensaje = `⚠️ *¡Tu crédito vence HOY!*\n\nHola ${nombreCliente},\n\nTu crédito *#${codigoCredito}* vence *hoy*.\n\n💰 Monto a pagar: *S/ ${montoPendiente.toFixed(2)}*\n\nEvita recargos, contáctanos ahora.\n\n— JUNTAY Financiera`
+        } else {
+            mensaje = `🚨 *AVISO URGENTE*\n\nHola ${nombreCliente},\n\nTu crédito *#${codigoCredito}* está *VENCIDO* hace ${Math.abs(diasRestantes)} día${Math.abs(diasRestantes) > 1 ? 's' : ''}.\n\n💰 Monto pendiente: *S/ ${montoPendiente.toFixed(2)}*\n\n⚠️ Tu garantía podría ir a remate. Contáctanos urgente.\n\n— JUNTAY Financiera`
+        }
+
+        const resultado = await sendMessage(limpio, mensaje)
+
+        if (!resultado.success) {
+            return { success: false, error: 'Error enviando recordatorio. Verifica que WhatsApp esté conectado.' }
+        }
+
+        console.log(`✅ Recordatorio enviado a ${limpio} (${diasRestantes} días)`)
+        return { success: true, message: 'Recordatorio enviado correctamente' }
+
+    } catch (error) {
+        console.error('Error en enviarRecordatorioCliente:', error)
+        return { success: false, error: 'Error de conexión' }
     }
 }

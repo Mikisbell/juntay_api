@@ -214,8 +214,9 @@ export function ContratoDetalleSheet({ open, onClose, contrato }: Props) {
                                         className={accion === 'RENOVACION' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-emerald-600 hover:bg-emerald-700'}
                                         onClick={handlePago}
                                         disabled={loading || montoInput <= 0}
+                                        title={montoInput <= 0 ? "Ingresa un monto mayor a 0" : loading ? "Procesando..." : "Confirmar pago"}
                                     >
-                                        {loading ? 'Procesando...' : 'Confirmar'}
+                                        {loading ? 'Procesando...' : montoInput <= 0 ? 'Ingresa monto' : 'Confirmar'}
                                     </Button>
                                 </div>
                                 <p className="text-xs text-slate-500">

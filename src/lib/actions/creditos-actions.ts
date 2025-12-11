@@ -156,3 +156,164 @@ export async function actualizarEstadoCredito(
 
     return true
 }
+
+/**
+ * SMART POS: Crea un crédito con garantía usando RPC transaccional.
+ * Incluye validaciones de límites y tasa variable.
+ */
+export async function crearCreditoExpress(payload: {
+    clienteId: string
+    descripcion: string
+    montoPrestamo: number
+    valorTasacion: number      // NUEVO: Valor real del bien
+    tasaInteres: number        // NUEVO: Tasa mensual (antes hardcodeada)
+    periodoDias?: number       // NUEVO: Período configurable (default 30)
+    fotos: string[]
+    fechaInicio?: string
+    observaciones?: string
+}) {
+    const supabase = await createClient()
+
+    // 1. Obtener usuario actual
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error("Usuario no autenticado")
+
+    // 2. Verificar Caja Abierta del usuario
+    const { data: caja } = await supabase.from('cajas_operativas')
+        .select('id, saldo_actual')
+        .eq('usuario_id', user.id)
+        .eq('estado', 'abierta')
+        .single()
+
+    // 3. Obtener datos del cliente para el contrato
+    const { data: clienteData } = await supabase.from('clientes')
+        .select('nombres, apellido_paterno, apellido_materno, numero_documento, direccion')
+        .eq('id', payload.clienteId)
+        .single()
+
+    const clienteNombre = clienteData
+        ? `${clienteData.nombres} ${clienteData.apellido_paterno} ${clienteData.apellido_materno || ''}`.trim()
+        : 'Cliente'
+    const clienteDocumento = clienteData?.numero_documento || ''
+    const clienteDireccion = clienteData?.direccion || ''
+
+    // 4. Validaciones del lado del servidor (defensa en profundidad)
+    if (payload.montoPrestamo < 50) {
+        throw new Error("El monto mínimo de préstamo es S/50")
+    }
+    if (payload.montoPrestamo > 50000) {
+        throw new Error("El monto máximo de préstamo es S/50,000. Contacte a gerencia.")
+    }
+    if (payload.montoPrestamo > payload.valorTasacion) {
+        throw new Error(`El préstamo (S/${payload.montoPrestamo}) no puede exceder el valor tasado (S/${payload.valorTasacion})`)
+    }
+    if (payload.tasaInteres < 1 || payload.tasaInteres > 50) {
+        throw new Error("La tasa de interés debe estar entre 1% y 50%")
+    }
+
+    // 5. Llamar al RPC transaccional
+    const fechaInicio = payload.fechaInicio ? new Date(payload.fechaInicio) : new Date()
+    const periodoDias = payload.periodoDias || 30
+
+    const { data: result, error } = await supabase.rpc('crear_credito_completo', {
+        p_cliente_id: payload.clienteId,
+        p_monto_prestamo: payload.montoPrestamo,
+        p_valor_tasacion: payload.valorTasacion,
+        p_tasa_interes: payload.tasaInteres,
+        p_periodo_dias: periodoDias,
+        p_fecha_inicio: fechaInicio.toISOString(),
+        p_descripcion_garantia: payload.descripcion,
+        p_fotos: payload.fotos,
+        p_observaciones: payload.observaciones || null,
+        p_usuario_id: user.id,
+        p_caja_id: caja?.id || null
+    })
+
+    if (error) {
+        console.error("Error en RPC crear_credito_completo:", error)
+        throw new Error(error.message || "Error al crear el crédito")
+    }
+
+    // 6. Enriquecer respuesta con datos del cliente para impresión
+    return {
+        ...result,
+        cliente: clienteNombre,
+        clienteNombre: clienteNombre,
+        clienteDocumento: clienteDocumento,
+        clienteDireccion: clienteDireccion,
+        descripcion: payload.descripcion,
+        garantiaDescripcion: payload.descripcion
+    }
+}
+
+/**
+ * Obtiene créditos aprobados pero no desembolsados (Cola de espera)
+ */
+export async function obtenerCreditosPendientesDesembolso() {
+    const supabase = await createClient()
+
+    // TODO: Filtrar por sucursal si aplica
+    const { data } = await supabase.from('creditos')
+        .select(`
+            id, 
+            codigo_credito,
+            monto_prestado, 
+            created_at,
+            clientes (nombres, apellido_paterno),
+            garantias (descripcion)
+        `)
+        .eq('estado_detallado', 'aprobado')
+        .order('created_at', { ascending: true }) // FIFO
+
+    return data || []
+}
+
+/**
+ * Procesa el desembolso de un crédito que estaba en cola
+ */
+export async function desembolsarCreditoPendiente(creditoId: string, cajaId: string) {
+    const supabase = await createClient()
+
+    // 0. Obtener usuario actual
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error("Usuario no autenticado")
+
+    // 1. Obtener info crédito
+    const { data: credito } = await supabase.from('creditos')
+        .select('monto_prestado, codigo_credito')
+        .eq('id', creditoId)
+        .single()
+
+    if (!credito) throw new Error("Crédito no encontrado")
+
+    // 1.1 Obtener saldo actual de caja
+    const { data: caja } = await supabase.from('cajas_operativas')
+        .select('saldo_actual')
+        .eq('id', cajaId)
+        .single()
+
+    if (!caja) throw new Error("Caja no encontrada")
+
+    // 2. Registrar Egreso Caja
+    const { error: errorMov } = await supabase.from('movimientos_caja_operativa')
+        .insert({
+            caja_operativa_id: cajaId,
+            tipo: 'EGRESO',
+            motivo: 'DESEMBOLSO_EMPENO',
+            monto: credito.monto_prestado,
+            referencia_id: creditoId,
+            descripcion: `Desembolso Diferido #${credito.codigo_credito || creditoId.slice(0, 8)}`,
+            usuario_id: user.id,
+            saldo_anterior: caja.saldo_actual,
+            saldo_nuevo: caja.saldo_actual - credito.monto_prestado
+        })
+
+    if (errorMov) throw new Error("Error registrando movimiento en caja")
+
+    // 3. Actualizar estado crédito
+    const { error: errorUpdate } = await supabase.from('creditos')
+        .update({ estado_detallado: 'vigente' }) // Ya se desembolsó
+        .eq('id', creditoId)
+
+    return { success: true }
+}

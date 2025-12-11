@@ -60,7 +60,20 @@ export function MonitorCajasTable({ cajasIniciales, resumenInicial, onRefresh }:
             </div>
 
             {/* KPIs Consolidados */}
-            <div className="grid gap-4 md:grid-cols-5">
+            <div className="grid gap-4 md:grid-cols-6">
+                {/* Bóveda Central - Destacada */}
+                <Card className="md:col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium text-slate-300">Bóveda Central</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center gap-2">
+                            <Wallet className="h-6 w-6 text-amber-400" />
+                            <span className="text-3xl font-bold">{formatCurrency(resumen.saldo_boveda)}</span>
+                        </div>
+                    </CardContent>
+                </Card>
+
                 <Card>
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-slate-600">Cajas Abiertas</CardTitle>
@@ -75,24 +88,12 @@ export function MonitorCajasTable({ cajasIniciales, resumenInicial, onRefresh }:
 
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-slate-600">Efectivo Total</CardTitle>
+                        <CardTitle className="text-sm font-medium text-slate-600">Efectivo en Cajas</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
                             <Wallet className="h-5 w-5 text-emerald-600" />
                             <span className="text-2xl font-bold">{formatCurrency(resumen.total_efectivo_cajas)}</span>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-slate-600">Transacciones Hoy</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center gap-2">
-                            <Activity className="h-5 w-5 text-purple-600" />
-                            <span className="text-2xl font-bold">{resumen.total_transacciones_hoy}</span>
                         </div>
                     </CardContent>
                 </Card>

@@ -24,19 +24,15 @@ const nextConfig = {
             'zod',
             'date-fns',
             'sonner',
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-popover',
+            '@tanstack/react-query',
         ],
-        // Turbo mode temporarily disabled - causes Server Action errors in Next.js 15
-        // turbo: {
-        //     rules: {
-        //         '*.svg': {
-        //             loaders: ['@svgr/webpack'],
-        //             as: '*.js',
-        //         },
-        //     },
-        // },
     },
 
-    // Compiler optimizations
+    // SWC Compiler optimizations - FASTEST minification
     compiler: {
         // Remove console logs in production
         removeConsole: process.env.NODE_ENV === 'production' ? {
@@ -44,52 +40,60 @@ const nextConfig = {
         } : false,
     },
 
-    // Webpack optimizations for faster dev server
+    // Production optimizations
+    poweredByHeader: false,
+    generateEtags: true,
+
+    // Headers for caching - CRITICAL for speed
+    async headers() {
+        return [
+            {
+                source: '/:all*(svg|jpg|jpeg|png|gif|ico|webp|avif)',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=31536000, immutable',
+                    },
+                ],
+            },
+            {
+                source: '/_next/static/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=31536000, immutable',
+                    },
+                ],
+            },
+            {
+                source: '/fonts/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=31536000, immutable',
+                    },
+                ],
+            },
+        ]
+    },
+
+    // Webpack optimizations
     webpack: (config, { dev, isServer }) => {
+        // Production bundle optimizations
+        if (!dev) {
+            // Removed splitChunks optimization to avoid SSR issues
+        }
+
+        // Dev optimizations
         if (dev && !isServer) {
-            // Faster rebuilds in development
             config.watchOptions = {
                 poll: 1000,
                 aggregateTimeout: 300,
             }
-
-            // Reduce chunk size for faster HMR
-            config.optimization = {
-                ...config.optimization,
-                runtimeChunk: 'single',
-                splitChunks: {
-                    chunks: 'all',
-                    cacheGroups: {
-                        default: false,
-                        vendors: false,
-                        // Separate Supabase to its own chunk
-                        supabase: {
-                            name: 'supabase',
-                            test: /[\\/]node_modules[\\/](@supabase)[\\/]/,
-                            priority: 20,
-                        },
-                        // Separate UI libraries
-                        ui: {
-                            name: 'ui',
-                            test: /[\\/]node_modules[\\/](@radix-ui|lucide-react)[\\/]/,
-                            priority: 15,
-                        },
-                        // Everything else from node_modules
-                        lib: {
-                            test: /[\\/]node_modules[\\/]/,
-                            name: 'lib',
-                            priority: 10,
-                        },
-                    },
-                },
-            }
         }
+
         return config
     },
-
-    // Production optimizations
-    poweredByHeader: false,
-    generateEtags: true,
 };
 
 module.exports = nextConfig;

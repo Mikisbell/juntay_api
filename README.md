@@ -1,21 +1,3 @@
-# JUNTAY - Sistema Financiero de Empeños
-
-![Status](https://img.shields.io/badge/Status-Production%20Ready-success)
-![Tech](https://img.shields.io/badge/Stack-Next.js%2014%20%7C%20Supabase%20%7C%20Shadcn-blue)
-
-Sistema de gestión financiera y operativa para casas de empeño, diseñado con una arquitectura **"Bank-Grade"** (Nivel Bancario) que prioriza la integridad de los datos, la seguridad y una experiencia de usuario premium.
-
-## 🚀 Características Principales
-
-### 💎 Experiencia de Usuario "Ultra-Premium"
-
-- **Diseño Fintech:** Interfaz inspirada en neobancos (Mercury, Revolut) con glassmorphism y animaciones fluidas.
-- **Dashboard Inteligente:** Visualización en tiempo real de posición financiera, alertas de riesgo y KPIs.
-- **Modo Oscuro:** Soporte nativo para temas claro y oscuro con paletas de colores semánticas.
-
-### 🏦 Módulos Core
-
-1. **Terminal Operativa:**
     - **Caja:** Apertura y cierre ciego, control de efectivo y arqueos.
     - **Créditos:** Flujo de "Nuevo Empeño" con cotizador inteligente de oro y electro.
     - **Cobranzas:** Gestión de pagos, renovaciones y desempeños.
@@ -29,6 +11,18 @@ Sistema de gestión financiera y operativa para casas de empeño, diseñado con 
     - **Tesorería:** Inyecciones de capital, retiros y gestión de liquidez.
     - **Reportes:** Cierre diario, análisis de cartera y auditoría de transacciones.
     - **Configuración:** Motor de reglas dinámico para tasas e intereses.
+
+| 🚀 **[DEPLOYMENT](./docs/DEPLOYMENT_PRODUCTION.md)** | **Infraestructura y Producción.** <br> *Léelo para desplegar a Supabase/Vercel.* | DevOps, Leads |
+| 🗺️ **[ROADMAP & QA](./docs/ROADMAP_TESTING.md)** | **Plan de Pruebas y Futuro.** <br> *Léelo para testear y ver qué sigue (v4.0).* | QA, Product Owners |
+
+### 🧠 Capa de Decisiones (ADRs)
+
+Entiende el *por qué* detrás de la arquitectura:
+
+- [ADR-001: Arquitectura Local-First](./docs/adr/001-local-first-architecture.md)
+- [ADR-002: Integración WhatsApp (WAHA)](./docs/adr/002-whatsapp-integration.md)
+
+---
 
 ## 🛠️ Stack Tecnológico
 

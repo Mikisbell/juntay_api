@@ -14,164 +14,191 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, MoreHorizontal, ShieldCheck, Phone, Mail } from 'lucide-react'
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import Link from 'next/link'
+import Link from "next/link"
+import { Search, AlertTriangle, Clock, Users, ChevronLeft, ChevronRight } from 'lucide-react'
+import { SearchInput } from "@/components/ui/search-input"
 
 import { ClientesActions } from './ClientesActions'
+import { ClienteRow } from './ClienteRow'
 
 export default async function ClientesPage(props: {
-    searchParams: Promise<{ q?: string }>
+    searchParams: Promise<{ q?: string, f?: string, page?: string }>
 }) {
     const searchParams = await props.searchParams
     const query = searchParams.q || ""
-    const clientes = await obtenerClientes()
+    const filter = searchParams.f || "todos" // 'todos', 'critico', 'alerta'
+    const page = Number(searchParams.page) || 1
+    const pageSize = 10
+
+    // Obtener datos con estructura { meta, data }
+    const { meta, data: clientes } = await obtenerClientes({
+        busqueda: query,
+        estado: filter === 'todos' ? undefined : filter,
+        page,
+        pageSize
+    })
+
+    const totalPages = meta.pagination.totalPages
 
     return (
         <div className="min-h-screen w-full bg-slate-50/50 dark:bg-slate-950/50 bg-grid-slate-100 dark:bg-grid-slate-900">
-            <div className="flex-1 space-y-8 p-8 pt-6 animate-in-fade-slide">
+            <div className="flex-1 space-y-6 p-4 md:p-6 pt-4 animate-in-fade-slide">
 
-                {/* Header */}
+                {/* Header Táctico */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Directorio de Clientes</h2>
-                        <p className="text-muted-foreground">Gestión centralizada de perfiles y riesgo crediticio.</p>
+                        <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Centro de Control</h2>
+                        <p className="text-sm text-muted-foreground">Monitoreo de riesgo y recuperación.</p>
                     </div>
                     <div className="flex items-center gap-2">
                         <ClientesActions />
                     </div>
                 </div>
 
-                {/* Main Content */}
+                {/* KPI Cards: Triaje Financiero */}
+                <div className="grid gap-3 md:grid-cols-3">
+                    {/* Tarjeta 1: Cobranza Crítica (ROJO) */}
+                    <Link href="/dashboard/clientes?f=critico" className="group">
+                        <Card className={`relative overflow-hidden transition-all hover:shadow-md ${filter === 'critico' ? 'ring-2 ring-red-500 bg-red-50/50' : 'hover:bg-slate-50'}`}>
+                            <div className={`absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity ${filter === 'critico' ? 'opacity-20' : ''}`}>
+                                <AlertTriangle className="h-8 w-8 text-red-600" />
+                            </div>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+                                <CardTitle className="text-xs font-medium text-red-600 uppercase tracking-wider">
+                                    Cobranza Crítica
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="pb-3">
+                                <div className="text-xl font-bold text-red-700">S/ {meta.montoCritico.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</div>
+                                <p className="text-[10px] text-red-600/80 mt-1 font-medium">
+                                    {meta.clientesCriticos} deudores vencidos
+                                </p>
+                            </CardContent>
+                        </Card>
+                    </Link>
+
+                    {/* Tarjeta 2: Vencimientos Semanales (AMBAR) */}
+                    <Link href="/dashboard/clientes?f=alerta" className="group">
+                        <Card className={`relative overflow-hidden transition-all hover:shadow-md ${filter === 'alerta' ? 'ring-2 ring-amber-500 bg-amber-50/50' : 'hover:bg-slate-50'}`}>
+                            <div className={`absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity ${filter === 'alerta' ? 'opacity-20' : ''}`}>
+                                <Clock className="h-8 w-8 text-amber-600" />
+                            </div>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+                                <CardTitle className="text-xs font-medium text-amber-600 uppercase tracking-wider">
+                                    Vencimientos (7d)
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="pb-3">
+                                <div className="text-xl font-bold text-amber-700">S/ {meta.montoPorVencer.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</div>
+                                <p className="text-[10px] text-amber-600/80 mt-1 font-medium">
+                                    {meta.vencimientosSemana} por vencer
+                                </p>
+                            </CardContent>
+                        </Card>
+                    </Link>
+
+                    {/* Tarjeta 3: Cartera Total (AZUL/NEUTRO) */}
+                    <Link href="/dashboard/clientes?f=todos" className="group">
+                        <Card className={`relative overflow-hidden transition-all hover:shadow-md ${filter === 'todos' ? 'ring-2 ring-slate-400 bg-slate-50/50' : 'hover:bg-slate-50'}`}>
+                            <div className={`absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity ${filter === 'todos' ? 'opacity-20' : ''}`}>
+                                <Users className="h-8 w-8 text-slate-600" />
+                            </div>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+                                <CardTitle className="text-xs font-medium text-slate-600 uppercase tracking-wider">
+                                    Cartera Total
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="pb-3">
+                                <div className="text-xl font-bold text-slate-700">{meta.totalClientes}</div>
+                                <p className="text-[10px] text-muted-foreground mt-1">
+                                    Clientes activos
+                                </p>
+                            </CardContent>
+                        </Card>
+                    </Link>
+                </div>
+
+                {/* Main Table Section */}
                 <Card className="glass-panel border-0 shadow-xl">
-                    <CardHeader>
+                    <CardHeader className="pb-2">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div>
-                                <CardTitle>Cartera de Clientes</CardTitle>
+                                <CardTitle className="flex items-center gap-2">
+                                    {filter === 'critico' ? '🚨 Lista de Morosos' : filter === 'alerta' ? '⚠️ Próximos Vencimientos' : '📋 Carteras Activas'}
+                                </CardTitle>
                                 <CardDescription>
-                                    Mostrando {clientes.length} resultados activos.
+                                    Mostrando <b>{meta.pagination.totalRecords}</b> expedientes {filter !== 'todos' ? 'filtrados por prioridad' : ''}.
                                 </CardDescription>
                             </div>
-                            <div className="relative w-full md:w-96">
-                                <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                <form action="/dashboard/clientes" method="GET">
-                                    <Input
-                                        name="q"
-                                        placeholder="Buscar por nombre, DNI o teléfono..."
-                                        className="pl-10 rounded-full bg-white/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:bg-white transition-all"
-                                        defaultValue={query}
-                                    />
-                                </form>
-                            </div>
+                            <SearchInput placeholder="Buscar por nombre, DNI o teléfono..." />
                         </div>
                     </CardHeader>
-                    <CardContent className="p-0">
+                    <CardContent className="p-0 relative">
+                        {/* Loading State Overlay si fuera necesario, pero Next.js maneja loading.tsx */}
+
                         <Table>
                             <TableHeader>
-                                <TableRow className="hover:bg-transparent border-b border-slate-100 dark:border-slate-800">
-                                    <TableHead className="pl-6">Cliente</TableHead>
-                                    <TableHead>Documento</TableHead>
-                                    <TableHead>Contacto</TableHead>
-                                    <TableHead>Estado</TableHead>
-                                    <TableHead>Riesgo</TableHead>
-                                    <TableHead className="text-right pr-6">Acciones</TableHead>
+                                <TableRow className="hover:bg-transparent border-b border-slate-100 dark:border-slate-800 bg-slate-50/30">
+                                    <TableHead className="pl-6 w-[250px]">Cliente / Expediente</TableHead>
+                                    <TableHead className="text-right text-red-700 font-semibold bg-red-50/30">Deuda Total</TableHead>
+                                    <TableHead className="text-right font-medium">Próximo Vencimiento</TableHead>
+                                    <TableHead>Contacto Directo</TableHead>
+                                    <TableHead className="text-center w-[100px]">Estado</TableHead>
+                                    <TableHead className="text-right pr-6 w-[80px]">Acción</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {clientes.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                                            No se encontraron clientes.
+                                        <TableCell colSpan={6} className="h-32 text-center">
+                                            <div className="flex flex-col items-center justify-center text-muted-foreground">
+                                                <Search className="h-8 w-8 mb-2 opacity-20" />
+                                                <p>No se encontraron resultados en esta categoría.</p>
+                                                {filter !== 'todos' && (
+                                                    <Link href="/dashboard/clientes" className="text-sm text-primary hover:underline mt-1">
+                                                        Ver todos los clientes
+                                                    </Link>
+                                                )}
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     clientes.map((cliente) => (
-                                        <TableRow key={cliente.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 transition-colors">
-                                            <TableCell className="pl-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <Avatar className="h-10 w-10 border-2 border-white dark:border-slate-800 shadow-sm">
-                                                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${cliente.nombres}`} />
-                                                        <AvatarFallback>{cliente.nombres?.[0]}{cliente.apellido_paterno?.[0]}</AvatarFallback>
-                                                    </Avatar>
-                                                    <div className="flex flex-col">
-                                                        <span className="font-medium text-slate-900 dark:text-white group-hover:text-primary transition-colors">
-                                                            {cliente.nombres} {cliente.apellido_paterno}
-                                                        </span>
-                                                        <span className="text-xs text-muted-foreground">
-                                                            Registrado el {new Date(cliente.created_at).toLocaleDateString()}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-medium">{cliente.numero_documento}</span>
-                                                    <span className="text-xs text-muted-foreground">{cliente.tipo_documento}</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-col gap-1">
-                                                    {cliente.telefono_principal && (
-                                                        <div className="flex items-center text-xs text-muted-foreground">
-                                                            <Phone className="mr-1 h-3 w-3" />
-                                                            {cliente.telefono_principal}
-                                                        </div>
-                                                    )}
-                                                    {cliente.email && (
-                                                        <div className="flex items-center text-xs text-muted-foreground">
-                                                            <Mail className="mr-1 h-3 w-3" />
-                                                            {cliente.email}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 font-normal">
-                                                    Activo
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                                                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Bajo</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-right pr-6">
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" className="h-8 w-8 p-0">
-                                                            <span className="sr-only">Abrir menú</span>
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                        <DropdownMenuItem>Ver Perfil Completo</DropdownMenuItem>
-                                                        <DropdownMenuItem>Historial de Créditos</DropdownMenuItem>
-                                                        <DropdownMenuSeparator />
-                                                        <DropdownMenuItem className="text-red-600">Reportar Incidencia</DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </TableCell>
-                                        </TableRow>
+                                        <ClienteRow key={cliente.id} cliente={cliente} />
                                     ))
                                 )}
                             </TableBody>
                         </Table>
                     </CardContent>
+
+                    {/* Pagination Footer */}
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/20">
+                            <div className="text-xs text-muted-foreground">
+                                Página <b>{page}</b> de <b>{totalPages}</b>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Link
+                                    href={`/dashboard/clientes?page=${page - 1}&q=${query}&f=${filter}`}
+                                    className={`inline-flex items-center justify-center h-8 w-8 rounded hover:bg-slate-100 ${page <= 1 ? 'pointer-events-none opacity-50' : ''}`}
+                                    aria-disabled={page <= 1}
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                </Link>
+                                <Link
+                                    href={`/dashboard/clientes?page=${page + 1}&q=${query}&f=${filter}`}
+                                    className={`inline-flex items-center justify-center h-8 w-8 rounded hover:bg-slate-100 ${page >= totalPages ? 'pointer-events-none opacity-50' : ''}`}
+                                    aria-disabled={page >= totalPages}
+                                >
+                                    <ChevronRight className="h-4 w-4" />
+                                </Link>
+                            </div>
+                        </div>
+                    )}
                 </Card>
             </div>
         </div>
     )
 }
+

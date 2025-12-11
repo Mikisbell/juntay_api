@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { buscarContratoPorCodigo, registrarPago, ContratoParaPago } from '@/lib/actions/pagos-actions'
 import { Search, DollarSign, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
-import { ModalRenovar } from '@/components/renovaciones/ModalRenovar'
+// import { ModalRenovar } from '@/components/renovaciones/ModalRenovar' // Commented out - component removed
 
 export function FormularioPago({ cajaId }: { cajaId: string }) {
     const [codigo, setCodigo] = useState('')
@@ -195,6 +195,7 @@ export function FormularioPago({ cajaId }: { cajaId: string }) {
             )}
 
             {/* Modal de Renovación */}
+            {/* Temporarily disabled - ModalRenovar component removed
             {contrato && mostrarRenovacion && (
                 <ModalRenovar
                     contrato={contrato}
@@ -206,6 +207,7 @@ export function FormularioPago({ cajaId }: { cajaId: string }) {
                     }}
                 />
             )}
+            */}
         </div>
     )
 }

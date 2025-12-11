@@ -31,7 +31,14 @@ export function ExpirationTimeline() {
     useEffect(() => {
         const fetchData = async () => {
             const { data, error } = await supabase.rpc('get_upcoming_expirations', { p_days: 7 })
-            if (error) console.error('Error fetching timeline:', error)
+            if (error) {
+                console.error('Error fetching timeline:', {
+                    message: error.message,
+                    code: error.code,
+                    details: error.details,
+                    hint: error.hint
+                })
+            }
             else setItems(data || [])
             setLoading(false)
         }

@@ -39,7 +39,16 @@ export default async function InventarioPage({
                             size="sm"
                             className="h-8"
                         >
-                            En Custodia
+                            🟢 En Custodia
+                        </Button>
+                    </Link>
+                    <Link href="/dashboard/inventario?estado=vencido">
+                        <Button
+                            variant={estado === 'vencido' ? 'secondary' : 'ghost'}
+                            size="sm"
+                            className="h-8"
+                        >
+                            🟡 Vencidos
                         </Button>
                     </Link>
                     <Link href="/dashboard/inventario?estado=remate">
@@ -48,7 +57,16 @@ export default async function InventarioPage({
                             size="sm"
                             className={estado === 'remate' ? 'h-8' : 'h-8 text-muted-foreground hover:text-destructive'}
                         >
-                            En Remate
+                            🔴 En Remate
+                        </Button>
+                    </Link>
+                    <Link href="/dashboard/inventario?estado=vendido">
+                        <Button
+                            variant={estado === 'vendido' ? 'secondary' : 'ghost'}
+                            size="sm"
+                            className="h-8"
+                        >
+                            ⚫ Vendidos
                         </Button>
                     </Link>
                 </div>

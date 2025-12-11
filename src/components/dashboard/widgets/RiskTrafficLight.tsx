@@ -20,7 +20,14 @@ export function RiskTrafficLight() {
     useEffect(() => {
         const fetchData = async () => {
             const { data, error } = await supabase.rpc('get_cartera_risk_summary')
-            if (error) console.error('Error fetching risk summary:', error)
+            if (error) {
+                console.error('Error fetching risk summary:', {
+                    message: error.message,
+                    code: error.code,
+                    details: error.details,
+                    hint: error.hint
+                })
+            }
             else setData(data || [])
             setLoading(false)
         }

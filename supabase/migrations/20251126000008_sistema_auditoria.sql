@@ -112,10 +112,10 @@ CREATE TRIGGER audit_garantias
     FOR EACH ROW EXECUTE FUNCTION public.audit_trigger_function();
 
 -- Cajas (apertura/cierre)
-DROP TRIGGER IF EXISTS audit_cajas ON public.cajas;
-CREATE TRIGGER audit_cajas 
-    AFTER INSERT OR UPDATE OR DELETE ON public.cajas
-    FOR EACH ROW EXECUTE FUNCTION public.audit_trigger_function();
+DROP TRIGGER IF EXISTS audit_cajas ON public.cajas_operativas;
+CREATE TRIGGER audit_cajas
+AFTER INSERT OR UPDATE OR DELETE ON public.cajas_operativas
+FOR EACH ROW EXECUTE FUNCTION public.audit_trigger_function();
 
 -- Personas (datos personales)
 DROP TRIGGER IF EXISTS audit_personas ON public.personas;

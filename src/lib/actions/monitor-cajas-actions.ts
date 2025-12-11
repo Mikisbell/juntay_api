@@ -33,6 +33,7 @@ export interface ResumenConsolidado {
     total_transacciones_hoy: number
     total_empenos_hoy: number
     total_pagos_hoy: number
+    saldo_boveda: number
 }
 
 /**
@@ -121,7 +122,14 @@ export async function obtenerCajasActivas() {
  * Obtiene resumen consolidado de todas las cajas activas
  */
 export async function obtenerResumenConsolidado(): Promise<ResumenConsolidado> {
+    const supabase = getServiceClient()
     const cajas = await obtenerCajasActivas()
+
+    // Obtener saldo de bóveda central
+    const { data: boveda } = await supabase
+        .from('boveda_central')
+        .select('saldo_disponible')
+        .single()
 
     return {
         total_cajas_abiertas: cajas.length,
@@ -129,5 +137,7 @@ export async function obtenerResumenConsolidado(): Promise<ResumenConsolidado> {
         total_transacciones_hoy: cajas.reduce((sum, c) => sum + c.num_transacciones_dia, 0),
         total_empenos_hoy: cajas.reduce((sum, c) => sum + c.num_empenos_dia, 0),
         total_pagos_hoy: cajas.reduce((sum, c) => sum + c.num_pagos_dia, 0),
+        saldo_boveda: boveda?.saldo_disponible ? parseFloat(boveda.saldo_disponible) : 0,
     }
 }
+
