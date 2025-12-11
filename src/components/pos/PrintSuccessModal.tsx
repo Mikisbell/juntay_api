@@ -1,13 +1,16 @@
 "use client"
 
+import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { CheckCircle2, FileText, Printer, Plus, Scroll } from "lucide-react"
+import { CheckCircle2, FileText, Printer, Plus, Scroll, Banknote, Loader2 } from "lucide-react"
 import { usePrint } from "@/components/printing/PrintProvider"
 import { A4Layout } from "@/components/printing/A4Layout"
 import { TicketLayout } from "@/components/printing/TicketLayout"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
+import { toast } from "sonner"
+import { confirmarDesembolsoCredito } from "@/lib/actions/creditos-actions"
 
 // ============================================================================
 // CONTRATO DE MUTUO PRENDARIO - Conforme a normativa peruana
@@ -349,8 +352,9 @@ interface PrintData {
     garantiaEstado?: string
     valorTasacion?: number
     estado?: string
-    tasaInteres?: number // Tasa mensual configurable (por defecto 20%)
-    fotos?: string[] // URLs de fotos del bien en garantía
+    tasaInteres?: number
+    fotos?: string[]
+    creditoId?: string  // ID del crédito para confirmar desembolso
 }
 
 interface PrintSuccessModalProps {
@@ -363,7 +367,36 @@ interface PrintSuccessModalProps {
 // COMPONENTE PRINCIPAL
 // ============================================================================
 export function PrintSuccessModal({ open, data, onClose, onReset }: PrintSuccessModalProps) {
+    const [isConfirming, setIsConfirming] = useState(false)
+    const [isConfirmed, setIsConfirmed] = useState(false)
+
     if (!data) return null
+
+    // Determinar si necesita confirmación de desembolso
+    const needsDisbursementConfirmation = data.estado !== 'DESEMBOLSADO' && !isConfirmed
+
+    // Función para confirmar el desembolso (después de que el cliente firma)
+    const handleConfirmDisbursement = async () => {
+        if (!data.creditoId) {
+            toast.error("No se encontró el ID del crédito")
+            return
+        }
+
+        setIsConfirming(true)
+        try {
+            const result = await confirmarDesembolsoCredito(data.creditoId)
+            if (result.success) {
+                setIsConfirmed(true)
+                toast.success("✅ ¡Desembolso confirmado! Entregue S/" + data.monto + " al cliente")
+            } else {
+                toast.error(result.error || "Error al confirmar desembolso")
+            }
+        } catch (error: any) {
+            toast.error(error.message || "Error al confirmar desembolso")
+        } finally {
+            setIsConfirming(false)
+        }
+    }
 
     // Función para imprimir usando window.open (más confiable)
     const printHTML = (title: string, content: string) => {
@@ -951,17 +984,56 @@ export function PrintSuccessModal({ open, data, onClose, onReset }: PrintSuccess
                     </Button>
                 </div>
 
-                <DialogFooter className="sm:justify-center gap-2">
-                    <Button variant="ghost" onClick={onClose}>
-                        Cerrar
-                    </Button>
-                    <Button className="w-full bg-slate-900" onClick={() => {
-                        onClose()
-                        onReset()
-                    }}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Nuevo Cliente
-                    </Button>
+                <DialogFooter className="flex-col sm:flex-col gap-3">
+                    {/* Botón principal de confirmación de desembolso */}
+                    {needsDisbursementConfirmation ? (
+                        <Button
+                            className="w-full h-14 text-lg bg-emerald-600 hover:bg-emerald-700 shadow-lg"
+                            onClick={handleConfirmDisbursement}
+                            disabled={isConfirming}
+                        >
+                            {isConfirming ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                    Procesando...
+                                </>
+                            ) : (
+                                <>
+                                    <Banknote className="w-5 h-5 mr-2" />
+                                    ✅ Documentos Firmados - Confirmar Desembolso
+                                </>
+                            )}
+                        </Button>
+                    ) : isConfirmed ? (
+                        <div className="w-full p-4 bg-emerald-100 border-2 border-emerald-300 rounded-lg text-center">
+                            <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
+                            <p className="text-emerald-800 font-semibold">
+                                ¡Desembolso Confirmado!
+                            </p>
+                            <p className="text-emerald-700 text-lg font-bold">
+                                Entregue S/{data.monto?.toFixed(2)} al cliente
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="w-full p-3 bg-emerald-100 border border-emerald-200 rounded-lg text-center">
+                            <p className="text-emerald-800 font-medium">
+                                ✅ Desembolso automático completado
+                            </p>
+                        </div>
+                    )}
+
+                    <div className="flex gap-2 w-full">
+                        <Button variant="ghost" onClick={onClose} className="flex-1">
+                            Cerrar
+                        </Button>
+                        <Button className="flex-1 bg-slate-900" onClick={() => {
+                            onClose()
+                            onReset()
+                        }}>
+                            <Plus className="w-4 h-4 mr-2" />
+                            Nuevo Cliente
+                        </Button>
+                    </div>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

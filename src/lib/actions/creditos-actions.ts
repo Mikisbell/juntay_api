@@ -204,9 +204,7 @@ export async function crearCreditoExpress(payload: {
     if (payload.montoPrestamo > 50000) {
         throw new Error("El monto máximo de préstamo es S/50,000. Contacte a gerencia.")
     }
-    if (payload.montoPrestamo > payload.valorTasacion) {
-        throw new Error(`El préstamo (S/${payload.montoPrestamo}) no puede exceder el valor tasado (S/${payload.valorTasacion})`)
-    }
+    // NOTA: No validamos préstamo <= tasación - el tasador experto decide
     if (payload.tasaInteres < 1 || payload.tasaInteres > 50) {
         throw new Error("La tasa de interés debe estar entre 1% y 50%")
     }
@@ -316,4 +314,82 @@ export async function desembolsarCreditoPendiente(creditoId: string, cajaId: str
         .eq('id', creditoId)
 
     return { success: true }
+}
+
+/**
+ * Confirma el desembolso de un crédito (llamado desde el modal después de firmar documentos)
+ */
+export async function confirmarDesembolsoCredito(creditoId: string) {
+    const supabase = await createClient()
+
+    // 0. Obtener usuario actual
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Usuario no autenticado" }
+
+    // 1. Verificar que el crédito existe y está pendiente
+    const { data: credito } = await supabase.from('creditos')
+        .select('id, monto_prestado, codigo_credito, estado, estado_detallado')
+        .eq('id', creditoId)
+        .single()
+
+    if (!credito) return { success: false, error: "Crédito no encontrado" }
+
+    if (credito.estado === 'vigente' && credito.estado_detallado === 'vigente') {
+        return { success: true, message: "El crédito ya fue desembolsado" }
+    }
+
+    // 2. Buscar caja abierta del usuario
+    const { data: caja } = await supabase.from('cajas_operativas')
+        .select('id, saldo_actual, estado')
+        .eq('usuario_id', user.id)
+        .eq('estado', 'abierta')
+        .single()
+
+    if (!caja) return { success: false, error: "No tienes una caja abierta. Abre tu caja primero." }
+
+    // 3. Verificar saldo suficiente
+    if (caja.saldo_actual < credito.monto_prestado) {
+        return {
+            success: false,
+            error: `Saldo insuficiente. Caja: S/${caja.saldo_actual?.toFixed(2)}, Necesario: S/${credito.monto_prestado}`
+        }
+    }
+
+    // 4. Registrar movimiento de egreso
+    const { error: errorMov } = await supabase.from('movimientos_caja_operativa')
+        .insert({
+            caja_operativa_id: caja.id,
+            tipo: 'EGRESO',
+            motivo: 'DESEMBOLSO_EMPENO',
+            monto: credito.monto_prestado,
+            referencia_id: creditoId,
+            descripcion: `Desembolso confirmado #${credito.codigo_credito}`,
+            usuario_id: user.id,
+            saldo_anterior: caja.saldo_actual,
+            saldo_nuevo: caja.saldo_actual - credito.monto_prestado
+        })
+
+    if (errorMov) {
+        console.error("Error en movimiento:", errorMov)
+        return { success: false, error: "Error registrando movimiento de caja" }
+    }
+
+    // 5. Actualizar saldo de caja
+    await supabase.from('cajas_operativas')
+        .update({ saldo_actual: caja.saldo_actual - credito.monto_prestado })
+        .eq('id', caja.id)
+
+    // 6. Actualizar estado del crédito a vigente
+    await supabase.from('creditos')
+        .update({
+            estado: 'vigente',
+            estado_detallado: 'vigente',
+            fecha_desembolso: new Date().toISOString()
+        })
+        .eq('id', creditoId)
+
+    return {
+        success: true,
+        message: `Desembolso confirmado: S/${credito.monto_prestado}`
+    }
 }

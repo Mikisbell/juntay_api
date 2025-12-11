@@ -64,6 +64,12 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
 
     const cajaAbierta = caja?.estado === 'abierta'
 
+    // Estado para evitar hydration mismatch
+    const [isMounted, setIsMounted] = useState(false)
+    useEffect(() => {
+        setIsMounted(true)
+    }, [])
+
     // 2. Estado del Formulario
     const [step, setStep] = useState<'CLIENTE' | 'PRENDA' | 'RESUMEN'>(initialCliente ? 'PRENDA' : 'CLIENTE')
     // El ID de sesión debe ser persistente, si no hay backup, crea nuevo.
@@ -240,8 +246,12 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
         // Validaciones de monto
         if (montoPrestamo < 50) return toast.error("El monto mínimo es S/50")
         if (montoPrestamo > 50000) return toast.error("El monto máximo es S/50,000. Contacte a gerencia.")
+        // Aviso si excede tasación (no bloquea)
         if (montoPrestamo > valorMercado) {
-            return toast.error(`El préstamo (S/${montoPrestamo}) no puede exceder el valor tasado (S/${valorMercado})`)
+            if (!confirm(`⚠️ El préstamo (S/${montoPrestamo}) excede el valor tasado (S/${valorMercado}).\n\n¿Desea continuar bajo su criterio profesional?`)) {
+                return
+            }
+            toast.warning(`Préstamo aprobado por encima de tasación: S/${montoPrestamo} > S/${valorMercado}`)
         }
         if (tasaInteres < 1 || tasaInteres > 50) return toast.error("La tasa debe estar entre 1% y 50%")
 
@@ -638,7 +648,9 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
                         {/* Estado Caja */}
                         <div className="flex items-center justify-between">
                             <span className="text-sm text-slate-500">Estado Caja</span>
-                            {cajaAbierta ? (
+                            {!isMounted ? (
+                                <Badge variant="outline" className="text-slate-400 animate-pulse">...</Badge>
+                            ) : cajaAbierta ? (
                                 <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100 border-emerald-200">
                                     🟢 Abierta
                                 </Badge>

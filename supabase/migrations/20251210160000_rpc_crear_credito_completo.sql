@@ -43,11 +43,8 @@ BEGIN
         RAISE EXCEPTION 'El monto máximo de préstamo es S/50,000. Contacte a gerencia.';
     END IF;
     
-    -- 2. El préstamo no puede exceder el 100% del valor tasado
-    IF p_monto_prestamo > p_valor_tasacion THEN
-        RAISE EXCEPTION 'El préstamo (S/%) no puede exceder el valor tasado (S/%)', 
-            p_monto_prestamo, p_valor_tasacion;
-    END IF;
+    -- NOTA: No validamos que préstamo <= tasación
+    -- El tasador experto tiene flexibilidad para ajustar según su criterio profesional
     
     -- 3. Tasa de interés válida
     IF p_tasa_interes < 1 OR p_tasa_interes > 50 THEN
