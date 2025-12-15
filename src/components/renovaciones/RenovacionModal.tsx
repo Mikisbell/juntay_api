@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge'
 import { Loader2, Calculator, AlertTriangle } from 'lucide-react'
 import { ContratoRenovable, renovarContrato } from '@/lib/actions/renovaciones-actions'
 import { useRouter } from 'next/navigation'
+import { SelectorModalidadInteres } from '@/components/pagos/SelectorModalidadInteres'
+import { ModalidadInteres, ResultadoInteres, calcularInteresFlexible, calcularDiasTranscurridos } from '@/lib/utils/interes-flexible'
 
 type Props = {
     contrato: ContratoRenovable | null
@@ -20,17 +22,34 @@ export function RenovacionModal({ contrato, open, onOpenChange }: Props) {
     const router = useRouter()
     const [opcion, setOpcion] = useState<'total' | 'intereses'>('intereses')
     const [loading, setLoading] = useState(false)
+    const [modalidadInteres, setModalidadInteres] = useState<ModalidadInteres>('semanas')
+    const [interesCalculado, setInteresCalculado] = useState<ResultadoInteres | null>(null)
 
+    // Calcular días transcurridos (mover antes del early return)
+    const diasTranscurridos = contrato?.dias_transcurridos ||
+        (contrato?.fecha_creacion ? calcularDiasTranscurridos(contrato.fecha_creacion) : 30)
+
+    // Usar tasa del contrato o default de 20%
+    const tasaInteres = contrato?.tasa_interes || 20
+
+    // Calcular interés según modalidad (hook debe ser llamado siempre)
+    const interesFlexible = useMemo(() => {
+        if (!contrato) return { interes: 0, porcentajeAplicado: 0, diasCobrados: 0, descripcion: '', formula: '' }
+        return calcularInteresFlexible(contrato.monto_prestado, tasaInteres, diasTranscurridos, modalidadInteres)
+    }, [contrato, tasaInteres, diasTranscurridos, modalidadInteres])
+
+    // Early return DESPUÉS de los hooks
     if (!contrato) return null
 
-    const montoTotal = contrato.saldo_pendiente + contrato.interes_acumulado
-    const montoIntereses = contrato.interes_acumulado
+    // Usar interés flexible si está disponible, sino el acumulado legacy
+    const montoIntereses = interesCalculado?.interes ?? interesFlexible.interes
+    const montoTotal = contrato.saldo_pendiente + montoIntereses
     const montoPagar = opcion === 'total' ? montoTotal : montoIntereses
 
     const handleRenovar = async () => {
         setLoading(true)
         try {
-            const result = await renovarContrato(contrato.id, opcion, montoPagar)
+            const result = await renovarContrato(contrato.id, opcion, montoPagar, undefined, modalidadInteres)
             if (result.success) {
                 alert(result.mensaje)
                 onOpenChange(false)
@@ -82,8 +101,8 @@ export function RenovacionModal({ contrato, open, onOpenChange }: Props) {
                             <span className="font-semibold">S/. {contrato.saldo_pendiente.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Interés Acumulado:</span>
-                            <span className="font-semibold text-amber-600">+ S/. {contrato.interes_acumulado.toFixed(2)}</span>
+                            <span className="text-sm text-muted-foreground">Interés Flexible:</span>
+                            <span className="font-semibold text-amber-600">+ S/. {montoIntereses.toFixed(2)}</span>
                         </div>
                         <div className="border-t pt-3 mt-2">
                             <div className="flex justify-between items-center">
@@ -93,9 +112,20 @@ export function RenovacionModal({ contrato, open, onOpenChange }: Props) {
                         </div>
                     </div>
 
+                    {/* NUEVO: Selector de Modalidad de Interés */}
+                    <SelectorModalidadInteres
+                        montoPrestado={contrato.monto_prestado}
+                        saldoPendiente={contrato.saldo_pendiente}
+                        tasaMensual={tasaInteres}
+                        diasTranscurridos={diasTranscurridos}
+                        onModalidadChange={setModalidadInteres}
+                        onInteresCalculado={setInteresCalculado}
+                        modalidadSeleccionada={modalidadInteres}
+                    />
+
                     {/* Opciones de Renovación */}
                     <div className="space-y-3">
-                        <Label className="text-base font-semibold">Selecciona una opción:</Label>
+                        <Label className="text-base font-semibold">Tipo de Operación:</Label>
                         <RadioGroup value={opcion} onValueChange={(v) => setOpcion(v as 'total' | 'intereses')}>
                             <div
                                 className={`flex items-start space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-colors ${opcion === 'intereses'

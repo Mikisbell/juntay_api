@@ -10,8 +10,11 @@ export type ContratoRenovable = {
     cliente_nombre: string
     cliente_telefono: string
     fecha_vencimiento: string
+    fecha_creacion: string      // NUEVO: Para calcular días transcurridos
     dias_restantes: number
+    dias_transcurridos: number  // NUEVO: Días desde inicio
     monto_prestado: number
+    tasa_interes: number        // NUEVO: Tasa mensual %
     interes_acumulado: number
     saldo_pendiente: number
     garantia_descripcion: string
