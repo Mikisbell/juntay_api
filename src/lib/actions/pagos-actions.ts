@@ -18,6 +18,7 @@ export type ContratoParaPago = {
     interes_acumulado: number
     dias_mora: number
     mora_pendiente: number
+    created_at?: string // NUEVO: Para cálculo de interés flexible
 }
 
 export async function buscarContratoPorCodigo(codigo: string): Promise<ContratoParaPago | null> {
@@ -217,6 +218,7 @@ export async function buscarContratosPorClienteId(clienteId: string): Promise<Co
             interes_acumulado,
             estado,
             estado_detallado,
+            created_at,
             garantias:garantias!creditos_garantia_id_fkey(descripcion, subcategoria)
         `)
         .eq('cliente_id', clienteId)
@@ -256,7 +258,8 @@ export async function buscarContratosPorClienteId(clienteId: string): Promise<Co
             fecha_vencimiento: credito.fecha_vencimiento,
             interes_acumulado: credito.interes_acumulado,
             dias_mora: diasMoraEfectivos,
-            mora_pendiente: moraPendiente
+            mora_pendiente: moraPendiente,
+            created_at: credito.created_at // NUEVO: Para cálculo de interés flexible
         }
     })
 }

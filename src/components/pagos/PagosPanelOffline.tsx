@@ -69,14 +69,20 @@ export function PagosPanelOffline({ cajaId, usuarioId }: PagosPanelOfflineProps)
                 saldo_pendiente: String(c.saldo_pendiente || 0),
                 monto_prestado: String(c.monto_prestado || 0),
                 estado: c.dias_mora > 0 ? 'vencido' : 'vigente',
-                interes_devengado_actual: String(c.interes_acumulado || 0), // Ensure string
-                dias_mora: c.dias_mora
+                interes_devengado_actual: String(c.interes_acumulado || 0),
+                dias_mora: c.dias_mora,
+                // NUEVO: Campos para cálculo de interés flexible
+                created_at: c.created_at,
+                tasa_interes: c.tasa_interes || 20
             }))
         }
         return creditosLocales.map(c => ({
             ...c,
             codigo: c.codigo_credito,
-            dias_mora: 0 // Local doesn't track this yet
+            dias_mora: 0,
+            // NUEVO: Campos para cálculo de interés flexible
+            created_at: c.created_at,
+            tasa_interes: c.tasa_interes || 20
         }))
     }, [isOnline, creditosServer, creditosLocales])
 
