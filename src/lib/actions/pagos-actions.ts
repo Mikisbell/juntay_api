@@ -390,7 +390,13 @@ export async function renovarContratoAction({
     }
 
     // 1.5 Obtener usuario actual
-    const { data: { user } } = await supabase.auth.getUser()
+    let { data: { user } } = await supabase.auth.getUser()
+
+    // DEV MODE MOCK
+    if (!user && process.env.NODE_ENV === 'development') {
+        user = { id: '00000000-0000-0000-0000-000000000011' } as any
+    }
+
     if (!user) {
         return { success: false, error: 'Usuario no autenticado' }
     }
@@ -463,7 +469,13 @@ export async function registrarPago({
     // Mapear tipoPago a tipo esperado por RPC
     const tipoOperacion = tipoPago === 'desempeno' ? 'DESEMPENO' : 'RENOVACION'
 
-    const { data: { user } } = await supabase.auth.getUser()
+    let { data: { user } } = await supabase.auth.getUser()
+
+    // DEV MODE MOCK
+    if (!user && process.env.NODE_ENV === 'development') {
+        user = { id: '00000000-0000-0000-0000-000000000011' } as any
+    }
+
     if (!user) {
         return { success: false, error: 'Usuario no autenticado' }
     }

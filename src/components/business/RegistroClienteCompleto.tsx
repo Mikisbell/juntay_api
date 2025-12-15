@@ -347,6 +347,7 @@ export function RegistroClienteCompleto({
 
             // DEBUG: Validar que tipo_documento existe
             /*
+            console.log("Validando datos finales:", {
                 tipo_documento: datosFinales.tipo_documento,
                 numero_documento: datosFinales.numero_documento,
                 tipoDoc_estado: tipoDoc,

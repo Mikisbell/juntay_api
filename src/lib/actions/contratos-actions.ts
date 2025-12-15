@@ -44,7 +44,13 @@ export async function registrarEmpeno(data: EmpenoCompletoData) {
     }
 
     // 2. Obtener caja abierta
-    const caja = await obtenerCajaAbierta(user.id)
+    let caja = await obtenerCajaAbierta(user.id)
+
+    // DEV MODE: Mock caja if not found (simulating an open box)
+    if (!caja && process.env.NODE_ENV === 'development' && user.id === DEV_USER_ID) {
+        console.warn('⚠️ [DEV] Usando CAJA MOCK para pruebas')
+        caja = { id: '00000000-0000-0000-0000-000000000001', numero_caja: 1 } as any
+    }
 
     if (!caja) {
         const errorMsg = process.env.NODE_ENV === 'development'
