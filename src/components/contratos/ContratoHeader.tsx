@@ -124,11 +124,11 @@ export function ContratoHeader({ cliente, contrato, esVencido }: ContratoHeaderP
                         </p>
 
                         <p className="mb-4">
-                            <strong>LA CASA DE EMPEÑOS JUNTAY</strong>, con RUC 20123456789, en adelante "LA EMPRESA".
+                            <strong>LA CASA DE EMPEÑOS JUNTAY</strong>, con RUC 20123456789, en adelante &quot;LA EMPRESA&quot;.
                         </p>
 
                         <p className="mb-4">
-                            Y por otra parte, <strong>{cliente.nombre_completo}</strong>, identificado con DNI N° <strong>{cliente.numero_documento}</strong>, en adelante "EL CLIENTE".
+                            Y por otra parte, <strong>{cliente.nombre_completo}</strong>, identificado con DNI N° <strong>{cliente.numero_documento}</strong>, en adelante &quot;EL CLIENTE&quot;.
                         </p>
 
                         <h3 className="font-bold mt-6 mb-2">CLÁUSULA PRIMERA: DEL OBJETO</h3>

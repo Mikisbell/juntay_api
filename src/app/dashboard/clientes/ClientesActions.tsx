@@ -17,7 +17,6 @@ export function ClientesActions() {
         <div className="flex items-center gap-2">
             <SmartPasteButton onParsed={(data) => {
                 // Aquí abriríamos el modal de "Nuevo Cliente" con los datos pre-llenados
-                console.log("Datos AI:", data)
                 toast.info(`IA detectó: ${data.dni || '?'} - ${data.nombre || '?'}`)
             }} />
             <Button className="gap-2 shadow-lg shadow-primary/20" onClick={handleNuevoCliente}>

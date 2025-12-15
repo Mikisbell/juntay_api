@@ -132,7 +132,7 @@ export function MensajeWhatsappModal({ open, onOpenChange, cliente }: MensajeWha
                             className="resize-none"
                         />
                         <p className="text-xs text-muted-foreground">
-                            El mensaje se firmará automáticamente como "— JUNTAY Financiera"
+                            El mensaje se firmará automáticamente como &quot;— JUNTAY Financiera&quot;
                         </p>
                     </div>
                 </div>

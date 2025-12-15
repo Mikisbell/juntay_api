@@ -21,11 +21,9 @@ export async function obtenerCajaAbierta(usuarioId: string) {
         if (error.code !== 'PGRST116') {
             console.error('Error obteniendo caja abierta:', error)
         }
-        console.log('[INFO] No se encontró caja abierta para usuario:', usuarioId)
         return null
     }
 
-    console.log('[INFO] Caja encontrada:', data)
     return data
 }
 
@@ -37,7 +35,6 @@ export async function registrarEmpeno(data: EmpenoCompletoData) {
 
     // DEV MODE: Mock session
     if ((authError || !user) && process.env.NODE_ENV === 'development') {
-        console.log('DEV MODE: Using mock user session')
         user = { id: DEV_USER_ID } as any
         authError = null
     }
@@ -47,9 +44,7 @@ export async function registrarEmpeno(data: EmpenoCompletoData) {
     }
 
     // 2. Obtener caja abierta
-    console.log('[DEV] Attempting to get caja for user:', user.id, '| NODE_ENV:', process.env.NODE_ENV)
     const caja = await obtenerCajaAbierta(user.id)
-    console.log('[DEV] Caja result:', caja)
 
     if (!caja) {
         const errorMsg = process.env.NODE_ENV === 'development'
@@ -69,15 +64,11 @@ export async function registrarEmpeno(data: EmpenoCompletoData) {
     let valorMercado = data.detallesGarantia.valorMercado || 0
     const montoPrestamo = data.detallesGarantia.montoPrestamo || 0
 
-    console.log('[DEBUG] valorMercado recibido:', valorMercado)
-    console.log('[DEBUG] montoPrestamo recibido:', montoPrestamo)
-    console.log('[DEBUG] detallesGarantia completo:', JSON.stringify(data.detallesGarantia, null, 2))
 
     if (!valorMercado || valorMercado === 0) {
         if (montoPrestamo && montoPrestamo > 0) {
             // Estimamos que el préstamo es ~65% del valor de mercado (LTV típico)
             valorMercado = Math.round(montoPrestamo / 0.65)
-            console.log(`[AUTO-CALC] valorMercado estimado desde montoPrestamo: ${montoPrestamo} -> ${valorMercado}`)
         } else {
             // ❌ Error crítico: No podemos crear garantía sin valor de tasación
             console.error('[ERROR CRÍTICO] No hay valorMercado ni montoPrestamo:', {

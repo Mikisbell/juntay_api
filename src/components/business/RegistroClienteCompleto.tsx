@@ -346,12 +346,13 @@ export function RegistroClienteCompleto({
             }
 
             // DEBUG: Validar que tipo_documento existe
-            console.log('📋 datosFinales:', {
+            /*
                 tipo_documento: datosFinales.tipo_documento,
                 numero_documento: datosFinales.numero_documento,
                 tipoDoc_estado: tipoDoc,
                 numeroDoc_estado: numeroDoc
             })
+            */
 
             // Validación final antes de enviar
             if (!datosFinales.tipo_documento || !datosFinales.numero_documento) {
