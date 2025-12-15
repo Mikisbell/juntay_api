@@ -38,7 +38,7 @@ type SidebarContextProps = {
   setOpen: (open: boolean) => void
   openMobile: boolean
   setOpenMobile: (open: boolean) => void
-  isMobile: boolean
+  isMobile: boolean | undefined
   toggleSidebar: () => void
 }
 
@@ -196,6 +196,12 @@ const Sidebar = React.forwardRef<
           {children}
         </div>
       )
+    }
+
+    // SSR-safe: Don't render until we know if we're on mobile or desktop
+    // This prevents hydration mismatch between Sheet (mobile) and div (desktop)
+    if (isMobile === undefined) {
+      return null
     }
 
     if (isMobile) {

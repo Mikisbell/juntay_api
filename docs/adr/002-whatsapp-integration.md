@@ -1,7 +1,7 @@
 # ADR-002: Integración WhatsApp vía WAHA (Self-Hosted)
 
 **Status:** Accepted  
-**Date:** 2025-11-26  
+**Date:** 2025-11-26 (Actualizado: 2025-12-13)  
 **Deciders:** Mikis, Mateo
 
 ## Contexto y Problema

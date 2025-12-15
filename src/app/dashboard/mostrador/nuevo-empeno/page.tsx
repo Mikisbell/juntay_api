@@ -4,9 +4,26 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { FileText } from 'lucide-react'
 import { PAGE_TITLES, PAGE_DESCRIPTIONS } from '@/lib/constants/messages'
 import { createClient } from '@/lib/supabase/server'
+import { Suspense } from 'react'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface PageProps {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+// Loading fallback while SmartCreditForm loads
+function FormSkeleton() {
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-pulse">
+            <div className="lg:col-span-8 space-y-6">
+                <Skeleton className="h-[200px] w-full rounded-xl" />
+                <Skeleton className="h-[400px] w-full rounded-xl" />
+            </div>
+            <div className="lg:col-span-4">
+                <Skeleton className="h-[500px] w-full rounded-xl" />
+            </div>
+        </div>
+    )
 }
 
 export default async function NuevoEmpenoPage(props: PageProps) {
@@ -36,8 +53,9 @@ export default async function NuevoEmpenoPage(props: PageProps) {
                 description={PAGE_DESCRIPTIONS.nuevoEmpeno}
                 icon={FileText}
             />
-            {/* Smart POS Unificado */}
-            <SmartCreditForm initialCliente={initialCliente} />
+            <Suspense fallback={<FormSkeleton />}>
+                <SmartCreditForm initialCliente={initialCliente} />
+            </Suspense>
         </PageContainer>
     )
 }

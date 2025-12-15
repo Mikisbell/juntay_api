@@ -38,7 +38,7 @@ export function InteractiveParticles() {
         // - Network Connections (Constellation)
         // - 3D Parallax Depth
 
-        const particleCount = 180
+        const particleCount = 120 // Optimization: Reduced from 180 for smoother performance on laptops
         particlesRef.current = []
 
         for (let i = 0; i < particleCount; i++) {

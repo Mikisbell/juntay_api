@@ -198,8 +198,8 @@ export async function crearCreditoExpress(payload: {
     const clienteDireccion = clienteData?.direccion || ''
 
     // 4. Validaciones del lado del servidor (defensa en profundidad)
-    if (payload.montoPrestamo < 50) {
-        throw new Error("El monto mínimo de préstamo es S/50")
+    if (payload.montoPrestamo < 10) {
+        throw new Error("El monto mínimo de préstamo es S/10")
     }
     if (payload.montoPrestamo > 50000) {
         throw new Error("El monto máximo de préstamo es S/50,000. Contacte a gerencia.")

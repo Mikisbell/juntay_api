@@ -10,6 +10,7 @@ export type EstadoCaja = {
     saldoInicial: number
     fechaApertura: string
     numeroCaja: number
+    usuarioId: string
 } | null
 
 export type MovimientoCaja = {
@@ -67,7 +68,8 @@ export async function obtenerEstadoCaja(): Promise<EstadoCaja> {
         saldoActual: caja.saldo_actual,
         saldoInicial: caja.saldo_inicial,
         fechaApertura: caja.fecha_apertura,
-        numeroCaja: caja.numero_caja
+        numeroCaja: caja.numero_caja,
+        usuarioId: user.id
     }
 }
 

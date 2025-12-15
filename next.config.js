@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    reactStrictMode: true,
+    // TEMP: Disabled to diagnose hydration mismatch - re-enable after testing
+    reactStrictMode: false,
 
     // Image optimization
     images: {
@@ -46,8 +47,21 @@ const nextConfig = {
 
     // Headers for caching - CRITICAL for speed
     async headers() {
+        const isDev = process.env.NODE_ENV !== 'production'
+
         return [
-            {
+            // Development only: prevent browser caching of HTML to avoid hydration errors
+            ...(isDev ? [{
+                source: '/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'no-store, must-revalidate',
+                    },
+                ],
+            }] : []),
+            // Production only: cache static assets (NOT in dev to avoid hydration issues)
+            ...(!isDev ? [{
                 source: '/:all*(svg|jpg|jpeg|png|gif|ico|webp|avif)',
                 headers: [
                     {
@@ -64,7 +78,7 @@ const nextConfig = {
                         value: 'public, max-age=31536000, immutable',
                     },
                 ],
-            },
+            }] : []),
             {
                 source: '/fonts/:path*',
                 headers: [
@@ -90,6 +104,19 @@ const nextConfig = {
                 poll: 1000,
                 aggregateTimeout: 300,
             }
+        }
+
+        // Fix: Prevent "Unable to add filesystem" and "fs" module errors in client
+        if (!isServer) {
+            config.resolve.fallback = {
+                ...config.resolve.fallback,
+                fs: false,
+                path: false,
+                os: false,
+                child_process: false,
+                net: false,
+                tls: false,
+            };
         }
 
         return config

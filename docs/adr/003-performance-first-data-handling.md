@@ -1,7 +1,7 @@
 # ADR-003: Principio "Performance First" en Manejo de Datos
 
-**Status:** Accepted
-**Date:** 2025-11-27
+**Status:** Accepted  
+**Date:** 2025-11-27 (Actualizado: 2025-12-13)  
 **Deciders:** Mikis, Mateo
 
 ## Contexto y Problema

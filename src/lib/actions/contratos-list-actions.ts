@@ -9,18 +9,17 @@ export async function obtenerContratosVigentes() {
         .from('creditos')
         .select(`
       id,
-      codigo,
+      codigo_credito,
       estado,
       monto_prestado,
       saldo_pendiente,
       interes_acumulado,
       tasa_interes,
       fecha_vencimiento,
-      periodo_dias,
       cliente:clientes(nombres, apellido_paterno, apellido_materno),
       garantia:garantias(descripcion, valor_tasacion)
     `)
-        .in('estado', ['vigente', 'vencido'])
+        .in('estado', ['vigente', 'vencido', 'en_mora', 'renovado']) // Ampliar estados para mostrar más
         .order('fecha_vencimiento', { ascending: true })
 
     if (error) {
@@ -35,14 +34,14 @@ export async function obtenerContratosVigentes() {
 
         return {
             id: credito.id,
-            codigo: credito.codigo,
+            codigo: credito.codigo_credito, // Mapear codigo_credito a codigo
             estado: credito.estado,
             monto_prestado: credito.monto_prestado,
             saldo_pendiente: credito.saldo_pendiente,
             interes_acumulado: credito.interes_acumulado || 0,
             tasa_interes: credito.tasa_interes,
             fecha_vencimiento: credito.fecha_vencimiento,
-            periodo_dias: credito.periodo_dias,
+            periodo_dias: 30, // Default o calcular si tenemos fecha inicio
             cliente_nombre: cliente
                 ? `${cliente.nombres} ${cliente.apellido_paterno || ''} ${cliente.apellido_materno || ''}`.trim()
                 : 'Sin cliente',

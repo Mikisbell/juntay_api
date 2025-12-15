@@ -52,7 +52,8 @@ CHECK (estado IN (
     'en_remate', 
     'vendida', 
     'devuelta',
-    'custodia'  -- Legacy
+    'custodia',  -- Legacy
+    'remate'     -- Legacy (para datos existentes)
 ));
 
 -- Mantener compatibilidad: fotos es alias de fotos_urls
