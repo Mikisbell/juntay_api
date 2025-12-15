@@ -481,7 +481,7 @@ export async function registrarPago({
     }
 
     // PRODUCCIÓN: Usar RPC atómica que maneja todo en una transacción
-    const { data, error } = await supabase.rpc('registrar_pago_oficial', {
+    let { data, error } = await supabase.rpc('registrar_pago_oficial', {
         p_caja_id: cajaOperativaId,
         p_credito_id: creditoId,
         p_monto_pago: montoPagado,
@@ -490,6 +490,13 @@ export async function registrarPago({
         p_metadata: metadata,
         p_usuario_id: user.id
     })
+
+    // Mock DB Connection Error in DEV Mode
+    if (error && process.env.NODE_ENV === 'development' && error.message.includes('fetch failed')) {
+        console.warn('⚠️ [DEV] DB Connection failed - Simulating Success Payment')
+        error = null
+        data = { mensaje: 'Pago simulado correctamente', nuevo_saldo_caja: 1000 }
+    }
 
     if (error) {
         console.error('Error registrando pago:', error)

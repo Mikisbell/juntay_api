@@ -104,6 +104,12 @@ BEGIN
     ) RETURNING id INTO v_contrato_id;
 
     -- 5. MOVER EL DINERO (El Ledger)
+    -- a. Obtener saldo actual
+    SELECT saldo_actual INTO v_saldo_caja
+    FROM public.cajas_operativas
+    WHERE id = p_caja_id FOR UPDATE;
+
+    -- b. Registrar movimiento
     INSERT INTO public.movimientos_caja_operativa (
         caja_operativa_id,
         tipo,
@@ -119,12 +125,17 @@ BEGIN
         'EGRESO',
         'PRESTAMO',
         v_monto_prestamo,
-        0,
-        0 - v_monto_prestamo,
+        v_saldo_caja,
+        v_saldo_caja - v_monto_prestamo,
         v_contrato_id,
         'Desembolso contrato para ' || p_cliente_nombre,
         v_usuario_id
     );
+
+    -- c. Actualizar caja
+    UPDATE public.cajas_operativas
+    SET saldo_actual = v_saldo_caja - v_monto_prestamo
+    WHERE id = p_caja_id;
 
     RETURN v_contrato_id;
 END;
