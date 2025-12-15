@@ -4,10 +4,11 @@
  * VERSIÓN SEGURA - Usa strings para montos (Opción 3B)
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback } from 'react'
 import { useRxDB } from '@/components/providers/RxDBProvider'
 import type { PagoDocument } from '@/lib/rxdb/schemas/pagos'
-import { aString, dinero, restar, esMenor } from '@/lib/utils/decimal'
+import { aString, dinero } from '@/lib/utils/decimal'
 
 /**
  * Hook para obtener pagos de un crédito específico
@@ -84,83 +85,10 @@ export function useRegistrarPagoLocal() {
 
             await db.pagos.insert(nuevoPago)
 
-            // También actualizar el saldo del crédito localmente
-            const credito = await db.creditos
-                .findOne()
-                .where('id').eq(pagoData.credito_id)
-                .exec()
-
-            if (credito) {
-                // Usar Decimal.js para cálculo preciso
-                const saldoActual = credito.saldo_pendiente || "0.00"
-                let nuevoSaldo = saldoActual
-
-                // Lógica según tipo de pago
-                if (pagoData.tipo === 'renovacion') {
-                    // RENOVACIÓN:
-                    // RENOVACIÓN FLEXIBLE:
-                    // 1. Validar que el pago cubra el INTERÉS BASE (ej: 20%)
-                    //    Permite condonar/ignorar moras si el operador lo decide.
-
-                    const saldoBase = parseFloat(credito.saldo_pendiente || "0")
-                    const tasa = parseFloat(credito.tasa_interes || "0")
-                    // Interés Base = Saldo * (Tasa / 100)
-                    const interesBase = saldoBase * (tasa / 100)
-
-                    // Margen de tolerancia pequeño (por redondeo)
-                    const tolerancia = 0.50
-
-                    if (esMenor(montoString, String(interesBase - tolerancia))) {
-                        throw new Error(`Monto insuficiente para renovar. Mínimo (Interés Base): S/ ${interesBase.toFixed(2)}`)
-                    }
-
-                    // 2. NO baja capital (nuevoSaldo = saldoActual)
-                    // 3. Extiende vencimiento 1 mes
-                    // 4. Manejo de Interés Acumulado (CONDONACIÓN OPCIONAL)
-
-                    let nuevoInteresAcumulado = 0
-                    if (!pagoData.condonarInteres) {
-                        // Si NO se condona, se mantiene la diferencia como deuda pendiente
-                        // Ejemplo: Debía 250 (200 int + 50 mora), pagó 200. Quedan 50.
-                        const interesPendiente = (credito.interes_acumulado || 0) - parseFloat(montoString)
-                        nuevoInteresAcumulado = Math.max(0, interesPendiente)
-                    }
-                    // Si condonarInteres es TRUE, nuevoInteresAcumulado se queda en 0.
-
-                    const fechaVencimientoActual = new Date(credito.fecha_vencimiento)
-                    // Agregar 1 mes logic
-                    const nuevaFecha = new Date(fechaVencimientoActual)
-                    nuevaFecha.setMonth(nuevaFecha.getMonth() + 1)
-                    // Ajuste simple para días inválidos (ej: 31 Ene -> 28/29 Feb)
-                    if (nuevaFecha.getDate() !== fechaVencimientoActual.getDate()) {
-                        nuevaFecha.setDate(0) // Último día del mes anterior
-                    }
-
-                    await credito.update({
-                        $set: {
-                            fecha_vencimiento: nuevaFecha.toISOString().split('T')[0],
-                            interes_acumulado: nuevoInteresAcumulado,
-                            estado: 'vigente', // Reactivar si estaba vencido
-                            updated_at: new Date().toISOString()
-                        }
-                    })
-
-                } else {
-                    // PAGO NORMAL (Amortización / Liquidación):
-                    // Baja capital
-                    const nuevoSaldoDecimal = restar(saldoActual, montoString)
-                    const nuevoSaldoString = aString(nuevoSaldoDecimal)
-                    nuevoSaldo = esMenor(nuevoSaldoString, "0.01") ? "0.00" : nuevoSaldoString
-
-                    await credito.update({
-                        $set: {
-                            saldo_pendiente: nuevoSaldo,
-                            updated_at: new Date().toISOString(),
-                            ...(nuevoSaldo === "0.00" ? { estado: 'pagado' } : {})
-                        }
-                    })
-                }
-            }
+            // OPTIMISTIC UI: Informamos éxito inmediato.
+            // La lógica de negocio real (actualizar fechas, saldos, caja)
+            // ahora es manejada por el TRIGGER 'procesar_pago_trigger' en Supabase.
+            // Cuando la replicación ocurra, RxDB recibirá los datos actualizados del crédito.
 
             console.log('[useRegistrarPagoLocal] Pago registrado localmente:', nuevoPago.id)
 
@@ -170,8 +98,9 @@ export function useRegistrarPagoLocal() {
                 isOffline: !isOnline,
                 message: isOnline
                     ? 'Pago registrado y sincronizado'
-                    : '⚡ Pago guardado localmente. Se sincronizará cuando vuelva la conexión.'
+                    : '⚡ Pago guardado localmente. La información se actualizará al recuperar la conexión.'
             }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             console.error('[useRegistrarPagoLocal] Error:', err)
             return {

@@ -4,6 +4,8 @@
 -- REEMPLAZA el N+1 query que hacía 15+ peticiones separadas
 -- =============================================================================
 
+DROP FUNCTION IF EXISTS public.buscar_clientes_con_creditos(text, boolean, integer);
+
 CREATE OR REPLACE FUNCTION public.buscar_clientes_con_creditos(
     p_search_term TEXT,
     p_is_dni BOOLEAN DEFAULT FALSE,

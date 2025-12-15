@@ -12,7 +12,7 @@ export type PagoRPCInput = {
     monto: number
     tipo: 'RENOVACION' | 'DESEMPENO'
     metodo: 'EFECTIVO' | 'YAPE'
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
 }
 
 export async function registrarPagoRPCAction(input: PagoRPCInput) {
@@ -64,11 +64,12 @@ export async function registrarPagoRPCAction(input: PagoRPCInput) {
             mensaje: data?.mensaje,
             data
         }
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error en registrarPagoRPCAction:', error)
+        const err = error as Error
         return {
             success: false,
-            error: error.message || 'Error inesperado al procesar pago'
+            error: err.message || 'Error inesperado al procesar pago'
         }
     }
 }

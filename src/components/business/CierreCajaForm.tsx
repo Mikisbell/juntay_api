@@ -34,6 +34,7 @@ export function CierreCajaForm() {
     const queryClient = useQueryClient()
     const [conteo, setConteo] = useState<Record<number, number>>({})
     const [observaciones, setObservaciones] = useState("")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [resultado, setResultado] = useState<any>(null)
     const [loading, setLoading] = useState(false)
 

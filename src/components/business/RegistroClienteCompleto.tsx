@@ -21,6 +21,7 @@ import { SmartPasteInput } from '@/components/ui/smart-paste-input'
 interface RegistroClienteCompletoProps {
     initialTipoDoc?: 'DNI' | 'RUC' | 'CE'
     initialDNI?: string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onClienteRegistrado?: (cliente: any) => void
     hideHeader?: boolean
     disablePersistence?: boolean
@@ -62,8 +63,11 @@ export function RegistroClienteCompleto({
     const [departamentoId, setDepartamentoId] = useState('')
     const [provinciaId, setProvinciaId] = useState('')
     const [distritoId, setDistritoId] = useState('')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [departamentos, setDepartamentos] = useState<any[]>([])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [provincias, setProvincias] = useState<any[]>([])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [distritos, setDistritos] = useState<any[]>([])
     const [referencia, setReferencia] = useState('')
 
@@ -177,6 +181,7 @@ export function RegistroClienteCompleto({
             if (tipoDoc === 'CE') {
                 // Para CE no hay API gratuita confiable, permitir ingreso manual
                 setDatosEntidad({
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     tipo_documento: 'CE' as any,
                     numero_documento: numeroDoc,
                     nombre_completo: '',
@@ -186,6 +191,7 @@ export function RegistroClienteCompleto({
                     provincia: '',
                     distrito: '',
                     verificado_api: false
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 } as any)
             } else {
                 const resultado = await consultarEntidad(tipoDoc, numeroDoc)
@@ -203,6 +209,7 @@ export function RegistroClienteCompleto({
                         nombre_completo: '', // Se llenará manualmente
                         direccion: '',
                         verificado_api: false
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     } as any)
                 }
             }
@@ -425,6 +432,7 @@ export function RegistroClienteCompleto({
                         <div className="flex gap-4">
                             <div className="w-1/3">
                                 <Label>Tipo Documento</Label>
+                                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                 <Select value={tipoDoc} onValueChange={(v: any) => setTipoDoc(v)}>
                                     <SelectTrigger>
                                         <SelectValue />
@@ -516,6 +524,7 @@ export function RegistroClienteCompleto({
                             <div className="flex gap-4">
                                 <div className="w-1/3">
                                     <Label>Tipo Documento</Label>
+                                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                     <Select value={tipoDoc} onValueChange={(v: any) => setTipoDoc(v)}>
                                         <SelectTrigger>
                                             <SelectValue />

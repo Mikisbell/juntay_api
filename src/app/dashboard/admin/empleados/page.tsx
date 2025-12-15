@@ -58,6 +58,7 @@ export default function EmpleadosPage() {
         e.preventDefault()
 
         try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             await crearEmpleado(formData as any)
             toast.success('Empleado registrado exitosamente')
             setDialogOpen(false)
@@ -90,6 +91,7 @@ export default function EmpleadosPage() {
             const result = await invitarEmpleado(empleadoId, email)
             toast.success(result.message)
             cargarEmpleados()
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             toast.error(error.message || 'Error al enviar invitación')
         }

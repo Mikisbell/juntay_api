@@ -309,7 +309,8 @@ export async function desembolsarCreditoPendiente(creditoId: string, cajaId: str
     if (errorMov) throw new Error("Error registrando movimiento en caja")
 
     // 3. Actualizar estado crédito
-    const { error: errorUpdate } = await supabase.from('creditos')
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { error: _errorUpdate } = await supabase.from('creditos')
         .update({ estado_detallado: 'vigente' }) // Ya se desembolsó
         .eq('id', creditoId)
 

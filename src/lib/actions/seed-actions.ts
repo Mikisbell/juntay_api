@@ -7,7 +7,15 @@ const NOMBRES = ["Juan", "María", "Carlos", "Ana", "Luis", "Elena", "Pedro", "S
 const APELLIDOS = ["Pérez", "García", "López", "Sánchez", "Rodríguez", "González", "Martínez", "Fernández", "Gómez", "Díaz", "Hernández", "Álvarez", "Romero", "Ruiz", "Torres", "Vargas", "Ramos", "Flores", "Mendoza", "Castillo", "Silva", "Rojas", "Cruz", "Morales", "Ortiz", "Gutierrez", "Chavez", "Velasquez", "Reyes", "Jimenez"]
 
 // Perfiles para distribución realista
-const PERFILES = [
+interface PerfilCliente {
+    tipo: string;
+    prob: number;
+    scoreMin: number;
+    scoreMax: number;
+    creditosMax: number;
+}
+
+const PERFILES: PerfilCliente[] = [
     { tipo: 'NUEVO', prob: 0.25, scoreMin: 1, scoreMax: 500, creditosMax: 1 },
     { tipo: 'ESTANDAR', prob: 0.50, scoreMin: 501, scoreMax: 750, creditosMax: 3 },
     { tipo: 'VIP', prob: 0.25, scoreMin: 751, scoreMax: 1000, creditosMax: 5 }
@@ -75,6 +83,7 @@ export async function seedClientes(cantidad: number = 500) {
     return { success: true, message: `Éxito: Se generaron ${generados} clientes con préstamos y garantías.` }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function crearClienteCompleto(supabase: any) {
     // 1. Determinar Perfil
     const randPerfil = Math.random()
@@ -119,7 +128,8 @@ async function crearClienteCompleto(supabase: any) {
     }
 }
 
-async function crearCreditoParaCliente(supabase: any, clienteId: string, perfil: any) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function crearCreditoParaCliente(supabase: any, clienteId: string, perfil: PerfilCliente) {
     const garantiaTipo = getRandomItem(GARANTIAS_TIPOS)
     const valorTasacion = getRandomInt(garantiaTipo.min * 1.5, garantiaTipo.max * 1.5)
     const montoPrestamo = getRandomInt(garantiaTipo.min, garantiaTipo.max)

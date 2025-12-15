@@ -27,7 +27,7 @@ interface CotizadorState {
         apellido_paterno: string
         apellido_materno: string
     } | null
-    setCliente: (cliente: any) => void
+    setCliente: (cliente: CotizadorState['cliente']) => void
 
     // Datos de Tasación
     tipoBien: TipoBien
@@ -45,7 +45,13 @@ interface CotizadorState {
     modelo: string
     estado: EstadoElectro
     valorMercado: number
-    setDatosElectro: (datos: any) => void
+    setDatosElectro: (datos: {
+        categoria: string
+        marca: string
+        modelo: string
+        estado: EstadoElectro
+        valorMercado: number
+    }) => void
 
     // Resultados
     valorTasacion: number

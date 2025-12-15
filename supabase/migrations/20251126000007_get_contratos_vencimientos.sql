@@ -1,8 +1,11 @@
 -- Crear función RPC para obtener contratos que vencen
+DROP FUNCTION IF EXISTS get_contratos_vencimientos(integer);
+
 CREATE OR REPLACE FUNCTION get_contratos_vencimientos(p_dias INTEGER DEFAULT 30)
 RETURNS TABLE (
     id UUID,
     codigo TEXT,
+    cliente_id UUID,
     cliente TEXT,
     dni TEXT,
     telefono TEXT,
@@ -16,6 +19,7 @@ BEGIN
     SELECT 
         c.id,
         c.codigo::TEXT,
+        cl.id,
         cl.nombre_completo::TEXT,
         cl.numero_documento::TEXT as dni,
         cl.telefono_principal::TEXT,

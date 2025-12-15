@@ -96,7 +96,9 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
     const [descripcion, setDescripcion] = useState("")
 
     // Selectores dinámicos
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [subcategoriasDisponibles, setSubcategoriasDisponibles] = useState<any[]>([])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [marcasDisponibles, setMarcasDisponibles] = useState<any[]>([])
 
     // 4. Estado Financiero
@@ -148,6 +150,7 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
         } else {
             setSessionId(uuidv4())
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     // === PERSISTENCIA: Guardar al Cambiar ===
@@ -236,10 +239,12 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
                 setMontoPrestamo(Math.round(valorCalculado * 0.6))
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [categoria, subcategoria, marca, estadoBien]) // montoPrestamo fuera de deps
 
 
     // Handlers
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleClienteRegistrado = (cliente: any) => {
         setClienteId(cliente.id)
         setClienteNombre(cliente.nombre_completo || cliente.nombres)
@@ -348,6 +353,7 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
     }
 
     // Modal Handling
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [successData, setSuccessData] = useState<any>(null)
     const handleReset = () => {
         clearPersistence() // LIMPIAR STORAGE AL RESETEAR

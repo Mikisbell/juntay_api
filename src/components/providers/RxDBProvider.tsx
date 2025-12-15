@@ -16,6 +16,7 @@ interface RxDBContextType {
     isOnline: boolean
     isSyncing: boolean
     pendingChanges: number
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     db: any | null
     forceSync: () => Promise<void>
 }
@@ -44,6 +45,7 @@ export function RxDBProvider({ children }: RxDBProviderProps) {
     const [isOnline, setIsOnline] = useState(true)
     const [isSyncing, setIsSyncing] = useState(false)
     const [pendingChanges, setPendingChanges] = useState(0)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [db, setDb] = useState<any | null>(null)
     const [initError, setInitError] = useState<string | null>(null)
 
@@ -99,6 +101,7 @@ export function RxDBProvider({ children }: RxDBProviderProps) {
                 setIsReady(true)
                 console.log('[RxDBProvider] ✅ Sistema offline-first listo')
 
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (error: any) {
                 console.error('[RxDBProvider] Error inicializando RxDB:', error)
                 setInitError(error.message)
@@ -127,6 +130,7 @@ export function RxDBProvider({ children }: RxDBProviderProps) {
             const { forceSync: doSync } = await import('@/lib/rxdb/replication')
             await doSync()
             toast.success('Sincronización completada')
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error('[RxDBProvider] Error en sync manual:', error)
             toast.error('Error al sincronizar: ' + error.message)

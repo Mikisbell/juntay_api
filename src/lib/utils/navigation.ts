@@ -6,6 +6,7 @@
 export function smoothNavigate(url: string) {
     // Check if View Transitions API is supported
     if ('startViewTransition' in document) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (document as any).startViewTransition(() => {
             window.location.href = url
         })

@@ -48,7 +48,7 @@ export default function WhatsAppPage() {
                                 <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-500 text-xs font-bold text-white">3</div>
                                 <div className="min-w-0">
                                     <p className="text-sm font-semibold text-slate-900">Vincular Dispositivo</p>
-                                    <p className="text-xs text-slate-600">Toca "+"</p>
+                                    <p className="text-xs text-slate-600">Toca &quot;+&quot;</p>
                                 </div>
                             </div>
 

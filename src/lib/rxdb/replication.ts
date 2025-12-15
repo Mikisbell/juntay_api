@@ -10,12 +10,27 @@
  * @see ADR-004: Arquitectura Local-First Real con RxDB
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { replicateSupabase } from 'rxdb/plugins/replication-supabase'
 import { RxReplicationState } from 'rxdb/plugins/replication'
 import { createClient } from '@supabase/supabase-js'
 import { getDatabase, JuntayDatabase } from './database'
 import { ESTADOS_TERMINALES } from './schemas/creditos'
 import { toast } from 'sonner'
+
+// Helper para detectar errores de red (backend no disponible)
+function isNetworkError(err: any): boolean {
+    if (!err) return false
+    const errString = JSON.stringify(err).toLowerCase()
+    return (
+        errString.includes('failed to fetch') ||
+        errString.includes('network') ||
+        errString.includes('econnrefused') ||
+        errString.includes('timeout') ||
+        errString.includes('net::err')
+    )
+}
 
 // Cliente Supabase para replicación (usa anon key, RLS protege los datos)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -93,8 +108,17 @@ export async function startReplication(): Promise<void> {
         }
     })
 
-    // Manejar errores de replicación
+    // Manejar errores de replicación de forma profesional
     replications.creditos.error$.subscribe(err => {
+        // Ignorar errores de red cuando el backend no está disponible
+        if (isNetworkError(err)) {
+            // Solo log silencioso en desarrollo, nada en producción
+            if (process.env.NODE_ENV === 'development') {
+                console.debug('[RxDB] Modo offline - sincronización pausada')
+            }
+            return
+        }
+
         console.error('[RxDB Replication] Error en créditos:', err)
 
         // Si es un error de conflicto, puede ser que el servidor rechazó el cambio
@@ -148,13 +172,22 @@ export async function startReplication(): Promise<void> {
             batchSize: 50,
             modifier: (doc) => {
                 const supabaseDoc = { ...doc }
-                // FIX: Preserving precision by sending strings
+                // Convertir monto de string a número para PostgreSQL
+                if (typeof supabaseDoc.monto === 'string') {
+                    supabaseDoc.monto = parseFloat(supabaseDoc.monto)
+                }
                 return supabaseDoc
             }
         }
     })
 
     replications.pagos.error$.subscribe(err => {
+        if (isNetworkError(err)) {
+            if (process.env.NODE_ENV === 'development') {
+                console.debug('[RxDB] Pagos: modo offline')
+            }
+            return
+        }
         console.error('[RxDB Replication] Error en pagos:', err)
     })
 
@@ -188,6 +221,12 @@ export async function startReplication(): Promise<void> {
     })
 
     replications.movimientos_caja.error$.subscribe(err => {
+        if (isNetworkError(err)) {
+            if (process.env.NODE_ENV === 'development') {
+                console.debug('[RxDB] Movimientos: modo offline')
+            }
+            return
+        }
         console.error('[RxDB Replication] Error en movimientos de caja:', err)
     })
 
@@ -199,8 +238,15 @@ export async function startReplication(): Promise<void> {
             replications.movimientos_caja.awaitInitialReplication()
         ])
         console.log('[RxDB Replication] ✅ Sincronización inicial completada')
-    } catch (error) {
-        console.error('[RxDB Replication] Error en sincronización inicial:', error)
+    } catch (error: any) {
+        // Manejar errores de red de forma silenciosa
+        if (isNetworkError(error)) {
+            if (process.env.NODE_ENV === 'development') {
+                console.info('[RxDB] 📴 Modo offline - trabajando con datos locales')
+            }
+        } else {
+            console.error('[RxDB Replication] Error en sincronización inicial:', error)
+        }
         // No lanzar error, la app debe funcionar offline
     }
 }

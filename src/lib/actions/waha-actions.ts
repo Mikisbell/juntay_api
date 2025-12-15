@@ -1,7 +1,5 @@
 'use server'
 
-import { revalidatePath } from "next/cache";
-
 // URL de tu servidor Oracle (HTTP)
 // En el futuro esto irá en .env, pero por ahora lo usamos directo para probar
 const WAHA_URL = "http://129.151.98.218:3000";

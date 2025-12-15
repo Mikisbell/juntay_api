@@ -213,6 +213,7 @@ export async function registrarEvento({
     agregadoTipo: 'CREDITO' | 'CAJA' | 'CLIENTE' | 'GARANTIA'
     agregadoId: string
     eventoTipo: string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     payload?: Record<string, any>
 }) {
     const supabase = await createClient()

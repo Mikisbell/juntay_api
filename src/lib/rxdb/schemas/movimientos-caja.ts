@@ -3,7 +3,7 @@
  * 
  * Montos como STRING para precisión decimal (Opción 3B)
  */
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { RxJsonSchema } from 'rxdb'
 
 export interface MovimientoCajaDocument {

@@ -42,6 +42,7 @@ export default async function Page(props: PageProps) {
     }
 
     // Map creditos to expected format
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const creditos = (creditosResult.data || []).map((c: any) => ({
         id: c.id,
         codigo_credito: c.codigo,

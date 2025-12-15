@@ -70,8 +70,19 @@ export async function obtenerCajasActivas() {
     }
 
     // 2. Para cada caja, obtener resumen de movimientos del día
+    // Define a loose type for the joined supabase response to avoid strict linting issues
+    type CajaRow = {
+        id: string;
+        numero_caja: number;
+        usuario_id: string;
+        saldo_inicial: string; // Numeric returns as string
+        saldo_actual: string;
+        fecha_apertura: string;
+        usuarios?: { nombres: string; apellido_paterno: string } | null;
+    };
+
     const cajasConResumen: CajaActivaDetalle[] = await Promise.all(
-        cajas.map(async (caja: any) => {
+        (cajas as unknown as CajaRow[]).map(async (caja) => {
             const hoyInicio = new Date()
             hoyInicio.setHours(0, 0, 0, 0)
 
@@ -81,21 +92,27 @@ export async function obtenerCajasActivas() {
                 .eq('caja_operativa_id', caja.id)
                 .gte('fecha', hoyInicio.toISOString())
 
+            interface MovimientoCaja {
+                tipo: string;
+                motivo: string;
+                monto: string | number; // Supabase returns string or number depending on config
+            }
+
             // Calcular totales
-            const ingresos = movimientos
-                ?.filter((m: any) => m.tipo === 'INGRESO')
-                .reduce((sum: number, m: any) => sum + parseFloat(m.monto), 0) || 0
+            const ingresos = (movimientos as unknown as MovimientoCaja[])
+                ?.filter((m) => m.tipo === 'INGRESO')
+                .reduce((sum, m) => sum + parseFloat(String(m.monto)), 0) || 0
 
-            const egresos = movimientos
-                ?.filter((m: any) => m.tipo === 'EGRESO')
-                .reduce((sum: number, m: any) => sum + Math.abs(parseFloat(m.monto)), 0) || 0
+            const egresos = (movimientos as unknown as MovimientoCaja[])
+                ?.filter((m) => m.tipo === 'EGRESO')
+                .reduce((sum, m) => sum + Math.abs(parseFloat(String(m.monto))), 0) || 0
 
-            const empenos = movimientos
-                ?.filter((m: any) => m.tipo === 'EGRESO' && m.motivo === 'DESEMBOLSO_EMPENO')
+            const empenos = (movimientos as unknown as MovimientoCaja[])
+                ?.filter((m) => m.tipo === 'EGRESO' && m.motivo === 'DESEMBOLSO_EMPENO')
                 .length || 0
 
-            const pagos = movimientos
-                ?.filter((m: any) => m.tipo === 'INGRESO' && (m.motivo === 'PAGO_INTERES' || m.motivo === 'PAGO_CAPITAL'))
+            const pagos = (movimientos as unknown as MovimientoCaja[])
+                ?.filter((m) => m.tipo === 'INGRESO' && (m.motivo === 'PAGO_INTERES' || m.motivo === 'PAGO_CAPITAL'))
                 .length || 0
 
             return {

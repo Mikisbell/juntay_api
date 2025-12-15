@@ -63,6 +63,7 @@ export async function obtenerInventario(filtroEstado?: string): Promise<Inventar
         return []
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return data.map((item: any) => ({
         id: item.id,
         descripcion: item.descripcion,
@@ -185,6 +186,7 @@ export async function obtenerHistorialGarantia(garantiaId: string) {
         return []
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return data?.map((log: any) => {
         const usuario = Array.isArray(log.usuario) ? log.usuario[0] : log.usuario
         return {

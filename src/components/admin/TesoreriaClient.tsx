@@ -219,6 +219,7 @@ function ModalAsignacion({ bovedaDisponible }: { bovedaDisponible: number }) {
     const [monto, setMonto] = useState("")
     const [cajeroId, setCajeroId] = useState("")
     const [observacion, setObservacion] = useState("")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [cajeros, setCajeros] = useState<any[]>([])
     const [loading, setLoading] = useState(false)
 

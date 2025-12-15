@@ -96,11 +96,11 @@ export function RenovacionModal({ contrato, open, onOpenChange }: Props) {
                     {/* Opciones de Renovación */}
                     <div className="space-y-3">
                         <Label className="text-base font-semibold">Selecciona una opción:</Label>
-                        <RadioGroup value={opcion} onValueChange={(v) => setOpcion(v as any)}>
+                        <RadioGroup value={opcion} onValueChange={(v) => setOpcion(v as 'total' | 'intereses')}>
                             <div
                                 className={`flex items-start space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-colors ${opcion === 'intereses'
-                                        ? 'border-primary bg-primary/5'
-                                        : 'border-border hover:border-primary/50 hover:bg-muted/50'
+                                    ? 'border-primary bg-primary/5'
+                                    : 'border-border hover:border-primary/50 hover:bg-muted/50'
                                     }`}
                                 onClick={() => setOpcion('intereses')}
                             >
@@ -124,8 +124,8 @@ export function RenovacionModal({ contrato, open, onOpenChange }: Props) {
 
                             <div
                                 className={`flex items-start space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-colors ${opcion === 'total'
-                                        ? 'border-primary bg-primary/5'
-                                        : 'border-border hover:border-primary/50 hover:bg-muted/50'
+                                    ? 'border-primary bg-primary/5'
+                                    : 'border-border hover:border-primary/50 hover:bg-muted/50'
                                     }`}
                                 onClick={() => setOpcion('total')}
                             >

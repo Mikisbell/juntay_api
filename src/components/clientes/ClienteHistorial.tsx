@@ -26,6 +26,7 @@ interface ClienteHistorialProps {
     creditos: Credito[]
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const estadoConfig: Record<string, { label: string; color: string; icon: any }> = {
     PAGADO: { label: 'Pagado', color: 'bg-emerald-100 text-emerald-800', icon: CheckCircle },
     ACTIVO: { label: 'Activo', color: 'bg-blue-100 text-blue-800', icon: Clock },

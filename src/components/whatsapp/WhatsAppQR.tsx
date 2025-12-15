@@ -1,21 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, RefreshCw, Smartphone, CheckCircle2, AlertCircle } from "lucide-react";
+import { RefreshCw, CheckCircle2 } from "lucide-react";
 import { getWahaScreenshot, getWahaSession } from '@/lib/actions/waha-actions';
 
 export function WhatsAppQR() {
-    const [loading, setLoading] = useState(true);
     const [qrCode, setQrCode] = useState<string | null>(null);
     const [status, setStatus] = useState<'SCAN_QR' | 'WORKING' | 'FAILED' | 'STARTING'>('STARTING');
     const [error, setError] = useState<string | null>(null);
 
     const checkSession = async () => {
         try {
-            setLoading(true);
             const session = await getWahaSession();
 
             if (session.success && session.data) {
@@ -45,8 +41,6 @@ export function WhatsAppQR() {
             console.error(e);
             setError("Error de conexión");
             setStatus('FAILED');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -67,6 +61,7 @@ export function WhatsAppQR() {
         // Polling cada 10 segundos para verificar estado
         const interval = setInterval(checkSession, 10000);
         return () => clearInterval(interval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (

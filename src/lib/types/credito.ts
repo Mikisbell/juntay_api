@@ -43,7 +43,7 @@ export interface Credito {
     estado_detallado: EstadoCredito // ✨ NUEVO
     created_at: string
     frecuencia_pago: string | null
-    cronograma: any | null
+    cronograma: unknown | null
 }
 
 /**

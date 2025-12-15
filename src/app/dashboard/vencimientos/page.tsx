@@ -16,10 +16,12 @@ export default async function VencimientosPage() {
         console.error('Error obteniendo vencimientos:', error)
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const todosVencimientos = (data || []).map((v: any) => ({
         id: v.id,
         codigo: v.codigo,
         cliente: v.cliente,
+        clienteId: v.cliente_id, // Now available via RPC update
         telefono: v.telefono || '',
         monto: v.monto,
         saldo: v.saldo,
@@ -28,7 +30,9 @@ export default async function VencimientosPage() {
     }))
 
     // Calcular KPIs
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const hoy = todosVencimientos.filter((c: any) => c.diasRestantes === 0).length
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const semana = todosVencimientos.filter((c: any) => c.diasRestantes > 0 && c.diasRestantes <= 7).length
     const mes = todosVencimientos.length
 

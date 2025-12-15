@@ -4,12 +4,10 @@ import { createClient } from '@/lib/supabase/server'
 import { EmpenoCompletoData } from '@/lib/validators/empeno-schemas'
 import { revalidatePath } from 'next/cache'
 
-const DEV_USER_ID = '00000000-0000-0000-0000-000000000011' // Cajero from seed
-
 export async function obtenerCajaAbierta(usuarioId: string) {
     const supabase = await createClient()
 
-    let { data, error } = await supabase
+    const { data, error } = await supabase
         .from('cajas_operativas')
         .select('id, numero_caja')
         .eq('usuario_id', usuarioId)
@@ -21,11 +19,9 @@ export async function obtenerCajaAbierta(usuarioId: string) {
         if (error.code !== 'PGRST116') {
             console.error('Error obteniendo caja abierta:', error)
         }
-        console.log('[INFO] No se encontró caja abierta para usuario:', usuarioId)
         return null
     }
 
-    console.log('[INFO] Caja encontrada:', data)
     return data
 }
 
@@ -33,29 +29,17 @@ export async function registrarEmpeno(data: EmpenoCompletoData) {
     const supabase = await createClient()
 
     // 1. Validar sesión
-    let { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    // DEV MODE: Mock session
-    if ((authError || !user) && process.env.NODE_ENV === 'development') {
-        console.log('DEV MODE: Using mock user session')
-        user = { id: DEV_USER_ID } as any
-        authError = null
-    }
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
         throw new Error('No autorizado. Por favor inicia sesión nuevamente.')
     }
 
     // 2. Obtener caja abierta
-    console.log('[DEV] Attempting to get caja for user:', user.id, '| NODE_ENV:', process.env.NODE_ENV)
     const caja = await obtenerCajaAbierta(user.id)
-    console.log('[DEV] Caja result:', caja)
 
     if (!caja) {
-        const errorMsg = process.env.NODE_ENV === 'development'
-            ? `No tienes una caja abierta (User ID: ${user.id}). Auto-creación falló. Debes abrir caja manualmente.`
-            : 'No tienes una caja abierta. Debes abrir caja antes de registrar operaciones.'
-        throw new Error(errorMsg)
+        throw new Error('No tienes una caja abierta. Debes abrir caja antes de registrar operaciones.')
     }
 
     // 3. Preparar datos para RPC
@@ -113,6 +97,7 @@ export async function registrarEmpeno(data: EmpenoCompletoData) {
         marca: data.detallesGarantia.marca,
         modelo: data.detallesGarantia.modelo,
         serie: data.detallesGarantia.serie,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         subcategoria: (data.detallesGarantia as any).subcategoria || null,  // ✅ NUEVO CAMPO
         fotos: data.detallesGarantia.fotos || []
     }

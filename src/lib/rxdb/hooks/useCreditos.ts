@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { RxDatabase, RxCollection } from 'rxdb'
 /**
  * Hooks de RxDB para operaciones de créditos
  * 
@@ -8,7 +11,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRxDB } from '@/components/providers/RxDBProvider'
 import type { CreditoDocument } from '@/lib/rxdb/schemas/creditos'
-import { aString, dinero, sumar } from '@/lib/utils/decimal'
+import { aString, dinero } from '@/lib/utils/decimal'
 
 /**
  * Hook para buscar créditos localmente

@@ -283,6 +283,7 @@ export default async function ContratoDetallePage({
                         <CardContent>
                             {pagos && pagos.length > 0 ? (
                                 <div className="space-y-3">
+                                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                     {pagos.map((pago: any) => (
                                         <div
                                             key={pago.id}

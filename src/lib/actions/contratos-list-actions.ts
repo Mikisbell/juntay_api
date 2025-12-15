@@ -28,6 +28,7 @@ export async function obtenerContratosVigentes() {
     }
 
     // Transformar datos para el Sheet
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (data || []).map((credito: any) => {
         const cliente = Array.isArray(credito.cliente) ? credito.cliente[0] : credito.cliente
         const garantia = Array.isArray(credito.garantia) ? credito.garantia[0] : credito.garantia

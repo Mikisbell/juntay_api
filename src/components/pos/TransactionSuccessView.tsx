@@ -48,6 +48,7 @@ export function TransactionSuccessView({ data, onReset }: TransactionSuccessView
             } else {
                 toast.error(result.error || "Error al confirmar desembolso")
             }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             toast.error(error.message || "Error al confirmar desembolso")
         } finally {

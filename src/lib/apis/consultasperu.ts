@@ -5,22 +5,7 @@
  * Documentación: https://api.consultasperu.com
  */
 
-interface ConsultasPeruResponse {
-    success: boolean
-    message: string
-    data: {
-        number: string
-        full_name: string
-        name: string
-        surname: string
-        date_of_birth: string
-        department: string
-        province: string
-        district: string
-        address: string
-        ubigeo: string
-    } | null
-}
+// Interface removed because unused
 
 export interface DatosEntidad {
     tipo_documento: 'DNI' | 'RUC'

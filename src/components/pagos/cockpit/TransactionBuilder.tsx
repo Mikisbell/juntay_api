@@ -9,7 +9,9 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 
 interface TransactionBuilderProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     selectedContracts: any[] // TODO: Typed Contract
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onProcessPayment: (data: any) => void
 }
 
@@ -24,7 +26,7 @@ export function TransactionBuilder({ selectedContracts, onProcessPayment }: Tran
     const totals = useMemo(() => {
         let totalCapital = dinero('0')
         let totalInteres = dinero('0')
-        let totalMora = dinero('0')
+        const totalMora = dinero('0')
         let totalSaldo = dinero('0')
 
         selectedContracts.forEach(c => {

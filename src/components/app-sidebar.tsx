@@ -181,6 +181,7 @@ export function AppSidebar() {
 
                 setUser({
                     email: authUser.email || '',
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     nombre: ((userData as any)?.nombres) || authUser.email?.split('@')[0] || 'Usuario'
                 })
             }

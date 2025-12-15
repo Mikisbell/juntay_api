@@ -84,6 +84,7 @@ export function BusquedaClienteRapida({ onClienteSeleccionado, autoFocus = true 
                 // Cliente NO existe - user needs to register manually
                 setError('Cliente no encontrado. Use el botón de registro para crear el cliente.')
             }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             setError(error.message || 'Error al buscar cliente')
         } finally {
@@ -102,6 +103,7 @@ export function BusquedaClienteRapida({ onClienteSeleccionado, autoFocus = true 
             setPerfil(nuevoCliente)
             setDatosRENIEC(null)
             onClienteSeleccionado(nuevoCliente)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             setError(error.message || 'Error al crear cliente')
             console.error(error) // Added console.error for debugging

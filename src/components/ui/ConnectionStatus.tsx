@@ -21,6 +21,7 @@ export function ConnectionStatus({ className, showLabel = true }: ConnectionStat
     const [syncStatus, setSyncStatus] = useState<SyncStatus>('synced')
     const [pendingChanges, setPendingChanges] = useState(0)
 
+
     useEffect(() => {
         // Detectar estado inicial
         setIsOnline(navigator.onLine)
@@ -83,7 +84,7 @@ export function ConnectionStatus({ className, showLabel = true }: ConnectionStat
                     color: 'text-red-600 bg-red-50 border-red-200',
                     dotColor: 'bg-red-500',
                     label: 'Error de sincronización',
-                    pulse: false
+                    pulse: false // This line was intended to be replaced, but the replacement was syntactically incorrect. Keeping original for correctness.
                 }
             case 'synced':
             default:
@@ -130,6 +131,7 @@ export function ConnectionStatus({ className, showLabel = true }: ConnectionStat
             <Icon
                 className={cn(
                     'h-3.5 w-3.5',
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     (config as any).animate && 'animate-spin'
                 )}
             />

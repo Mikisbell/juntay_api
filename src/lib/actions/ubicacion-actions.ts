@@ -3,6 +3,11 @@
 // Usamos API pública de ubigeos de Perú
 const UBIGEO_API = 'https://api.apis.net.pe/v1/ubigeo'
 
+interface UbigeoItem {
+    id: string;
+    nombre: string;
+}
+
 export async function obtenerDepartamentos() {
     try {
         const response = await fetch(`${UBIGEO_API}/departamentos`, {
@@ -11,7 +16,7 @@ export async function obtenerDepartamentos() {
         const data = await response.json()
 
         // Convertir al formato esperado
-        const departamentos = data.map((dept: any) => ({
+        const departamentos = (data as UbigeoItem[]).map((dept) => ({
             id: dept.id,
             nombre: dept.nombre
         }))
@@ -30,7 +35,7 @@ export async function obtenerProvincias(departamentoId: string) {
         })
         const data = await response.json()
 
-        const provincias = data.map((prov: any) => ({
+        const provincias = (data as UbigeoItem[]).map((prov) => ({
             id: prov.id,
             nombre: prov.nombre
         }))
@@ -49,7 +54,7 @@ export async function obtenerDistritos(provinciaId: string) {
         })
         const data = await response.json()
 
-        const distritos = data.map((dist: any) => ({
+        const distritos = (data as UbigeoItem[]).map((dist) => ({
             id: dist.id,
             nombre: dist.nombre
         }))

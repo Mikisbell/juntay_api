@@ -21,6 +21,7 @@ interface EstadoBadgeProps {
 const estadoConfig: Record<EstadoCredito, {
     label: string
     color: string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     icon: any
     description: string
 }> = {

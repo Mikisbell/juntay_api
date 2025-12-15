@@ -34,7 +34,7 @@ export async function obtenerEstadoBoveda() {
     }
 }
 
-export async function inyectarCapitalAction(monto: number, origen: string, referencia: string, metadata?: any) {
+export async function inyectarCapitalAction(monto: number, origen: string, referencia: string, metadata?: Record<string, unknown>) {
     // TEMPORAL: Auth deshabilitado para testing
     // const supabase = await createClient()
     // const { data: { user } } = await supabase.auth.getUser()

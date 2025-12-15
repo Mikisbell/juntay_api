@@ -79,7 +79,7 @@ ON public.cajas_operativas(usuario_id, estado);
 
 -- Índice para movimientos por caja ordenados
 CREATE INDEX IF NOT EXISTS idx_movimientos_caja_created 
-ON public.movimientos_caja_operativa(caja_operativa_id, created_at DESC);
+ON public.movimientos_caja_operativa(caja_operativa_id, fecha DESC);
 
 -- Índice alternativo para caja_id
 CREATE INDEX IF NOT EXISTS idx_movimientos_caja_id 

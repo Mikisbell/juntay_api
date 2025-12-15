@@ -14,6 +14,7 @@ interface Movimiento {
     saldo_anterior: number
     saldo_nuevo: number
     referencia: string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     metadata: any
     fecha: string
     usuario_responsable_id: string

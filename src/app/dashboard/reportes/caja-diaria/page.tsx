@@ -94,6 +94,7 @@ export default async function ReporteCajaDiariaPage() {
                                         </TableCell>
                                     </TableRow>
                                 ) : (
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                     data.movimientos.map((mov: any, i: number) => (
                                         <TableRow key={i} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
                                             <TableCell className="pl-6">

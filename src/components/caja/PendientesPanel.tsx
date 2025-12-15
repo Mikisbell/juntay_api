@@ -27,12 +27,15 @@ interface CreditoPendiente {
     monto_prestado: number
     codigo_credito?: string
     created_at: string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     clientes: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     garantias: any
 }
 
 export function PendientesPanel({ cajaId, saldoCaja }: { cajaId: string; saldoCaja?: number }) {
     const queryClient = useQueryClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [successData, setSuccessData] = useState<any>(null)
     const [selectedCredito, setSelectedCredito] = useState<CreditoPendiente | null>(null)
 

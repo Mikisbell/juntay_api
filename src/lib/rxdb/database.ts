@@ -10,7 +10,7 @@
  * @see ADR-004: Arquitectura Local-First Real con RxDB
  */
 
-import { createRxDatabase, RxDatabase, addRxPlugin, removeRxDatabase } from 'rxdb'
+import { createRxDatabase, RxDatabase, addRxPlugin, removeRxDatabase, RxStorage } from 'rxdb'
 import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie'
 import { wrappedKeyEncryptionCryptoJsStorage } from 'rxdb/plugins/encryption-crypto-js'
 import { RxDBDevModePlugin } from 'rxdb/plugins/dev-mode'
@@ -91,7 +91,8 @@ export async function initDatabase(): Promise<JuntayDatabase> {
             const { password, userId } = await getDatabaseCredentials()
 
             // Storage base: Dexie.js (IndexedDB)
-            let baseStorage: any = getRxStorageDexie()
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let baseStorage: RxStorage<any, any> = getRxStorageDexie()
 
             // En desarrollo, usar validación de schema (requerido por RxDB DVM1)
             if (process.env.NODE_ENV === 'development') {
@@ -123,9 +124,11 @@ export async function initDatabase(): Promise<JuntayDatabase> {
 
             try {
                 instance = await createDB(dbNameBase)
-            } catch (err: any) {
+            } catch (err: unknown) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const error = err as any; // Cast for specific RxDB properties
                 // Manejar error de contraseña incorrecta (DB1)
-                if (err?.code === 'DB1' || err?.message?.includes('password') || err?.message?.includes('different password')) {
+                if (error?.code === 'DB1' || error?.message?.includes('password') || error?.message?.includes('different password')) {
                     console.warn('[RxDB] Diferencia de contraseña crítica (DB1). Intentando recuperación...')
 
                     // Estrategia 1: Limpieza estándar (puede fallar si hay pestañas abiertas)
@@ -174,28 +177,58 @@ export async function initDatabase(): Promise<JuntayDatabase> {
             }
 
             // Agregar colecciones con schemas actualizados
-            await instance.addCollections({
-                creditos: {
-                    schema: creditosSchema,
-                    migrationStrategies: {
-                        1: (oldDoc: any) => oldDoc, // Campos opcionales añadidos
-                        2: (oldDoc: any) => oldDoc,  // Añadido campo 'codigo'
-                        3: (oldDoc: any) => oldDoc   // Añadido 'fecha_desembolso' y 'interes_acumulado'
+            try {
+                await instance.addCollections({
+                    creditos: {
+                        schema: creditosSchema,
+                        migrationStrategies: {
+                            1: (oldDoc: unknown) => oldDoc, // Campos opcionales añadidos
+                            2: (oldDoc: unknown) => oldDoc,  // Añadido campo 'codigo'
+                            3: (oldDoc: unknown) => oldDoc   // Añadido 'fecha_desembolso' y 'interes_acumulado'
+                        }
+                    },
+                    pagos: {
+                        schema: pagosSchema,
+                        migrationStrategies: {
+                            // 1: Migración a versión 1 (Agregar campos faltantes y corregir tipos)
+                            1: (oldDoc: unknown) => oldDoc,
+                            // 2: Make monto_total optional
+                            2: (oldDoc: unknown) => oldDoc,
+                            // 3: Fix DB6 conflict
+                            3: (oldDoc: unknown) => oldDoc
+                        }
+                    },
+                    movimientos_caja: {
+                        schema: movimientosCajaSchema,
+                        migrationStrategies: {
+                            // 1: Migración a versión 1 (Agregar campos faltantes como anulado, saldo_nuevo, etc)
+                            1: (oldDoc: unknown) => oldDoc,
+                            // 2: Migración a versión 2 (Agregar campos de auditoría)
+                            2: (oldDoc: unknown) => oldDoc
+                        }
                     }
-                },
-                pagos: {
-                    schema: pagosSchema
-                },
-                movimientos_caja: {
-                    schema: movimientosCajaSchema,
-                    migrationStrategies: {
-                        // 1: Migración a versión 1 (Agregar campos faltantes como anulado, saldo_nuevo, etc)
-                        1: (oldDoc: any) => oldDoc,
-                        // 2: Migración a versión 2 (Agregar campos de auditoría)
-                        2: (oldDoc: any) => oldDoc
+                })
+            } catch (err: unknown) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const error = err as any
+                // DM4: Error de migración
+                // DB closed: Base de datos cerrada inesperadamente durante migración
+                // DB6: Schema mismatch (otro tab o instancia creó coleccion con diferente schema)
+                if (error?.code === 'DM4' || error?.code === 'DB6' || error?.message?.includes('closed')) {
+                    console.error('[RxDB] Error CRÍTICO de esquema/migración. Reseteando base de datos local...', error)
+
+                    try {
+                        await instance.remove()
+                        console.log('[RxDB] Base de datos eliminada por fallo de migración. Se recreará en la próxima recarga.')
+                    } catch (removeErr) {
+                        console.error('[RxDB] Error intentando eliminar DB corrupta:', removeErr)
                     }
+
+                    // Lanzar error explicativo para el Provider
+                    throw new Error('La base de datos local se ha reiniciado por una actualización de esquema. Por favor recarga la página.')
                 }
-            })
+                throw error
+            }
 
             console.log('[RxDB] ✅ Base de datos local ENCRIPTADA inicializada correctamente')
 

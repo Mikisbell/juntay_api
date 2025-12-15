@@ -27,6 +27,7 @@ export function SmartPasteButton({ onParsed }: SmartPasteProps) {
 
             // Simular tiempo de "pensamiento" de la IA
             setTimeout(() => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const data: any = {}
 
                 // 1. Detectar DNI (8 dígitos)

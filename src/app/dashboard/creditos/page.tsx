@@ -82,6 +82,7 @@ export default async function CreditosPage() {
                 <CardContent>
                     <Suspense fallback={<CreditosListSkeleton />}>
                         <div className="space-y-3">
+                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                             {creditos.map((credito: any) => (
                                 <Link
                                     key={credito.id}

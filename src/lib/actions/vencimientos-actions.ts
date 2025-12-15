@@ -33,7 +33,19 @@ export async function obtenerVencimientosAgrupados(): Promise<VencimientosPorPer
             return { hoy: [], semana: [], mes: [] }
         }
 
-        const todos = (data || []).map((v: any) => ({
+        type VencimientoRow = {
+            id: string;
+            codigo: string;
+            cliente: string;
+            dni?: string;
+            telefono?: string;
+            fecha_vencimiento: string;
+            dias_restantes: string | number;
+            monto: string | number;
+            saldo: string | number;
+        };
+
+        const todos = ((data || []) as unknown as VencimientoRow[]).map((v) => ({
             id: v.id,
             codigo: v.codigo,
             cliente: v.cliente,
@@ -46,8 +58,8 @@ export async function obtenerVencimientosAgrupados(): Promise<VencimientosPorPer
         }))
 
         return {
-            hoy: todos.filter((c: any) => c.diasRestantes === 0),
-            semana: todos.filter((c: any) => c.diasRestantes > 0 && c.diasRestantes <= 7),
+            hoy: todos.filter((c) => c.diasRestantes === 0),
+            semana: todos.filter((c) => c.diasRestantes > 0 && c.diasRestantes <= 7),
             mes: todos
         }
     } catch (error) {
@@ -75,7 +87,16 @@ export async function enviarNotificacion(
     telefono: string,
     nombreCliente: string,
     tipo: 'vencimiento_hoy' | 'vencimiento_proximo' | 'cobranza',
-    datos: any
+    datos: {
+        creditoId: string;
+        clienteId: string;
+        mensajePersonalizado?: string;
+        // Campos opcionales para metadata/analytics
+        codigo?: string;
+        fecha?: string;
+        monto?: number;
+        dias?: number;
+    }
 ) {
     try {
         console.log('📝 Registrando notificación manual:', { telefono, tipo, datos })

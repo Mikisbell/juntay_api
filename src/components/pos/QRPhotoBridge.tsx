@@ -83,8 +83,9 @@ export function QRPhotoBridge({ sessionId, onPhotosUploaded, maxPhotos = 10 }: P
                     }
                 }
             )
-            .subscribe((status) => {
-                if (status === 'SUBSCRIBED') {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .subscribe((payload: any) => {
+                if (payload === 'SUBSCRIBED') {
                     setListening(true)
                 }
             })
@@ -131,6 +132,7 @@ export function QRPhotoBridge({ sessionId, onPhotosUploaded, maxPhotos = 10 }: P
 
                 setUploadedPhotos(prev => [...prev, urlData.publicUrl])
                 successCount++
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (err: any) {
                 console.error("Error subiendo archivo:", err)
                 toast.error(`Error subiendo ${file.name}`)

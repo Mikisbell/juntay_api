@@ -92,7 +92,7 @@ export async function renovarContrato(
 
     // 5. Procesar según opción
     let nuevoSaldo = credito.saldo_pendiente
-    let nuevaFechaVencimiento = new Date(credito.fecha_vencimiento)
+    const nuevaFechaVencimiento = new Date(credito.fecha_vencimiento)
     let nuevoEstado = 'vigente'
     let mensajeExito = ''
 

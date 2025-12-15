@@ -1,7 +1,5 @@
 'use server'
 
-import { enviarWhatsApp } from '@/lib/utils/whatsapp'
-
 export async function checkRenderStatus() {
     try {
         // WAHA tiene un endpoint /api/sessions que lista las sesiones
@@ -24,6 +22,7 @@ export async function checkRenderStatus() {
         if (response.ok) {
             const data = await response.json();
             // data es un array de sesiones. Buscamos 'default'.
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const defaultSession = data.find((s: any) => s.name === 'default');
 
             if (defaultSession && defaultSession.status === 'WORKING') {

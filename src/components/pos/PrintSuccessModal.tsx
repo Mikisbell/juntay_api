@@ -87,6 +87,7 @@ export function PrintSuccessModal({ open, data, onClose, onReset }: PrintSuccess
             } else {
                 toast.error(result.error || "Error al confirmar desembolso")
             }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             toast.error(error.message || "Error al confirmar desembolso")
         } finally {
@@ -152,7 +153,7 @@ export function PrintSuccessModal({ open, data, onClose, onReset }: PrintSuccess
                         <ol className="text-sm text-blue-800 list-decimal list-inside mt-2 space-y-1">
                             <li>Imprima los documentos legales</li>
                             <li>El cliente DEBE firmar contrato y pagaré</li>
-                            <li>Después de la firma, presione "Confirmar Desembolso"</li>
+                            <li>Después de la firma, presione &quot;Confirmar Desembolso&quot;</li>
                             <li>Entregue el efectivo al cliente</li>
                         </ol>
                     </div>
