@@ -39,18 +39,27 @@ export async function obtenerContratosRenovables(dias: number = 30): Promise<Con
 }
 
 /**
- * Renovar contrato - IMPLEMENTACIÓN REAL
+ * Renovar contrato - IMPLEMENTACIÓN REAL CON INTERÉS FLEXIBLE
+ * 
  * Opciones:
- * - 'intereses': Cliente paga solo intereses, se extiende 30 días
+ * - 'intereses': Cliente paga solo intereses, se extiende según modalidad
  * - 'total': Cliente paga todo (capital + intereses), se cierra el crédito
  * - 'parcial': Cliente paga parte del capital + intereses
+ * 
+ * Modalidades de interés:
+ * - 'dias': Pro-rata diario (interés mensual ÷ 30 × días)
+ * - 'semanas': Escalado fijo (25%, 50%, 75%, 100%)
  */
 export async function renovarContrato(
     creditoId: string,
     opcion: 'total' | 'intereses' | 'parcial',
     montoPagado: number,
-    cajaOperativaId?: string
+    cajaOperativaId?: string,
+    modalidadInteres: 'dias' | 'semanas' = 'semanas' // Default: por semanas
 ) {
+    // Importar helper de interés flexible
+    const { calcularInteresFlexible, calcularDiasTranscurridos } = await import('@/lib/utils/interes-flexible')
+
     const supabase = await createClient()
 
     // 1. Obtener usuario actual
@@ -72,7 +81,8 @@ export async function renovarContrato(
             saldo_pendiente,
             fecha_vencimiento,
             estado,
-            periodo_dias
+            periodo_dias,
+            created_at
         `)
         .eq('id', creditoId)
         .single()
@@ -86,8 +96,16 @@ export async function renovarContrato(
         return { success: false, mensaje: `El crédito no está vigente (estado: ${credito.estado})` }
     }
 
-    // 4. Calcular interés del período actual
-    const interesDelPeriodo = credito.monto_prestado * (credito.tasa_interes / 100)
+    // 4. Calcular interés FLEXIBLE según modalidad seleccionada
+    const diasTranscurridos = calcularDiasTranscurridos(credito.created_at)
+    const resultadoInteres = calcularInteresFlexible(
+        credito.monto_prestado,
+        credito.tasa_interes,
+        diasTranscurridos,
+        modalidadInteres
+    )
+
+    const interesDelPeriodo = resultadoInteres.interes
     const periodoDias = credito.periodo_dias || 30
 
     // 5. Procesar según opción
@@ -160,7 +178,7 @@ export async function renovarContrato(
             estado: nuevoEstado,
             estado_detallado: nuevoEstado,
             interes_acumulado: opcion === 'intereses' ? 0 : credito.interes_acumulado,
-            observaciones: `Renovación ${opcion} el ${new Date().toLocaleDateString('es-PE')} - Pagó S/${montoPagado.toFixed(2)}`
+            observaciones: `Renovación ${opcion} (${modalidadInteres === 'dias' ? 'pro-rata' : 'semanal'}) el ${new Date().toLocaleDateString('es-PE')} - Pagó S/${montoPagado.toFixed(2)} (${resultadoInteres.descripcion})`
         })
         .eq('id', creditoId)
 
