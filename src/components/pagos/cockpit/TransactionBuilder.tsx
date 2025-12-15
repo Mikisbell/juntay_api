@@ -1,12 +1,13 @@
 
 import React, { useState, useMemo } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { CreditCard, RefreshCw, Archive, DollarSign, Calculator, Lock } from 'lucide-react'
+import { CreditCard, RefreshCw, Archive, DollarSign, Calculator, Lock, Clock, Calendar } from 'lucide-react'
 import { dinero, sumar, formatearSoles } from '@/lib/utils/decimal'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
+import { ModalidadInteres, calcularInteresFlexible, calcularDiasTranscurridos } from '@/lib/utils/interes-flexible'
 
 interface TransactionBuilderProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -21,34 +22,42 @@ export function TransactionBuilder({ selectedContracts, onProcessPayment }: Tran
     const [intent, setIntent] = useState<PaymentIntent>('RENOVAR')
     const [customAmount, setCustomAmount] = useState<string>('')
     const [condonarInteres, setCondonarInteres] = useState(false)
+    const [modalidadInteres, setModalidadInteres] = useState<ModalidadInteres>('dias') // NUEVO: Por defecto días
 
-    // 1. Calculate Aggregated Totals
+    // 1. Calculate Aggregated Totals with FLEXIBLE INTEREST
     const totals = useMemo(() => {
         let totalCapital = dinero('0')
         let totalInteres = dinero('0')
         const totalMora = dinero('0')
         let totalSaldo = dinero('0')
+        let totalDias = 0
 
         selectedContracts.forEach(c => {
             totalCapital = sumar(totalCapital, c.monto_prestado || '0')
             totalSaldo = sumar(totalSaldo, c.saldo_pendiente || '0')
 
-            // TODO: Real calculation of accrued interest based on days
-            // For now assuming the contract object has these values pre-calculated or simple estimation
-            // In a real scenario, this would call a helper `calcularDeudaAlDia(contrato)`
-            const interes = c.interes_devengado_actual ? dinero(String(c.interes_devengado_actual)) : dinero('0')
-            totalInteres = sumar(totalInteres, interes)
+            // NUEVO: Cálculo de interés FLEXIBLE basado en días transcurridos
+            const diasTranscurridos = c.created_at
+                ? calcularDiasTranscurridos(c.created_at)
+                : (c.dias_transcurridos || 30)
+            const tasaInteres = c.tasa_interes || 20
+            const montoPrestado = Number(c.monto_prestado) || 0
 
-            // Mora logic would go here
+            // Calcular interés según modalidad seleccionada
+            const resultado = calcularInteresFlexible(montoPrestado, tasaInteres, diasTranscurridos, modalidadInteres)
+            totalInteres = sumar(totalInteres, String(resultado.interes))
+
+            if (diasTranscurridos > totalDias) totalDias = diasTranscurridos
         })
 
         return {
             capital: totalCapital,
             interes: totalInteres,
             mora: totalMora,
-            saldo: totalSaldo
+            saldo: totalSaldo,
+            diasTranscurridos: totalDias
         }
-    }, [selectedContracts])
+    }, [selectedContracts, modalidadInteres])
 
     // 2. Calculate Final Amount based on Intent
     const finalAmount = useMemo(() => {
@@ -156,6 +165,37 @@ export function TransactionBuilder({ selectedContracts, onProcessPayment }: Tran
                         <span className="text-slate-500">Interés Devengado</span>
                         <span className="font-mono text-amber-500">+{formatearSoles(totals.interes)}</span>
                     </div>
+
+                    {/* NUEVO: Selector de Modalidad de Interés */}
+                    <div className="flex items-center gap-2 py-2 px-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <span className="text-xs text-slate-500 mr-2">
+                            <Clock className="h-3 w-3 inline mr-1" />
+                            {totals.diasTranscurridos} días
+                        </span>
+                        <button
+                            onClick={() => setModalidadInteres('dias')}
+                            className={cn(
+                                "px-3 py-1 text-xs rounded-md font-medium transition-colors",
+                                modalidadInteres === 'dias'
+                                    ? "bg-blue-500 text-white"
+                                    : "bg-slate-200 text-slate-600 hover:bg-slate-300"
+                            )}
+                        >
+                            Por Días
+                        </button>
+                        <button
+                            onClick={() => setModalidadInteres('semanas')}
+                            className={cn(
+                                "px-3 py-1 text-xs rounded-md font-medium transition-colors",
+                                modalidadInteres === 'semanas'
+                                    ? "bg-purple-500 text-white"
+                                    : "bg-slate-200 text-slate-600 hover:bg-slate-300"
+                            )}
+                        >
+                            Por Semana
+                        </button>
+                    </div>
+
                     <div className="flex justify-between text-sm">
                         <span className="text-slate-500">Mora / Penalidad</span>
                         <span className="font-mono text-red-500">+{formatearSoles(totals.mora)}</span>
