@@ -106,9 +106,6 @@ export default function ResumenStep() {
                 }
             }
 
-            console.log('[DEBUG] datosEmpeno being sent:', JSON.stringify(datosEmpeno, null, 2))
-            console.log('[DEBUG] detallesGarantia.valorMercado:', detallesGarantia.valorMercado)
-            console.log('[DEBUG] montoPrestamo:', montoPrestamo)
 
             const contratoId = await registrarEmpeno(datosEmpeno)
             setContratoIdGenerado(contratoId)

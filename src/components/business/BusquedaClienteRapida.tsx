@@ -40,7 +40,6 @@ export function BusquedaClienteRapida({ onClienteSeleccionado, autoFocus = true 
 
         // Si la entrada es muy rápida (< 50ms entre teclas), es un lector de barras
         if (timeSinceLastKey < 50 && dni.length >= 7) {
-            console.log('Código de barras detectado')
         }
 
         // Enter para buscar
