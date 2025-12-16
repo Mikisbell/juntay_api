@@ -1,9 +1,13 @@
+```
 {
     "name": "juntay-api",
     "version": "1.0.0",
     "private": true,
     "scripts": {
         "dev": "next dev",
+        "test:e2e": "playwright test",
+        "verify": "tsx verify-system-integrity.ts",
+        "ops:squash": "bash ./scripts/ops_squash_migrations.sh",
         "dev:next": "next dev",
         "build": "next build",
         "start": "next start",
