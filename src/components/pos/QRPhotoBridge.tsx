@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { QRCodeSVG } from "qrcode.react"
 import { createClient } from "@/lib/supabase/client"
-import { Loader2, Camera, Smartphone, Trash2, CheckCircle, UploadCloud, Settings, Monitor, Wifi } from "lucide-react"
+import { Loader2, Camera, Smartphone, Trash2, CheckCircle, UploadCloud, Settings, Monitor, Wifi, Sparkles, Brain } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -17,18 +17,25 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import { analizarImagenBien, AnalisisImagenResult } from "@/lib/actions/vision-actions"
 
 interface Props {
     sessionId: string
     onPhotosUploaded: (urls: string[]) => void
+    onAnalysisComplete?: (analysis: AnalisisImagenResult['sugerencias']) => void
     maxPhotos?: number
 }
 
-export function QRPhotoBridge({ sessionId, onPhotosUploaded, maxPhotos = 10 }: Props) {
+export function QRPhotoBridge({ sessionId, onPhotosUploaded, onAnalysisComplete, maxPhotos = 10 }: Props) {
     const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([])
     const [listening, setListening] = useState(false)
     const [status, setStatus] = useState<'idle' | 'connected' | 'uploading'>('idle')
     const [isUploadingManual, setIsUploadingManual] = useState(false)
+
+    // Estado de análisis IA
+    const [isAnalyzing, setIsAnalyzing] = useState(false)
+    const [analysisResult, setAnalysisResult] = useState<AnalisisImagenResult['sugerencias'] | null>(null)
+    const [hasAnalyzed, setHasAnalyzed] = useState(false)
 
     // Configuración de URL base para QR (para LAN)
     const [baseUrl, setBaseUrl] = useState("")
@@ -141,10 +148,51 @@ export function QRPhotoBridge({ sessionId, onPhotosUploaded, maxPhotos = 10 }: P
 
         if (successCount > 0) {
             toast.success(`${successCount} fotos subidas desde PC`)
+
+            // Analizar primera foto con IA si aún no se ha analizado
+            if (!hasAnalyzed && uploadedPhotos.length === 0 && files.length > 0) {
+                analyzeFirstPhoto(files[0])
+            }
         }
         setIsUploadingManual(false)
         // Limpiar input
         e.target.value = ''
+    }
+
+    // Análisis de imagen con IA
+    const analyzeFirstPhoto = async (file: File) => {
+        setIsAnalyzing(true)
+        try {
+            // Convertir a base64
+            const buffer = await file.arrayBuffer()
+            const bytes = new Uint8Array(buffer)
+            let binary = ''
+            bytes.forEach(b => binary += String.fromCharCode(b))
+            const base64 = btoa(binary)
+
+            const result = await analizarImagenBien(base64, file.type)
+
+            if (result.success && result.sugerencias) {
+                setAnalysisResult(result.sugerencias)
+                setHasAnalyzed(true)
+
+                // Notificar al padre
+                if (onAnalysisComplete) {
+                    onAnalysisComplete(result.sugerencias)
+                }
+
+                toast.success(
+                    `🧠 IA detectó: ${result.sugerencias.marca || 'Artículo'} - ${result.sugerencias.categoria}`,
+                    { description: `Confianza: ${result.sugerencias.categoriaConfianza}%` }
+                )
+            } else if (result.apiUsada === 'mock') {
+                toast.info('IA no configurada. Configura GOOGLE_GEMINI_API_KEY para análisis automático.')
+            }
+        } catch (error) {
+            console.error('Error analizando imagen:', error)
+        } finally {
+            setIsAnalyzing(false)
+        }
     }
 
     const removePhoto = (indexToRemove: number) => {
@@ -258,12 +306,26 @@ export function QRPhotoBridge({ sessionId, onPhotosUploaded, maxPhotos = 10 }: P
                                 <Camera className="w-4 h-4 text-blue-500" />
                                 Evidencias ({uploadedPhotos.length}/{maxPhotos})
                             </h3>
-                            {uploadedPhotos.length > 0 && (
-                                <span className="text-xs text-emerald-600 font-medium flex items-center gap-1">
-                                    <CheckCircle className="w-3 h-3" />
-                                    Listo
-                                </span>
-                            )}
+                            <div className="flex items-center gap-2">
+                                {isAnalyzing && (
+                                    <Badge variant="outline" className="text-purple-600 bg-purple-50 border-purple-200 animate-pulse text-[10px]">
+                                        <Brain className="w-3 h-3 mr-1" />
+                                        Analizando...
+                                    </Badge>
+                                )}
+                                {analysisResult && !isAnalyzing && (
+                                    <Badge variant="outline" className="text-emerald-600 bg-emerald-50 border-emerald-200 text-[10px]">
+                                        <Sparkles className="w-3 h-3 mr-1" />
+                                        {analysisResult.marca || analysisResult.categoria}
+                                    </Badge>
+                                )}
+                                {uploadedPhotos.length > 0 && !isAnalyzing && (
+                                    <span className="text-xs text-emerald-600 font-medium flex items-center gap-1">
+                                        <CheckCircle className="w-3 h-3" />
+                                        Listo
+                                    </span>
+                                )}
+                            </div>
                         </div>
 
                         {uploadedPhotos.length === 0 ? (

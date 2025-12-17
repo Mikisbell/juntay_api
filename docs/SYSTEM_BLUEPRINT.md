@@ -1,6 +1,6 @@
 # 🏦 JUNTAY - BLUEPRINTS DEL SISTEMA
 
-**Versión:** 4.5 | **Fecha:** 14 Diciembre 2025 | **Estado:** Producción (Enterprise Polish)
+**Versión:** 4.6 | **Fecha:** 17 Diciembre 2025 | **Estado:** Producción + AI Features
 
 ---
 
@@ -127,6 +127,16 @@ PostgreSQL triggers protegen contra sincronización conflictiva:
 | `cancelado` | No puede revertirse |
 | `pagado` | No puede modificar montos |
 
+### Protecciones de Base de Datos (Hardening)
+
+| Amenaza | Protección Implementada |
+|---------|-------------------------|
+| **Quiebra Técnica** | `CHECK (saldo >= 0)` en Cuentas Financieras |
+| **Fraude KYC** | Trigger impide créditos a clientes inactivos |
+| **Doble Gasto** | Index Único en `numero_operacion` (Voucher Bancario) |
+| **Manipulación Ledger** | `trg_ledger_smart_lock` impide UPDATE/DELETE en montos |
+| **Auditoría Fantasma** | Server Actions fuerzan identidad `auth.uid()` (No confían en cliente) |
+
 ### Precisión Financiera (Opción 3B)
 
 Todos los montos se almacenan como **strings** y se calculan con **Decimal.js**:
@@ -163,16 +173,48 @@ erDiagram
 
 ### Tablas Core
 
+### Tablas Core (Schema V2)
+
 | Tabla | Propósito | Tipo |
 |-------|-----------|------|
-| `boveda_central` | Capital total de la empresa | Singleton |
+| `cuentas_financieras` | **[NUEVO]** Bóvedas Físicas y Cuentas Bancarias (BCP/Interbank) | Maestro |
+| `inversionistas` | **[NUEVO]** Socios y Prestamistas que fondean la empresa | Maestro |
+| `transacciones_capital` | **[NUEVO]** Ledger de tesorería (Aportes, Retiros, Fondeo) | Ledger |
 | `cajas_operativas` | Sesión de trabajo del cajero | Temporal |
 | `movimientos_caja_operativa` | **LEDGER INMUTABLE** | Append-only |
 | `creditos` | Contratos de préstamo | Negocio |
 | `garantias` | Bienes en custodia | Negocio |
 | `pagos` | Registro de cobros | Financiero |
 | `clientes` | Información KYC | CRM |
-| `system_settings` | Configuración dinámica | Singleton |
+
+### B. Gestión de Capital (Arquitectura Virtual Vault)
+El sistema ha eliminado la tabla física `boveda_central`. Ahora centraliza el dinero en `cuentas_financieras`.
+
+1.  **Modelo de Datos**:
+    *   **Bóveda Virtual:** Suma de `cuentas_financieras` donde `tipo = 'EFECTIVO'`.
+    *   **Ledger Unificado:** `transacciones_capital` registra todo movimiento (Aportes, Traslados, Pagos).
+
+2.  **Lógica "Blind Cashier" (Cajero Ciego)**:
+    *   **Problema**: El cajero no debe decidir de qué bóveda sale el dinero por seguridad y simplicidad.
+    *   **Solución Determinista**: Existe una única cuenta marcada como `es_principal = TRUE`.
+    *   **Flujo Automático**: Al abrir caja, el sistema busca esta cuenta. Si tiene saldo, transfiere. Si no, bloquea la operación ("Fallo Seguro").
+    *   **Auditabilidad**: Se registra como `APERTURA_CAJA` con metadata validada en servidor.
+
+3.  **Integración Bancaria Perú**:
+    *   Tipos explícitos: `YAPE`, `PLIN`, `CCI`, `CHEQUE`.
+    *   Bancos normalizados: `BCP`, `BBVA`, `INTERBANK`.
+
+4.  **Smart Locking (Inmutabilidad)**:
+    *   **Trigger**: `trg_ledger_smart_lock`.
+    *   **Regla**: `UPDATE/DELETE` prohibidos para campos financieros (`monto`, `cuentas`).
+    *   **Excepción**: Se permite actualizar `descripcion` y `metadata` para correcciones operativas.
+    *   **Impacto**: Garantía matemática de integridad histórica.
+
+5.  **Auto-Liquidación (Cierre de Caja)**:
+    *   **Trigger**: `trg_auto_liquidar_caja`.
+    *   **Evento**: Al cambiar estado a `cerrada`.
+    *   **Acción**: Transfiere `saldo_final` de Caja -> Bóveda Principal (`CIERRE_CAJA`).
+    *   **Beneficio**: Previene "Dinero Atrapado" y asegura disponibilidad inmediata de fondos para el día siguiente.
 
 ### Campos de Sincronización RxDB
 
@@ -188,11 +230,12 @@ _audit_fields JSONB                  -- (Implícito) created_by, updated_by, ip_
 
 ## 5. Módulos de Negocio
 
-### 📊 Tesorería (Bóveda)
+### 📊 JUNTAY-CAPITAL (Tesorería Avanzada)
 
-- Inyección de capital de socios
-- Asignación de fondos a cajeros
-- Auditoría de movimientos de alto nivel
+- **Modelo Inversionista:** Gestión de Socios (Equity) y Prestamistas (Deuda).
+- **Tesorería Multi-Cuenta:** Segregación estricta de cuentas Físicas (Bóveda) y Digitales (BCP, Interbank).
+- **Integración Perú:** Soporte nativo para Yape, Plin y CCI con validación de unicidad de voucher.
+- **Automatización:** Triggers contables mantienen los saldos en tiempo real sin intervención humana.
 
 ### 💼 Caja Operativa
 
@@ -206,6 +249,26 @@ _audit_fields JSONB                  -- (Implícito) created_by, updated_by, ip_
 - **Originación:** Cálculo de interés en tiempo real
 - **Validación:** Monto ≤ LTV × Valor tasación
 
+#### 🚀 Tecnología de Reconocimiento 2026
+
+**1. Fuzzy Search (Búsqueda Difusa)**
+- **Herramienta:** Fuse.js (Client-side)
+- **Catálogo:** `catalogo-bienes.ts` (+120 items indexados)
+- **Feature:** Autocompletado tolerante a fallos ("celulr" -> "Celular")
+- **Beneficio:** Normalización de datos sin fricción para el usuario.
+
+**2. AI Vision (Visión Artificial Avanzada)**
+- **Motor:** Google Gemini 1.5 Flash (Gratis) / OpenAI GPT-4o
+- **Estrategia Multi-Shot:**
+    - Análisis acumulativo: Múltiples fotos agregan información (Foto 1: Bien -> Foto 2: Defecto -> Foto 3: Accesorio).
+    - Prompt Dinámico: Inyección de catálogo de subcategorías para normalización estricta.
+- **Smart Factors (Factores de Tasación):**
+    - UI interactiva para validación humana de sugerencias IA.
+    - 🔴 **Defectos:** Detectados automáticamente (impacto negativo).
+    - 🔵 **Accesorios:** Detectados automáticamente (impacto positivo).
+- **Integración:** `QRPhotoBridge` activa análisis -> `vision-actions.ts` -> `SmartCreditForm` (Auto-fill).
+
+
 ### 🔄 Renovaciones
 
 1. Cliente paga solo el interés acumulado
@@ -218,6 +281,47 @@ _audit_fields JSONB                  -- (Implícito) created_by, updated_by, ip_
 2. Garantía pasa a estado `en_remate`
 3. Admin registra venta
 4. Ingreso a caja como `venta_remate`
+
+### 👷 Gestión de Empleados (KYE Lite)
+
+Control de personal con enfoque en seguridad y contacto de emergencia:
+
+**Tabla `empleados`:**
+| Campo | Tipo | Propósito |
+|-------|------|-----------|
+| `estado` | ENUM | ACTIVO, LICENCIA, SUSPENDIDO, BAJA |
+| `motivo_estado` | TEXT | Razón cuando estado ≠ ACTIVO |
+| `nombre_contacto_emergencia` | VARCHAR | Nombre del contacto de emergencia |
+| `parentesco_emergencia` | VARCHAR | Relación (Esposa, Padre, etc.) |
+| `telefono_emergencia` | VARCHAR | Teléfono del contacto |
+
+**Flujo de Invitación por Email:**
+```
+1. Admin registra empleado (sin user_id)
+   ↓
+2. Admin asigna email y clic "Enviar Invitación"
+   ↓
+3. Supabase Auth envía Magic Link al email
+   ↓
+4. Empleado hace clic → Se crea cuenta → Login automático
+   ↓
+5. empleados.user_id se vincula al auth.users.id
+```
+
+**Configuración Requerida:**
+```env
+NEXT_PUBLIC_SITE_URL=http://localhost:3000  # URL de redirección para magic links
+```
+
+**Desarrollo Local:** Los magic links se capturan en Inbucket (`http://localhost:54324`).
+
+**Matriz de Estados:**
+| Estado | Color | Puede operar | user_id activo |
+|--------|-------|--------------|----------------|
+| ACTIVO | 🟢 Verde | Sí | Sí |
+| LICENCIA | 🟡 Ámbar | No | Sí (congelado) |
+| SUSPENDIDO | 🔴 Rojo | No | No (deshabilitado) |
+| BAJA | ⚫ Gris | No | Eliminado |
 
 ---
 
@@ -238,6 +342,14 @@ _audit_fields JSONB                  -- (Implícito) created_by, updated_by, ip_
 **Decisión:** Implementar RxDB con encriptación y conflict handlers.
 
 **Archivo:** [`docs/adr/004-rxdb-offline-first.md`](docs/adr/004-rxdb-offline-first.md)
+
+### ADR-005: AI-Driven Input Normalization
+
+**Contexto:** Los inputs de texto libre ("Otro") generan "basura" en la BD.
+**Decisión:** 
+1. **Fuzzy Search** en frontend para normalizar entrada sin restringir UX.
+2. **AI Vision** para reducir carga cognitiva y error humano en catalogación.
+**Stack:** Fuse.js (Local) + Google Gemini API (Cloud).
 
 ---
 
@@ -328,6 +440,12 @@ src/
 - [x] Decimal.js para finanzas
 
 ### ✅ Fase 2: Core Operativo (Completado)
+
+- [x] Módulo de Caja
+- [x] Tesorería Multi-Activo (Capital Module)
+- [x] Integración Bancaria Perú (BCP/Yape)
+- [x] Gestión de Créditos
+- [x] Cotizador inteligente
 
 - [x] Módulo de Caja
 - [x] Módulo de Tesorería

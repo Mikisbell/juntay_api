@@ -1,6 +1,6 @@
 
 import React from 'react'
-import { ClientLayoutWrapper } from '@/components/layout/ClientLayoutWrapper'
+import MainLayout from '@/components/layout/MainLayout'
 
 export default function DashboardLayout({
     children,
@@ -8,8 +8,8 @@ export default function DashboardLayout({
     children: React.ReactNode
 }) {
     return (
-        <ClientLayoutWrapper>
+        <MainLayout defaultOpen={true}>
             {children}
-        </ClientLayoutWrapper>
+        </MainLayout>
     )
 }

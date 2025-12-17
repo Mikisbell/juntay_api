@@ -12,12 +12,28 @@ interface MainLayoutProps {
     defaultOpen: boolean
 }
 
-export function MainLayout({
+export default function MainLayout({
     children,
     defaultOpen
 }: MainLayoutProps) {
+    const [isClient, setIsClient] = React.useState(false)
+
     // Activar atajos de teclado globales
     useKeyboardShortcuts()
+
+    React.useEffect(() => {
+        setIsClient(true)
+    }, [])
+
+    // Force return null or loader during SSR and first client render to prevent hydration mismatch
+    // and ensuring state is consistent
+    if (!isClient) {
+        return (
+            <div className="flex min-h-screen w-full bg-slate-50 items-center justify-center">
+                <div className="animate-pulse text-slate-400">Cargando Juntay...</div>
+            </div>
+        )
+    }
 
     return (
         <PrintProvider>

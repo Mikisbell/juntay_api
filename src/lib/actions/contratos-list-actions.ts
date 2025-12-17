@@ -23,7 +23,7 @@ export async function obtenerContratosVigentes() {
         .order('fecha_vencimiento', { ascending: true })
 
     if (error) {
-        console.error('Error obteniendo contratos:', error)
+        console.error('Error obteniendo contratos:', error.message, error.details || '', error.hint || '', error.code || '')
         return []
     }
 

@@ -46,8 +46,13 @@ export function RegistroClienteCompleto({
 
     // Datos adicionales
     const [celular, setCelular] = useState('')
+    const [celularReferencia, setCelularReferencia] = useState('') // Teléfono de familiar/emergencia
+    const [parentescoReferencia, setParentescoReferencia] = useState('') // Parentesco: Esposa, Padre, etc.
+    const [parentescoOtro, setParentescoOtro] = useState('') // Texto personalizado si elige "Otro"
     const [email, setEmail] = useState('')
     const [direccion, setDireccion] = useState('')
+
+    const PARENTESCOS = ['Esposa/o', 'Padre', 'Madre', 'Hermano/a', 'Hijo/a', 'Abuelo/a', 'Tío/a', 'Primo/a', 'Amigo/a', 'Vecino/a', 'Otro']
 
     // Estado de validación WhatsApp
     const [whatsappStep, setWhatsappStep] = useState<'IDLE' | 'SENT' | 'VERIFIED'>('IDLE')
@@ -94,6 +99,7 @@ export function RegistroClienteCompleto({
                 if (data.numeroDoc) setNumeroDoc(data.numeroDoc)
                 if (data.tipoDoc) setTipoDoc(data.tipoDoc)
                 if (data.celular) setCelular(data.celular)
+                if (data.celularReferencia) setCelularReferencia(data.celularReferencia)
                 if (data.email) setEmail(data.email)
                 if (data.direccion) setDireccion(data.direccion)
                 if (data.referencia) setReferencia(data.referencia)
@@ -110,11 +116,11 @@ export function RegistroClienteCompleto({
     // Guardar cada cambio
     useEffect(() => {
         const draft = {
-            numeroDoc, tipoDoc, celular, email, direccion, referencia,
+            numeroDoc, tipoDoc, celular, celularReferencia, email, direccion, referencia,
             nombreManual, apellidosManual, modoManual, datosEntidad
         }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(draft))
-    }, [numeroDoc, tipoDoc, celular, email, direccion, referencia, nombreManual, apellidosManual, modoManual, datosEntidad])
+    }, [numeroDoc, tipoDoc, celular, celularReferencia, email, direccion, referencia, nombreManual, apellidosManual, modoManual, datosEntidad])
 
     // Limpiar draft después de guardar exitoso
     const limpiarDraft = () => {
@@ -228,6 +234,7 @@ export function RegistroClienteCompleto({
         setDatosEntidad(null)
         setReferencia('')
         setCelular('')
+        setCelularReferencia('')
         setEmail('')
         setDireccion('')
         setNombreManual('')
@@ -343,6 +350,10 @@ export function RegistroClienteCompleto({
                 nombres: modoManual ? nombreManual : (datosEntidad.nombres || nombreManual || 'SIN NOMBRE'),
                 apellidos: modoManual ? apellidosManual : (datosEntidad.apellidos || apellidosManual || ''),
                 telefono: celular,
+                telefono_secundario: celularReferencia, // Teléfono de referencia/familiar
+                parentesco_referencia: parentescoReferencia === 'Otro' && parentescoOtro
+                    ? `Otro: ${parentescoOtro}`
+                    : parentescoReferencia, // Parentesco: Esposa, Padre, o "Otro: [texto]"
                 email,
                 direccion: `${direccion}${referencia ? ' - ' + referencia : ''}`,
                 departamento: departamentoNombre,
@@ -707,6 +718,46 @@ export function RegistroClienteCompleto({
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="cliente@ejemplo.com"
                                 />
+                            </div>
+
+                            {/* Teléfono Referencia Familiar + Parentesco */}
+                            <div className="space-y-2">
+                                <Label className="flex items-center gap-2">
+                                    <Phone className="h-4 w-4 text-slate-500" />
+                                    Tel. Referencia Familiar
+                                </Label>
+                                <div className="flex gap-2 flex-wrap">
+                                    <Input
+                                        value={celularReferencia}
+                                        onChange={(e) => setCelularReferencia(e.target.value)}
+                                        placeholder="987654321"
+                                        maxLength={9}
+                                        className="w-28"
+                                    />
+                                    <Select value={parentescoReferencia} onValueChange={(v) => {
+                                        setParentescoReferencia(v)
+                                        if (v !== 'Otro') setParentescoOtro('')
+                                    }}>
+                                        <SelectTrigger className="w-[120px]">
+                                            <SelectValue placeholder="Parentesco" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {PARENTESCOS.map((p) => (
+                                                <SelectItem key={p} value={p}>{p}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {/* Campo adicional si elige "Otro" - aparece a la derecha */}
+                                    {parentescoReferencia === 'Otro' && (
+                                        <Input
+                                            value={parentescoOtro}
+                                            onChange={(e) => setParentescoOtro(e.target.value)}
+                                            placeholder="Especifique..."
+                                            className="flex-1 min-w-[100px]"
+                                        />
+                                    )}
+                                </div>
+                                <p className="text-[10px] text-slate-400">Contacto alternativo en caso de emergencia</p>
                             </div>
 
                             {/* Dirección Domiciliaria */}

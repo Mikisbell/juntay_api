@@ -15,7 +15,9 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
-import { DollarSign, Package, Camera, CheckCircle2, AlertTriangle, RefreshCw, CalendarIcon } from "lucide-react"
+import { DollarSign, Camera, CheckCircle2, AlertTriangle, CalendarIcon, ShieldAlert, X, Plus } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format, subDays } from "date-fns"
@@ -27,9 +29,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { crearCreditoExpress } from '@/lib/actions/creditos-actions'
 import { useRxDB, useCrearCreditoLocal } from '@/lib/rxdb/hooks'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Wifi, WifiOff } from 'lucide-react'
+import { WifiOff, Search } from 'lucide-react'
 
-// Imports para lógica de categorías
 import {
     CATEGORIAS_BIENES,
     getCategoriasOrdenadas,
@@ -42,11 +43,30 @@ import {
     getPrecioFactorMarca
 } from '@/lib/constants/marcas-por-subcategoria'
 
+import { getLTVConfig, FACTOR_POR_ESTADO } from '@/lib/config/ltv-config'
+import { ComboboxBienes } from '@/components/ui/combobox-bienes'
+import { ItemCatalogo, getCategoriaDelSistema } from '@/lib/constants/catalogo-bienes'
+
 interface SmartCreditFormProps {
     initialCliente?: {
         id: string
         nombre: string
     }
+}
+
+interface SelectOption {
+    value: string
+    label: string
+}
+
+interface MarcaOption extends SelectOption {
+    precioFactor: number
+}
+
+interface ClienteRegistrado {
+    id: string
+    nombre_completo?: string
+    nombres: string
 }
 
 const ESTADOS_BIEN = [
@@ -71,7 +91,7 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
 
     // RxDB para operación offline-first
     const { isOnline, isReady: rxdbReady } = useRxDB()
-    const { crearCredito: crearCreditoRxDB, isCreating: isCreatingLocal } = useCrearCreditoLocal()
+    const { crearCredito: crearCreditoRxDB } = useCrearCreditoLocal()
 
     // Estado para evitar hydration mismatch
     const [isMounted, setIsMounted] = useState(false)
@@ -88,18 +108,23 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
 
     // 3. Estado Avanzado de Prenda
     const [categoria, setCategoria] = useState("")
+    const [categoriaOtro, setCategoriaOtro] = useState("") // Texto libre si elige "otro"
     const [subcategoria, setSubcategoria] = useState("")
+    const [subcategoriaOtro, setSubcategoriaOtro] = useState("") // Texto libre si categoría es "otro"
     const [marca, setMarca] = useState("")
+    const [marcaOtro, setMarcaOtro] = useState("") // Texto libre si elige "otra"
     const [modelo, setModelo] = useState("")
     const [serie, setSerie] = useState("")
     const [estadoBien, setEstadoBien] = useState("BUENO")
     const [descripcion, setDescripcion] = useState("")
 
+    // Búsqueda rápida de artículo
+    const [articuloRapido, setArticuloRapido] = useState<string>("")
+    const [articuloSeleccionado, setArticuloSeleccionado] = useState<ItemCatalogo | null>(null)
+
     // Selectores dinámicos
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [subcategoriasDisponibles, setSubcategoriasDisponibles] = useState<any[]>([])
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [marcasDisponibles, setMarcasDisponibles] = useState<any[]>([])
+    const [subcategoriasDisponibles, setSubcategoriasDisponibles] = useState<SelectOption[]>([])
+    const [marcasDisponibles, setMarcasDisponibles] = useState<MarcaOption[]>([])
 
     // 4. Estado Financiero
     const [valorMercado, setValorMercado] = useState<number>(0)
@@ -108,7 +133,20 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
     const [fechaInicio, setFechaInicio] = useState<Date>(new Date()) // Fecha inicio configurable
     const [observaciones, setObservaciones] = useState("")
     const [fotos, setFotos] = useState<string[]>([])
-    const [restored, setRestored] = useState(false)
+
+    // 5. Detalles IA (Flexible Valuation)
+    const [aiDefectos, setAiDefectos] = useState<string[]>([])
+    const [aiAccesorios, setAiAccesorios] = useState<string[]>([])
+    const [newDefecto, setNewDefecto] = useState("")
+    const [newAccesorio, setNewAccesorio] = useState("")
+
+    // Estado para modal de confirmación irreversible
+    const [showConfirmModal, setShowConfirmModal] = useState(false)
+    const [confirmChecked, setConfirmChecked] = useState(false)
+
+    // const [restored, setRestored] = useState(false) // Unused
+
+    const { id: initId, nombre: initNombre } = initialCliente || {}
 
     // === PERSISTENCIA: Cargar al Iniciar ===
     useEffect(() => {
@@ -120,7 +158,7 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
                 setSessionId(data.sessionId || uuidv4())
 
                 // Si no se pasó cliente inicial, intentar restaurar
-                if (!initialCliente) {
+                if (!initId) {
                     if (data.clienteId) {
                         setClienteId(data.clienteId)
                         setClienteNombre(data.clienteNombre)
@@ -131,8 +169,11 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
                 // Restaurar campos de prenda
                 if (data.categoria) {
                     setCategoria(data.categoria)
+                    if (data.categoriaOtro) setCategoriaOtro(data.categoriaOtro)
                     setSubcategoria(data.subcategoria)
+                    if (data.subcategoriaOtro) setSubcategoriaOtro(data.subcategoriaOtro)
                     setMarca(data.marca)
+                    if (data.marcaOtro) setMarcaOtro(data.marcaOtro)
                     setModelo(data.modelo)
                     setSerie(data.serie)
                     setEstadoBien(data.estadoBien)
@@ -140,18 +181,16 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
                     setMontoPrestamo(data.montoPrestamo)
                     setObservaciones(data.observaciones)
                     setFotos(data.fotos || [])
-                    setRestored(true)
                     toast.info("Formulario restaurado", { description: "Se recuperaron tus datos previos." })
                 }
-            } catch (e) {
-                console.error("Error restaurando backup", e)
+            } catch (e) { // eslint-disable-line @typescript-eslint/no-unused-vars
+                console.error("Error restaurando backup")
                 setSessionId(uuidv4())
             }
         } else {
             setSessionId(uuidv4())
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [initId, initNombre])
 
     // === PERSISTENCIA: Guardar al Cambiar ===
     useEffect(() => {
@@ -163,8 +202,11 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
             clienteId,
             clienteNombre,
             categoria,
+            categoriaOtro,
             subcategoria,
+            subcategoriaOtro,
             marca,
+            marcaOtro,
             modelo,
             serie,
             estadoBien,
@@ -182,8 +224,9 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
         return () => clearTimeout(timeout)
 
     }, [
-        sessionId, step, clienteId, clienteNombre, categoria, subcategoria,
-        marca, modelo, serie, estadoBien, descripcion, montoPrestamo, observaciones, fotos
+        sessionId, step, clienteId, clienteNombre, categoria, categoriaOtro,
+        subcategoria, subcategoriaOtro, marca, marcaOtro, modelo, serie,
+        estadoBien, descripcion, montoPrestamo, observaciones, fotos
     ])
 
     const clearPersistence = () => {
@@ -211,7 +254,7 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
     // EFECTO: Actualizar marcas
     useEffect(() => {
         if (subcategoria) {
-            setMarcasDisponibles(getMarcasPorSubcategoria(subcategoria))
+            setMarcasDisponibles(getMarcasPorSubcategoria(subcategoria).map(m => ({ ...m, precioFactor: m.precioFactor ?? 1.0 })))
         } else {
             setMarcasDisponibles([])
         }
@@ -240,12 +283,11 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [categoria, subcategoria, marca, estadoBien]) // montoPrestamo fuera de deps
+    }, [categoria, subcategoria, marca, estadoBien]) // montoPrestamo intentional omission
 
 
     // Handlers
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const handleClienteRegistrado = (cliente: any) => {
+    const handleClienteRegistrado = (cliente: ClienteRegistrado) => {
         setClienteId(cliente.id)
         setClienteNombre(cliente.nombre_completo || cliente.nombres)
         setStep('PRENDA')
@@ -254,7 +296,30 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
 
     const handleProcesar = async () => {
         if (!clienteId) return toast.error("Falta registrar cliente")
-        if (!categoria || !subcategoria) return toast.error("Completa la categoría de la prenda")
+
+        // Validación de categoría
+        if (!categoria) return toast.error("Selecciona una categoría")
+        if (categoria === 'otro' && categoriaOtro.length < 3) {
+            return toast.error("Especifica la categoría (mínimo 3 caracteres)")
+        }
+
+        // Validación de subcategoría
+        if (categoria === 'otro') {
+            if (subcategoriaOtro.length < 3) {
+                return toast.error("Especifica el tipo de artículo (mínimo 3 caracteres)")
+            }
+        } else if (!subcategoria) {
+            return toast.error("Selecciona una subcategoría")
+        }
+
+        // Validación de marca
+        if (categoria === 'otro' && marcaOtro.length < 2) {
+            return toast.error("Especifica la marca (mínimo 2 caracteres)")
+        }
+        if (marca === 'otra' && marcaOtro.length < 2) {
+            return toast.error("Especifica la marca (mínimo 2 caracteres)")
+        }
+
         if (!descripcion && !modelo) return toast.error("Agrega una descripción o modelo")
 
         // Si estamos offline, guardar localmente con RxDB
@@ -334,8 +399,8 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
                 clienteId,
                 descripcion: descripcionCompleta,
                 montoPrestamo,
-                valorTasacion: valorMercado, // Valor real del bien
-                tasaInteres,                  // Tasa configurable del frontend
+                valorTasacion: valorMercado,
+                tasaInteres,
                 fotos,
                 fechaInicio: fechaInicio.toISOString(),
                 observaciones
@@ -343,8 +408,8 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
             {
                 loading: cajaAbierta ? "Desembolsando efectivo..." : "Guardando solicitud...",
                 success: (data) => {
-                    setSuccessData({ ...data, tasaInteres, fotos, fechaInicio }) // Incluir tasa, fotos y fecha para impresión
-                    clearPersistence() // LIMPIAR STORAGE AL COMPLETAR
+                    setSuccessData({ ...data, tasaInteres, fotos, fechaInicio })
+                    clearPersistence()
                     return data.mensaje || (cajaAbierta ? "¡Efectivo Desembolsado!" : "Guardado (Requiere Caja)")
                 },
                 error: (err) => `Error: ${err.message}`
@@ -354,7 +419,7 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
 
     // Modal Handling
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [successData, setSuccessData] = useState<any>(null)
+    const [successData, setSuccessData] = useState<Record<string, any> | null>(null)
     const handleReset = () => {
         clearPersistence() // LIMPIAR STORAGE AL RESETEAR
         window.location.reload()
@@ -447,43 +512,137 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
                             {(step === 'PRENDA' || step === 'RESUMEN') && (
                                 <CardContent className="space-y-6">
 
+                                    {/* Búsqueda Rápida de Artículo (Fuzzy Search) */}
+                                    <div className="space-y-2">
+                                        <Label className="flex items-center gap-2">
+                                            <Search className="h-4 w-4" />
+                                            Búsqueda Rápida de Artículo
+                                        </Label>
+                                        <ComboboxBienes
+                                            value={articuloRapido}
+                                            onSelect={(item) => {
+                                                if (item) {
+                                                    setArticuloSeleccionado(item)
+                                                    setArticuloRapido(item.nombre)
+                                                    // Auto-llenar campos
+                                                    setDescripcion(item.nombre)
+                                                    // Auto-llenar categoría del sistema
+                                                    const catSistema = getCategoriaDelSistema(item.categoria)
+                                                    setCategoria(catSistema)
+                                                    
+                                                    // Auto-llenar subcategoría si existe en el mapeo
+                                                    if (item.subcategoriaSistema) {
+                                                        // Forzar actualización inmediata de opciones para evitar que el Select limpie el valor
+                                                        setSubcategoriasDisponibles(getSubcategoriasOrdenadas(catSistema))
+                                                        setSubcategoria(item.subcategoriaSistema)
+                                                    } else {
+                                                        setSubcategoria('')
+                                                    }
+
+                                                    // Limpiar campos "otro" ya que venimos del catálogo
+                                                    setCategoriaOtro('')
+                                                    setSubcategoriaOtro('')
+                                                    setMarcaOtro('')
+                                                } else {
+                                                    setArticuloSeleccionado(null)
+                                                    setArticuloRapido('')
+                                                }
+                                            }}
+                                            onCustomValue={(val) => {
+                                                setArticuloRapido(val)
+                                                setDescripcion(val)
+                                                // Para valores personalizados, usar categoría "otro"
+                                                setCategoria('otro')
+                                                setCategoriaOtro(val)
+                                            }}
+                                            placeholder="Escribe para buscar: celular, laptop, anillo..."
+                                        />
+                                        {articuloSeleccionado && (
+                                            <p className="text-xs text-emerald-600">
+                                                ✓ {articuloSeleccionado.nombre} → Categoría: {getCategoriaDelSistema(articuloSeleccionado.categoria)}
+                                            </p>
+                                        )}
+                                        <p className="text-[10px] text-slate-400">
+                                            Escribe al menos 2 caracteres para buscar en +120 artículos catalogados
+                                        </p>
+                                    </div>
+
+                                    <div className="relative">
+                                        <div className="absolute inset-0 flex items-center">
+                                            <span className="w-full border-t" />
+                                        </div>
+                                        <div className="relative flex justify-center text-xs uppercase">
+                                            <span className="bg-white px-2 text-muted-foreground">
+                                                O selección manual
+                                            </span>
+                                        </div>
+                                    </div>
+
                                     {/* Selector de Categorías - GRID */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <Label>Categoría</Label>
-                                            <Select value={categoria} onValueChange={setCategoria}>
-                                                <SelectTrigger className="h-12 bg-slate-50">
-                                                    <SelectValue placeholder="Seleccione categoría" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {getCategoriasOrdenadas().map(cat => (
-                                                        <SelectItem key={cat.value} value={cat.value}>
+                                            <div className="flex gap-2">
+                                                <Select value={categoria} onValueChange={(v) => {
+                                                    setCategoria(v)
+                                                    if (v !== 'otro') setCategoriaOtro('')
+                                                }}>
+                                                    <SelectTrigger className="h-12 bg-slate-50 flex-1">
+                                                        <SelectValue placeholder="Seleccione categoría" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {getCategoriasOrdenadas().map(cat => (
+                                                            <SelectItem key={cat.value} value={cat.value}>
+                                                                <span className="flex items-center gap-2">
+                                                                    <span>{cat.icon}</span>
+                                                                    <span>{cat.label}</span>
+                                                                </span>
+                                                            </SelectItem>
+                                                        ))}
+                                                        <SelectItem value="otro">
                                                             <span className="flex items-center gap-2">
-                                                                <span>{cat.icon}</span>
-                                                                <span>{cat.label}</span>
+                                                                <span>➕</span>
+                                                                <span>Otro bien...</span>
                                                             </span>
                                                         </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                                    </SelectContent>
+                                                </Select>
+                                                {categoria === 'otro' && (
+                                                    <Input
+                                                        value={categoriaOtro}
+                                                        onChange={(e) => setCategoriaOtro(e.target.value)}
+                                                        placeholder="Especifique..."
+                                                        className="h-12 flex-1"
+                                                    />
+                                                )}
+                                            </div>
                                         </div>
 
                                         <div className="space-y-2">
                                             <Label>Subcategoría</Label>
-                                            <Select
-                                                value={subcategoria}
-                                                onValueChange={setSubcategoria}
-                                                disabled={!categoria}
-                                            >
-                                                <SelectTrigger className="h-12 bg-slate-50">
-                                                    <SelectValue placeholder={!categoria ? "Primero elija categoría" : "Seleccione subcategoría"} />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {subcategoriasDisponibles.map(sub => (
-                                                        <SelectItem key={sub.value} value={sub.value}>{sub.label}</SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                            {categoria === 'otro' ? (
+                                                <Input
+                                                    value={subcategoriaOtro}
+                                                    onChange={(e) => setSubcategoriaOtro(e.target.value)}
+                                                    placeholder="Tipo de artículo..."
+                                                    className="h-12 bg-slate-50"
+                                                />
+                                            ) : (
+                                                <Select
+                                                    value={subcategoria}
+                                                    onValueChange={setSubcategoria}
+                                                    disabled={!categoria}
+                                                >
+                                                    <SelectTrigger className="h-12 bg-slate-50">
+                                                        <SelectValue placeholder={!categoria ? "Primero elija categoría" : "Seleccione subcategoría"} />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {subcategoriasDisponibles.map(sub => (
+                                                            <SelectItem key={sub.value} value={sub.value}>{sub.label}</SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
                                         </div>
                                     </div>
 
@@ -491,23 +650,44 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div className="space-y-2">
                                             <Label>Marca</Label>
-                                            <Select
-                                                value={marca}
-                                                onValueChange={setMarca}
-                                                disabled={!subcategoriasDisponibles.length}
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Marca" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {marcasDisponibles.map(m => (
-                                                        <SelectItem key={m.value} value={m.value}>
-                                                            {m.label} {m.precioFactor > 1 && '⭐'}
-                                                        </SelectItem>
-                                                    ))}
-                                                    <SelectItem value="otra">Otra / Genérica</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                            {categoria === 'otro' ? (
+                                                <Input
+                                                    value={marcaOtro}
+                                                    onChange={(e) => setMarcaOtro(e.target.value)}
+                                                    placeholder="Marca del artículo..."
+                                                />
+                                            ) : (
+                                                <div className="flex gap-2">
+                                                    <Select
+                                                        value={marca}
+                                                        onValueChange={(v) => {
+                                                            setMarca(v)
+                                                            if (v !== 'otra') setMarcaOtro('')
+                                                        }}
+                                                        disabled={!subcategoriasDisponibles.length}
+                                                    >
+                                                        <SelectTrigger className="flex-1">
+                                                            <SelectValue placeholder="Marca" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {marcasDisponibles.map(m => (
+                                                                <SelectItem key={m.value} value={m.value}>
+                                                                    {m.label} {m.precioFactor > 1 && '⭐'}
+                                                                </SelectItem>
+                                                            ))}
+                                                            <SelectItem value="otra">Otra / Genérica</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    {marca === 'otra' && (
+                                                        <Input
+                                                            value={marcaOtro}
+                                                            onChange={(e) => setMarcaOtro(e.target.value)}
+                                                            placeholder="Especifique..."
+                                                            className="flex-1"
+                                                        />
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="space-y-2">
                                             <Label>Modelo</Label>
@@ -546,6 +726,89 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
                                                     {est.label}
                                                 </button>
                                             ))}
+                                        </div>
+                                    </div>
+
+                                    {/* 6. Detalles de Tasación (IA + Manual) */}
+                                    <div className="space-y-3 bg-slate-50/50 p-3 rounded-lg border border-dashed border-slate-200">
+                                        <div className="flex items-center gap-2">
+                                            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Detalles de Tasación</Label>
+                                            {/* Badge count si hay algo */}
+                                            {(aiDefectos.length + aiAccesorios.length) > 0 && (
+                                                <Badge variant="secondary" className="px-1.5 py-0 text-[10px] h-4">
+                                                    {aiDefectos.length + aiAccesorios.length} detectados
+                                                </Badge>
+                                            )}
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {/* Defectos (Impacto Negativo) */}
+                                            <div className="space-y-2">
+                                                <Label className="text-xs text-red-600 flex items-center gap-1">
+                                                    <AlertTriangle className="w-3 h-3" />
+                                                    Defectos / Daños
+                                                </Label>
+                                                <div className="flex flex-wrap gap-2 min-h-[32px] p-2 bg-white rounded border border-red-100">
+                                                    {aiDefectos.map((def, i) => (
+                                                        <Badge key={i} variant="outline" className="text-red-600 border-red-200 bg-red-50 pr-1 gap-1">
+                                                            {def}
+                                                            <button onClick={() => setAiDefectos(prev => prev.filter((_, idx) => idx !== i))} className="hover:bg-red-200 rounded-full p-0.5">
+                                                                <X className="w-3 h-3" />
+                                                            </button>
+                                                        </Badge>
+                                                    ))}
+                                                    <div className="flex items-center gap-1 input-wrapper">
+                                                        <Plus className="w-3 h-3 text-slate-400" />
+                                                        <input
+                                                            className="text-xs bg-transparent border-none focus:outline-none w-24 placeholder:text-slate-300"
+                                                            placeholder="Agregar..."
+                                                            value={newDefecto}
+                                                            onChange={e => setNewDefecto(e.target.value)}
+                                                            onKeyDown={e => {
+                                                                if (e.key === 'Enter' && newDefecto.trim()) {
+                                                                    e.preventDefault()
+                                                                    setAiDefectos(prev => [...prev, newDefecto.trim()])
+                                                                    setNewDefecto('')
+                                                                }
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Accesorios (Impacto Positivo) */}
+                                            <div className="space-y-2">
+                                                <Label className="text-xs text-blue-600 flex items-center gap-1">
+                                                    <CheckCircle2 className="w-3 h-3" />
+                                                    Accesorios / Extras
+                                                </Label>
+                                                <div className="flex flex-wrap gap-2 min-h-[32px] p-2 bg-white rounded border border-blue-100">
+                                                    {aiAccesorios.map((acc, i) => (
+                                                        <Badge key={i} variant="outline" className="text-blue-600 border-blue-200 bg-blue-50 pr-1 gap-1">
+                                                            {acc}
+                                                            <button onClick={() => setAiAccesorios(prev => prev.filter((_, idx) => idx !== i))} className="hover:bg-blue-200 rounded-full p-0.5">
+                                                                <X className="w-3 h-3" />
+                                                            </button>
+                                                        </Badge>
+                                                    ))}
+                                                    <div className="flex items-center gap-1 input-wrapper">
+                                                        <Plus className="w-3 h-3 text-slate-400" />
+                                                        <input
+                                                            className="text-xs bg-transparent border-none focus:outline-none w-24 placeholder:text-slate-300"
+                                                            placeholder="Agregar..."
+                                                            value={newAccesorio}
+                                                            onChange={e => setNewAccesorio(e.target.value)}
+                                                            onKeyDown={e => {
+                                                                if (e.key === 'Enter' && newAccesorio.trim()) {
+                                                                    e.preventDefault()
+                                                                    setAiAccesorios(prev => [...prev, newAccesorio.trim()])
+                                                                    setNewAccesorio('')
+                                                                }
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -705,6 +968,32 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
                                             <QRPhotoBridge
                                                 sessionId={sessionId}
                                                 onPhotosUploaded={setFotos}
+                                                onAnalysisComplete={(analysis) => {
+                                                    if (analysis) {
+                                                        // Auto-rellenar campos básicos
+                                                        if (analysis.categoria) setCategoria(analysis.categoria)
+                                                        if (analysis.marca) setMarca(analysis.marca)
+                                                        if (analysis.modelo) setModelo(analysis.modelo)
+                                                        if (analysis.estadoVisual) setEstadoBien(analysis.estadoVisual)
+                                                        if (analysis.subcategoria) setSubcategoria(analysis.subcategoria)
+
+                                                        // Auto-rellenar Detalles Flexibles (Acumulativo)
+                                                        if (analysis.detalles?.defectos) {
+                                                            setAiDefectos(prev => Array.from(new Set([...prev, ...(analysis.detalles?.defectos || [])])))
+                                                        }
+                                                        if (analysis.detalles?.accesorios) {
+                                                            setAiAccesorios(prev => Array.from(new Set([...prev, ...(analysis.detalles?.accesorios || [])])))
+                                                        }
+
+                                                        // Construir descripción narrativa
+                                                        if (analysis.observaciones?.length) {
+                                                            setDescripcion(prev =>
+                                                                prev ? `${prev} | IA: ${analysis.observaciones?.join(', ')}`
+                                                                    : `IA: ${analysis.observaciones?.join(', ')}`
+                                                            )
+                                                        }
+                                                    }
+                                                }}
                                             />
                                         )}
                                     </div>
@@ -735,6 +1024,46 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
                                         <span className="text-slate-600">Fotos:</span>
                                         <span className="font-medium">{fotos.length} adjuntas</span>
                                     </div>
+
+                                    {/* Desglose LTV (Transparencia de cálculo) */}
+                                    {valorMercado > 0 && (() => {
+                                        const ltvConfig = getLTVConfig(categoria || 'default')
+                                        const factorEstado = FACTOR_POR_ESTADO[estadoBien] || 0.9
+                                        const ltvAjustado = Math.round(ltvConfig.sugerido * factorEstado)
+                                        const montoSugerido = Math.round(valorMercado * (ltvAjustado / 100))
+
+                                        return (
+                                            <div className="bg-slate-50 p-3 rounded-lg space-y-1 text-xs border border-slate-200">
+                                                <p className="font-semibold text-slate-700 text-[11px] uppercase tracking-wide mb-2">Desglose del Cálculo</p>
+                                                <div className="flex justify-between">
+                                                    <span className="text-slate-500">Valor Mercado Base:</span>
+                                                    <span className="font-mono">S/ {valorMercado.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-slate-500">LTV Categoría ({categoria || '-'}):</span>
+                                                    <span className="font-mono">{ltvConfig.sugerido}%</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-slate-500">Factor Estado ({estadoBien}):</span>
+                                                    <span className="font-mono">× {Math.round(factorEstado * 100)}%</span>
+                                                </div>
+                                                <div className="flex justify-between text-emerald-600 pt-1 border-t border-dashed font-medium">
+                                                    <span>LTV Ajustado ({ltvAjustado}%):</span>
+                                                    <span className="font-mono">S/ {montoSugerido.toLocaleString('es-PE')}</span>
+                                                </div>
+                                                <div className="text-[10px] text-slate-400 mt-1">
+                                                    Rango permitido: {ltvConfig.minimo}% - {ltvConfig.maximo}%
+                                                </div>
+                                                {montoPrestamo > valorMercado && (
+                                                    <div className="flex items-center gap-1 text-amber-600 pt-1">
+                                                        <AlertTriangle className="w-3 h-3" />
+                                                        <span>Préstamo excede tasación</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )
+                                    })()}
+
                                     <div className="flex justify-between items-end pt-3 border-t mt-2">
                                         <span className="font-bold text-slate-800 text-sm">A Desembolsar:</span>
                                         <span className="text-2xl lg:text-3xl font-bold text-emerald-600">
@@ -743,11 +1072,22 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
                                     </div>
                                 </div>
 
-                                {/* Botón Acción - Siempre igual para evitar hydration mismatch */}
+                                {/* Botón Acción - Abre modal de confirmación */}
                                 <Button
                                     className="w-full h-12 lg:h-14 text-base lg:text-lg shadow-md transition-all bg-emerald-600 hover:bg-emerald-700 hover:scale-[1.02]"
                                     disabled={!clienteId || montoPrestamo <= 0}
-                                    onClick={handleProcesar}
+                                    onClick={() => {
+                                        // Validaciones previas
+                                        if (!clienteId) return toast.error("Falta registrar cliente")
+                                        if (!categoria || !subcategoria) return toast.error("Completa la categoría de la prenda")
+                                        if (!descripcion && !modelo) return toast.error("Agrega una descripción o modelo")
+                                        if (montoPrestamo < 10) return toast.error("El monto mínimo es S/10")
+                                        if (montoPrestamo > 50000) return toast.error("El monto máximo es S/50,000")
+                                        if (tasaInteres < 1 || tasaInteres > 50) return toast.error("La tasa debe estar entre 1% y 50%")
+                                        // Abrir modal de confirmación
+                                        setConfirmChecked(false)
+                                        setShowConfirmModal(true)
+                                    }}
                                 >
                                     <span className="flex flex-col items-center leading-tight">
                                         <span className="font-bold flex items-center gap-2">
@@ -758,6 +1098,74 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
                                         </span>
                                     </span>
                                 </Button>
+
+                                {/* Modal de Confirmación Irreversible */}
+                                <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+                                    <DialogContent className="max-w-md">
+                                        <DialogHeader>
+                                            <DialogTitle className="flex items-center gap-2 text-amber-700">
+                                                <ShieldAlert className="w-5 h-5" />
+                                                Confirmar Operación
+                                            </DialogTitle>
+                                            <DialogDescription className="text-slate-600">
+                                                Esta operación <strong>no puede revertirse</strong>. Verifica los datos antes de continuar.
+                                            </DialogDescription>
+                                        </DialogHeader>
+
+                                        <div className="space-y-3 py-4">
+                                            <div className="bg-slate-50 p-3 rounded-lg space-y-2 text-sm border">
+                                                <div className="flex justify-between">
+                                                    <span className="text-slate-500">Cliente:</span>
+                                                    <span className="font-medium">{clienteNombre}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-slate-500">Artículo:</span>
+                                                    <span className="font-medium">{marca ? `${marca} ${modelo || ''}`.trim() : subcategoria}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-slate-500">Valor Tasación:</span>
+                                                    <span className="font-mono">S/ {valorMercado.toLocaleString('es-PE')}</span>
+                                                </div>
+                                                <Separator />
+                                                <div className="flex justify-between text-base font-bold">
+                                                    <span>A Desembolsar:</span>
+                                                    <span className="text-emerald-600">S/ {montoPrestamo.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>
+                                                </div>
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="text-slate-500">Tasa/mes:</span>
+                                                    <span>{tasaInteres}%</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                                                <Checkbox
+                                                    id="confirm-irreversible"
+                                                    checked={confirmChecked}
+                                                    onCheckedChange={(checked) => setConfirmChecked(checked === true)}
+                                                />
+                                                <label htmlFor="confirm-irreversible" className="text-sm text-amber-800 cursor-pointer leading-tight">
+                                                    Confirmo que los datos son correctos y el cliente ha firmado el contrato físico.
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <DialogFooter className="gap-2">
+                                            <Button variant="outline" onClick={() => setShowConfirmModal(false)}>
+                                                Cancelar
+                                            </Button>
+                                            <Button
+                                                className="bg-emerald-600 hover:bg-emerald-700"
+                                                disabled={!confirmChecked}
+                                                onClick={() => {
+                                                    setShowConfirmModal(false)
+                                                    handleProcesar()
+                                                }}
+                                            >
+                                                Confirmar y Desembolsar
+                                            </Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
 
                                 {/* Advertencia de caja cerrada - solo se muestra en cliente */}
                                 {isMounted && !isLoadingCaja && !cajaAbierta && (

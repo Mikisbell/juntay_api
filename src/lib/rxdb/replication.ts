@@ -36,7 +36,16 @@ function isNetworkError(err: any): boolean {
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-const replicationClient = createClient(supabaseUrl, supabaseAnonKey)
+// Singleton para Cliente Supabase (Evita advertencias de GoTrue en HMR)
+const globalForSupabase = globalThis as unknown as {
+    supabaseReplicationClient: ReturnType<typeof createClient>
+}
+
+const replicationClient = globalForSupabase.supabaseReplicationClient || createClient(supabaseUrl, supabaseAnonKey)
+
+if (process.env.NODE_ENV !== 'production') {
+    globalForSupabase.supabaseReplicationClient = replicationClient
+}
 
 // Estado de las replicaciones
 interface ReplicationStates {

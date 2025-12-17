@@ -7,25 +7,21 @@ import { usePathname, useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import {
     LayoutDashboard,
-    PlusCircle,
+    Monitor, // "Ventanilla"
+    Users,
     FileText,
-    Banknote,
-    Wallet,
     Package,
+    Landmark,
     PieChart,
     Settings,
     ChevronRight,
-    Landmark,
-    Users,
-    RefreshCw,
-    Gavel,
-    AlertCircle,
     MessageSquare,
     LogOut,
     User,
     ChevronUp,
-    UserPlus,
-    Sparkles
+    Sparkles,
+    Gem, // "Juntay Icon"
+    Briefcase // "Cartera" fallback
 } from "lucide-react"
 
 import {
@@ -52,115 +48,96 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-// Estructura Bancaria: Front Office vs Back Office
-const menuItems = {
-    main: [
-        {
-            title: "Visión General",
-            url: "/dashboard",
-            icon: LayoutDashboard,
-        },
-    ],
-    terminal: [
-        {
-            title: "Terminal de Caja",
-            url: "/dashboard/caja",
-            icon: Wallet,
-        },
-        {
-            title: "Nuevo Crédito",
-            url: "/dashboard/mostrador/nuevo-empeno",
-            icon: PlusCircle,
-        },
-        {
-            title: "Cobranzas",
-            url: "/dashboard/pagos",
-            icon: Banknote,
-        },
-    ],
-    portfolio: [
-        {
-            title: "Cartera de Contratos",
-            url: "/dashboard/contratos",
-            icon: FileText,
-        },
-        {
-            title: "Directorio de Clientes",
-            url: "/dashboard/clientes",
-            icon: Users,
-        },
-        {
-            title: "Bóveda de Garantías",
-            url: "/dashboard/inventario",
-            icon: Package,
-        },
-    ],
-    operations: [
-        {
-            title: "Renovaciones",
-            url: "/dashboard/renovaciones",
-            icon: RefreshCw,
-        },
-        {
-            title: "Remates",
-            url: "/dashboard/remates",
-            icon: Gavel,
-        },
-        {
-            title: "Gestión de Vencimientos",
-            url: "/dashboard/vencimientos",
-            icon: AlertCircle,
-        },
-    ],
-    admin: [
-        {
-            title: "Tesorería",
-            url: "/dashboard/admin/tesoreria",
-            icon: Landmark,
-        },
-        {
-            title: "Empleados",
-            url: "/dashboard/admin/empleados",
-            icon: UserPlus,
-        },
-        {
-            title: "Reportes y Auditoría",
-            icon: PieChart,
-            items: [
-                {
-                    title: "Cierre Diario",
-                    url: "/dashboard/reportes/caja-diaria",
-                },
-                {
-                    title: "Análisis de Cartera",
-                    url: "/dashboard/reportes/cartera",
-                },
-                {
-                    title: "Historial de Transacciones",
-                    url: "/dashboard/reportes/transacciones",
-                },
-            ],
-        },
-        {
-            title: "WhatsApp Business",
-            url: "/dashboard/whatsapp",
-            icon: MessageSquare,
-        },
-        {
-            title: "Configuración",
-            url: "/dashboard/admin/configuracion",
-            icon: Settings,
-        },
-    ],
-}
+// ============================================================================
+// NUEVA ARQUITECTURA: JERARQUÍA BASADA EN ROLES
+// ============================================================================
 
-type MenuItem = {
-    title: string
-    url?: string
-    icon: React.ComponentType<{ className?: string }>
-    items?: { title: string; url: string }[]
-}
+const SECTIONS = [
+    {
+        id: "principal",
+        label: "Principal",
+        items: [
+            {
+                title: "Visión General",
+                url: "/dashboard",
+                icon: LayoutDashboard,
+            }
+        ]
+    },
+    {
+        id: "front_office",
+        label: "FRONT OFFICE (Operativa)",
+        items: [
+            {
+                title: "Ventanilla", // Antes "Terminal de Caja"
+                url: "/dashboard/caja",
+                icon: Monitor,
+                desc: "Caja y Operaciones Rápidas"
+            },
+            {
+                title: "Clientes",
+                url: "/dashboard/clientes",
+                icon: Users,
+            }
+        ]
+    },
+    {
+        id: "middle_office",
+        label: "MIDDLE OFFICE (Negocio)",
+        items: [
+            {
+                title: "Gestión de Créditos",
+                icon: FileText,
+                url: "/dashboard/contratos", // Default link if clicked parent
+                items: [
+                    { title: "Cartera Activa", url: "/dashboard/contratos" },
+                    { title: "Vencimientos", url: "/dashboard/vencimientos", badge: "3" },
+                    { title: "Remates", url: "/dashboard/remates", badge: "1" },
+                    { title: "Renovaciones", url: "/dashboard/renovaciones" }
+                ]
+            },
+            {
+                title: "Inventario (Garantías)",
+                url: "/dashboard/inventario",
+                icon: Package,
+            }
+        ]
+    },
+    {
+        id: "back_office",
+        label: "BACK OFFICE (Sistema)",
+        items: [
+            {
+                title: "Tesorería Central",
+                url: "/dashboard/admin/tesoreria",
+                icon: Landmark,
+            },
+            {
+                title: "Socios e Inversores",
+                url: "/dashboard/admin/inversionistas",
+                icon: Users, // Or Briefcase
+            },
+            {
+                title: "Reportes",
+                url: "/dashboard/reportes",
+                icon: PieChart,
+            },
+            {
+                title: "Configuración",
+                icon: Settings,
+                items: [
+                    { title: "WhatsApp Business", url: "/dashboard/whatsapp" },
+                    { title: "Empleados", url: "/dashboard/admin/empleados" },
+                    { title: "Sistema", url: "/dashboard/admin/configuracion" }
+                ]
+            }
+        ]
+    }
+]
+
+// ============================================================================
 
 export function AppSidebar() {
     const pathname = usePathname()
@@ -200,62 +177,54 @@ export function AppSidebar() {
         return pathname.startsWith(url)
     }
 
-    const renderMenuItem = (item: MenuItem) => {
-        if (item.title === 'Terminal de Caja' || item.title === 'Nuevo Crédito') {
-            // Special Highlight for Critical Operations
-            const active = item.url ? isActive(item.url) : false
-            return (
-                <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                        asChild
-                        tooltip={item.title}
-                        className={`h-11 transition-all duration-300 relative overflow-hidden group/btn ${active
-                            ? 'bg-blue-600 text-white font-semibold shadow-lg shadow-blue-500/20'
-                            : 'hover:bg-blue-50 text-slate-700 hover:text-blue-600'}`}
-                    >
-                        <Link href={item.url!}>
-                            {active && <div className="absolute inset-0 bg-blue-500 blur-lg opacity-50"></div>}
-                            <item.icon className="h-4 w-4 relative z-10" />
-                            <span className="relative z-10">{item.title}</span>
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            )
-        }
+    // Helper para renderizar items (Recursivo si fuera necesario, aqui solo 2 niveles)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const renderMenuItem = (item: any) => {
+        const isGroupActive = item.items?.some((sub: any) => isActive(sub.url)) || (item.url && isActive(item.url))
 
-        const active = item.url ? isActive(item.url) : false
-
+        // --- ITEM CON SUBMENÚ (Accordion) ---
         if (item.items) {
-            const isSubActive = item.items.some((sub) => isActive(sub.url))
             return (
-                <Collapsible key={item.title} asChild className="group/collapsible" defaultOpen={isSubActive}>
+                <Collapsible key={item.title} asChild className="group/collapsible" defaultOpen={isGroupActive}>
                     <SidebarMenuItem>
                         <CollapsibleTrigger asChild>
                             <SidebarMenuButton
                                 tooltip={item.title}
-                                className={`h-10 transition-all duration-300 ${isSubActive
-                                    ? 'bg-blue-50 text-blue-600 font-semibold border-l-2 border-blue-500 pl-3'
-                                    : 'hover:bg-slate-100 hover:pl-3 border-l-2 border-transparent pl-2 text-slate-600 hover:text-slate-900'}`}
+                                className={`h-9 w-full justify-between transition-all duration-200 group-data-[state=open]/collapsible:font-semibold ${isGroupActive
+                                    ? 'text-slate-900 font-medium'
+                                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'}`}
                             >
-                                <item.icon className={`h-4 w-4 transition-colors ${isSubActive ? 'text-blue-600' : 'text-slate-500 group-hover:text-blue-600'}`} />
-                                <span>{item.title}</span>
-                                <ChevronRight className="ml-auto h-3.5 w-3.5 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 opacity-50" />
+                                <div className="flex items-center gap-2">
+                                    <item.icon className={`h-4 w-4 ${isGroupActive ? 'text-blue-600' : 'text-slate-500'}`} />
+                                    <span>{item.title}</span>
+                                </div>
+                                <ChevronRight className="h-3.5 w-3.5 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 opacity-50" />
                             </SidebarMenuButton>
                         </CollapsibleTrigger>
                         <CollapsibleContent>
-                            <SidebarMenuSub className="border-l border-slate-200 ml-3.5 pl-2">
-                                {item.items.map((subItem) => (
-                                    <SidebarMenuSubItem key={subItem.title}>
-                                        <SidebarMenuSubButton
-                                            asChild
-                                            className={`h-9 transition-colors ${isActive(subItem.url) ? 'bg-blue-50 text-blue-600 font-medium' : 'text-slate-600 hover:text-slate-900'}`}
-                                        >
-                                            <Link href={subItem.url}>
-                                                <span>{subItem.title}</span>
-                                            </Link>
-                                        </SidebarMenuSubButton>
-                                    </SidebarMenuSubItem>
-                                ))}
+                            <SidebarMenuSub className="border-l border-slate-200/60 ml-5 pl-0 space-y-0.5 my-1">
+                                {item.items.map((subItem: any) => {
+                                    const isSubActive = isActive(subItem.url)
+                                    return (
+                                        <SidebarMenuSubItem key={subItem.title}>
+                                            <SidebarMenuSubButton
+                                                asChild
+                                                className={`h-8 pl-4 pr-2 transition-colors relative flex items-center justify-between ${isSubActive
+                                                    ? 'text-blue-600 font-medium bg-blue-50/50'
+                                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}`}
+                                            >
+                                                <Link href={subItem.url}>
+                                                    <span>{subItem.title}</span>
+                                                    {subItem.badge && (
+                                                        <span className={`ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full ${isSubActive ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
+                                                            {subItem.badge}
+                                                        </span>
+                                                    )}
+                                                </Link>
+                                            </SidebarMenuSubButton>
+                                        </SidebarMenuSubItem>
+                                    )
+                                })}
                             </SidebarMenuSub>
                         </CollapsibleContent>
                     </SidebarMenuItem>
@@ -263,18 +232,28 @@ export function AppSidebar() {
             )
         }
 
+        // --- ITEM SIMPLE ---
+        const active = isActive(item.url)
         return (
             <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
                     asChild
                     tooltip={item.title}
-                    className={`h-10 transition-all duration-300 ${active
-                        ? 'bg-blue-50 text-blue-600 font-semibold border-l-2 border-blue-500 pl-3'
-                        : 'hover:bg-slate-100 hover:pl-3 border-l-2 border-transparent pl-2 text-slate-600 hover:text-slate-900'}`}
+                    isActive={active}
+                    className={`h-9 transition-all duration-200 group relative overflow-hidden ${active
+                        ? 'bg-slate-900 text-white font-medium shadow-md shadow-slate-900/10 hover:bg-slate-800 hover:text-white' // PRO ACTIVE STATE
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' // PRO HOVER
+                        }`}
                 >
-                    <Link href={item.url!}>
-                        <item.icon className={`h-4 w-4 transition-colors ${active ? 'text-blue-600' : 'text-slate-500 group-hover:text-blue-600'}`} />
-                        <span>{item.title}</span>
+                    <Link href={item.url}>
+                        <item.icon className={`h-4 w-4 shrink-0 transition-transform duration-200 ${active ? 'text-white' : 'text-slate-500 group-hover:scale-110 group-hover:text-slate-700'
+                            }`} />
+                        <span className="truncate flex-1">{item.title}</span>
+                        {item.badge && (
+                            <span className={`ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full ${active ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200'}`}>
+                                {item.badge}
+                            </span>
+                        )}
                     </Link>
                 </SidebarMenuButton>
             </SidebarMenuItem>
@@ -283,127 +262,80 @@ export function AppSidebar() {
 
     return (
         <Sidebar collapsible="icon" className="border-r border-slate-200 bg-white transition-all duration-300">
-            <SidebarHeader className="border-b border-slate-200 px-6 py-5 bg-slate-50">
+            <SidebarHeader className="border-b border-transparent px-4 py-4 pt-6">
                 <div className="flex items-center gap-3 transition-all duration-300 group-data-[collapsible=icon]:justify-center">
-                    <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl overflow-hidden bg-white shadow-md border border-slate-200 transition-all">
-                        <div className="absolute inset-0 bg-blue-500/5"></div>
-                        <Image
-                            src="/logo.png"
-                            alt="Antigravity Logo"
-                            width={40}
-                            height={40}
-                            className="object-contain relative z-10 p-1 drop-shadow-lg"
-                        />
+                    <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-slate-900 to-slate-800 text-white shadow-lg ring-1 ring-white/50 group-hover:scale-105 transition-transform duration-300">
+                        <Gem className="w-5 h-5 text-emerald-400" />
                     </div>
                     <div className="flex flex-col overflow-hidden group-data-[collapsible=icon]:hidden">
-                        <span className="text-sm font-bold tracking-tight text-slate-800 flex items-center gap-1.5">
-                            ANTIGRAVITY
-                            <Sparkles className="w-3 h-3 text-blue-400 animate-pulse" />
+                        <span className="text-[15px] font-bold tracking-tight text-slate-900 leading-none font-display">
+                            JUNTAY
                         </span>
-                        <span className="text-[10px] font-medium text-blue-600 uppercase tracking-[0.2em] pl-0.5">Agent Manager</span>
+                        <span className="text-[10px] font-medium text-slate-500 uppercase tracking-widest leading-none mt-1.5">
+                            Casa de Empeño
+                        </span>
                     </div>
                 </div>
             </SidebarHeader>
 
-            <SidebarContent className="gap-0 py-2">
-                <SidebarGroup className="py-2">
-                    <SidebarGroupContent>
-                        <SidebarMenu className="gap-1.5">
-                            {menuItems.main.map(renderMenuItem)}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-
-                <div className="px-4 py-3">
-                    <div className="h-[1px] bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-                </div>
-
-                <SidebarGroup>
-                    <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2 px-2">
-                        Terminal Operativa
-                    </SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu className="gap-1">
-                            {menuItems.terminal.map(renderMenuItem)}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-
-                <SidebarGroup>
-                    <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2 px-2">
-                        Gestión de Activos
-                    </SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu className="gap-1">
-                            {menuItems.portfolio.map(renderMenuItem)}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-
-                <SidebarGroup>
-                    <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2 px-2">
-                        Operaciones Especiales
-                    </SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu className="gap-1">
-                            {menuItems.operations.map(renderMenuItem)}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-
-                <SidebarGroup>
-                    <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2 px-2">
-                        Administración
-                    </SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu className="gap-1">
-                            {menuItems.admin.map(renderMenuItem)}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
+            <SidebarContent className="gap-4 px-3 py-4">
+                {SECTIONS.map((section) => (
+                    <SidebarGroup key={section.id} className="p-0">
+                        {section.label !== 'Principal' && (
+                            <SidebarGroupLabel className="px-3 text-[10px] font-bold uppercase tracking-widest text-slate-400/80 mb-2">
+                                {section.label}
+                            </SidebarGroupLabel>
+                        )}
+                        <SidebarGroupContent>
+                            <SidebarMenu className="gap-1.5">
+                                {section.items.map(renderMenuItem)}
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                ))}
             </SidebarContent>
 
-            <SidebarFooter className="border-t border-slate-200 p-2 bg-slate-50">
+            <SidebarFooter className="border-t border-slate-100 p-2">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <SidebarMenuButton className="h-14 px-3 hover:bg-slate-100 hover:shadow-sm border border-transparent hover:border-slate-200 transition-all">
-                                    <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 shadow-md ring-2 ring-white/10">
-                                        <User className="h-4 w-4 text-white" />
-                                        <div className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
-                                    </div>
-                                    <div className="flex flex-col overflow-hidden group-data-[collapsible=icon]:hidden">
-                                        <span className="text-sm font-semibold truncate text-slate-800">
-                                            {user?.nombre || 'Iniciando...'}
+                                <SidebarMenuButton className="h-12 px-2 hover:bg-slate-50 transition-all data-[state=open]:bg-slate-100 group">
+                                    <Avatar className="h-8 w-8 rounded-lg border border-slate-200 shadow-sm transition-transform group-hover:scale-105">
+                                        <AvatarImage src="#" alt={user?.nombre} />
+                                        <AvatarFallback className="rounded-lg bg-slate-900 text-white font-bold">
+                                            {user?.nombre?.slice(0, 2).toUpperCase() || 'US'}
+                                        </AvatarFallback>
+                                    </Avatar>
+
+                                    <div className="flex flex-col gap-0.5 overflow-hidden ml-2 group-data-[collapsible=icon]:hidden text-left transition-opacity">
+                                        <span className="text-sm font-bold truncate text-slate-800">
+                                            {user?.nombre || 'Usuario'}
                                         </span>
-                                        <span className="text-xs text-slate-500 truncate">
-                                            {user?.email || ''}
+                                        <span className="text-[10px] font-medium text-slate-500 truncate">
+                                            {user?.email || 'Conectando...'}
                                         </span>
                                     </div>
-                                    <ChevronUp className="ml-auto h-4 w-4 text-slate-500 group-data-[collapsible=icon]:hidden" />
+                                    <ChevronUp className="ml-auto h-4 w-4 text-slate-400 group-data-[collapsible=icon]:hidden" />
                                 </SidebarMenuButton>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent side="top" align="start" className="w-60 p-2 bg-white border-slate-200 text-slate-700">
-                                <DropdownMenuLabel className="font-normal p-2 mb-2 bg-slate-50 rounded-lg border border-slate-200">
+                            <DropdownMenuContent side="top" align="start" className="w-56 rounded-xl shadow-xl border-slate-100">
+                                <DropdownMenuLabel className="font-normal">
                                     <div className="flex flex-col space-y-1">
-                                        <p className="text-sm font-medium text-slate-800">{user?.nombre}</p>
-                                        <p className="text-xs text-slate-500">{user?.email}</p>
+                                        <p className="text-sm font-medium leading-none">{user?.nombre}</p>
+                                        <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
                                     </div>
                                 </DropdownMenuLabel>
-                                <DropdownMenuItem asChild className="cursor-pointer rounded-md focus:bg-slate-100 focus:text-slate-900">
-                                    <Link href="/dashboard/admin/configuracion" className="flex items-center">
-                                        <Settings className="mr-2 h-4 w-4 text-slate-400" />
-                                        Configuración
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild>
+                                    <Link href="/dashboard/admin/configuracion" className="cursor-pointer">
+                                        <Settings className="mr-2 h-4 w-4" />
+                                        <span>Configuración</span>
                                     </Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuSeparator className="my-1 bg-slate-200" />
-                                <DropdownMenuItem
-                                    onClick={handleLogout}
-                                    className="text-red-400 focus:text-red-300 focus:bg-red-500/10 cursor-pointer rounded-md"
-                                >
+                                <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer">
                                     <LogOut className="mr-2 h-4 w-4" />
-                                    Cerrar Sesión
+                                    <span>Cerrar Sesión</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

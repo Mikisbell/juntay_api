@@ -19,6 +19,7 @@ export interface ClienteCompleto {
     email: string | null
     telefono_principal: string | null
     telefono_secundario: string | null
+    parentesco_referencia: string | null
     direccion: string | null
 }
 
@@ -80,6 +81,8 @@ export async function crearCliente(datos: {
     apellido_paterno: string
     apellido_materno: string
     telefono?: string
+    telefono_secundario?: string  // Teléfono referencia/familiar
+    parentesco_referencia?: string // Parentesco: Esposa, Padre, etc.
     email?: string
     direccion?: string
     ubigeo_cod?: string
@@ -134,6 +137,8 @@ export async function crearCliente(datos: {
             apellido_materno: datos.apellido_materno,
             email: datos.email || null,
             telefono_principal: datos.telefono || null,
+            telefono_secundario: datos.telefono_secundario || null,
+            parentesco_referencia: datos.parentesco_referencia || null,
             direccion: datos.direccion || null,
             score_crediticio: 500, // Score inicial
             activo: true,
@@ -368,6 +373,7 @@ export async function crearClienteDesdeEntidad(datos: {
     apellido_materno?: string
     apellidos?: string
     telefono?: string
+    telefono_secundario?: string  // Teléfono referencia/familiar
     email?: string
     direccion?: string
     ubigeo_cod?: string
@@ -419,6 +425,7 @@ export async function crearClienteDesdeEntidad(datos: {
         apellido_paterno: apellido_paterno || 'SIN APELLIDO',
         apellido_materno: apellido_materno || '',
         telefono: datos.telefono,
+        telefono_secundario: datos.telefono_secundario,
         email: datos.email,
         direccion: datos.direccion,
         ubigeo_cod: datos.ubigeo_cod,

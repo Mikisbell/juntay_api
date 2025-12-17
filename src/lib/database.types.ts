@@ -127,47 +127,12 @@ export type Database = {
           },
         ]
       }
-      boveda_central: {
-        Row: {
-          empresa_id: string | null
-          estado: string | null
-          fecha_actualizacion: string | null
-          id: string
-          saldo_asignado: number
-          saldo_disponible: number
-          saldo_total: number
-        }
-        Insert: {
-          empresa_id?: string | null
-          estado?: string | null
-          fecha_actualizacion?: string | null
-          id?: string
-          saldo_asignado?: number
-          saldo_disponible?: number
-          saldo_total?: number
-        }
-        Update: {
-          empresa_id?: string | null
-          estado?: string | null
-          fecha_actualizacion?: string | null
-          id?: string
-          saldo_asignado?: number
-          saldo_disponible?: number
-          saldo_total?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "boveda_central_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       cajas_operativas: {
         Row: {
+          _deleted: boolean
+          _modified: string
           boveda_origen_id: string | null
+          cuenta_origen_id: string | null
           diferencia_cierre: number | null
           estado: string
           fecha_apertura: string | null
@@ -181,7 +146,10 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
+          _deleted?: boolean
+          _modified?: string
           boveda_origen_id?: string | null
+          cuenta_origen_id?: string | null
           diferencia_cierre?: number | null
           estado?: string
           fecha_apertura?: string | null
@@ -195,7 +163,10 @@ export type Database = {
           usuario_id: string
         }
         Update: {
+          _deleted?: boolean
+          _modified?: string
           boveda_origen_id?: string | null
+          cuenta_origen_id?: string | null
           diferencia_cierre?: number | null
           estado?: string
           fecha_apertura?: string | null
@@ -210,10 +181,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "cajas_operativas_boveda_origen_id_fkey"
-            columns: ["boveda_origen_id"]
+            foreignKeyName: "cajas_operativas_cuenta_origen_id_fkey"
+            columns: ["cuenta_origen_id"]
             isOneToOne: false
-            referencedRelation: "boveda_central"
+            referencedRelation: "cuentas_financieras"
             referencedColumns: ["id"]
           },
           {
@@ -245,6 +216,8 @@ export type Database = {
       }
       clientes: {
         Row: {
+          _deleted: boolean
+          _modified: string
           activo: boolean | null
           apellido_materno: string | null
           apellido_paterno: string | null
@@ -265,6 +238,8 @@ export type Database = {
           ubigeo_cod: string | null
         }
         Insert: {
+          _deleted?: boolean
+          _modified?: string
           activo?: boolean | null
           apellido_materno?: string | null
           apellido_paterno?: string | null
@@ -285,6 +260,8 @@ export type Database = {
           ubigeo_cod?: string | null
         }
         Update: {
+          _deleted?: boolean
+          _modified?: string
           activo?: boolean | null
           apellido_materno?: string | null
           apellido_paterno?: string | null
@@ -321,21 +298,92 @@ export type Database = {
           },
         ]
       }
+      contratos_fondeo: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          estado: Database["public"]["Enums"]["estado_contrato_fondeo"] | null
+          fecha_inicio: string
+          fecha_vencimiento: string | null
+          frecuencia_pago:
+            | Database["public"]["Enums"]["frecuencia_pago_fondeo"]
+            | null
+          id: string
+          inversionista_id: string
+          metadata: Json | null
+          monto_capital_devuelto: number | null
+          monto_pactado: number
+          monto_rendimientos_pagados: number | null
+          tasa_retorno: number
+          tipo: Database["public"]["Enums"]["tipo_contrato_fondeo"]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          estado?: Database["public"]["Enums"]["estado_contrato_fondeo"] | null
+          fecha_inicio?: string
+          fecha_vencimiento?: string | null
+          frecuencia_pago?:
+            | Database["public"]["Enums"]["frecuencia_pago_fondeo"]
+            | null
+          id?: string
+          inversionista_id: string
+          metadata?: Json | null
+          monto_capital_devuelto?: number | null
+          monto_pactado: number
+          monto_rendimientos_pagados?: number | null
+          tasa_retorno: number
+          tipo: Database["public"]["Enums"]["tipo_contrato_fondeo"]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          estado?: Database["public"]["Enums"]["estado_contrato_fondeo"] | null
+          fecha_inicio?: string
+          fecha_vencimiento?: string | null
+          frecuencia_pago?:
+            | Database["public"]["Enums"]["frecuencia_pago_fondeo"]
+            | null
+          id?: string
+          inversionista_id?: string
+          metadata?: Json | null
+          monto_capital_devuelto?: number | null
+          monto_pactado?: number
+          monto_rendimientos_pagados?: number | null
+          tasa_retorno?: number
+          tipo?: Database["public"]["Enums"]["tipo_contrato_fondeo"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contratos_fondeo_inversionista_id_fkey"
+            columns: ["inversionista_id"]
+            isOneToOne: false
+            referencedRelation: "inversionistas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       creditos: {
         Row: {
+          _deleted: boolean
+          _modified: string
           caja_origen_id: string | null
           cliente_id: string
           codigo: string | null
           codigo_credito: string | null
           created_at: string | null
+          created_by: string | null
           dias_transcurridos: number | null
           empresa_id: string | null
           estado: string | null
           estado_detallado: string
+          fecha_cancelacion: string | null
           fecha_desembolso: string | null
           fecha_inicio: string | null
           fecha_vencimiento: string
-          garantia_id: string | null
           id: string
           interes_acumulado: number | null
           interes_devengado_actual: number | null
@@ -347,19 +395,22 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          _deleted?: boolean
+          _modified?: string
           caja_origen_id?: string | null
           cliente_id: string
           codigo?: string | null
           codigo_credito?: string | null
           created_at?: string | null
+          created_by?: string | null
           dias_transcurridos?: number | null
           empresa_id?: string | null
           estado?: string | null
           estado_detallado: string
+          fecha_cancelacion?: string | null
           fecha_desembolso?: string | null
           fecha_inicio?: string | null
           fecha_vencimiento: string
-          garantia_id?: string | null
           id?: string
           interes_acumulado?: number | null
           interes_devengado_actual?: number | null
@@ -371,19 +422,22 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          _deleted?: boolean
+          _modified?: string
           caja_origen_id?: string | null
           cliente_id?: string
           codigo?: string | null
           codigo_credito?: string | null
           created_at?: string | null
+          created_by?: string | null
           dias_transcurridos?: number | null
           empresa_id?: string | null
           estado?: string | null
           estado_detallado?: string
+          fecha_cancelacion?: string | null
           fecha_desembolso?: string | null
           fecha_inicio?: string | null
           fecha_vencimiento?: string
-          garantia_id?: string | null
           id?: string
           interes_acumulado?: number | null
           interes_devengado_actual?: number | null
@@ -423,14 +477,52 @@ export type Database = {
             referencedRelation: "empresas"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "creditos_garantia_id_fkey"
-            columns: ["garantia_id"]
-            isOneToOne: false
-            referencedRelation: "garantias"
-            referencedColumns: ["id"]
-          },
         ]
+      }
+      cuentas_financieras: {
+        Row: {
+          activo: boolean | null
+          banco_asociado: Database["public"]["Enums"]["banco_peru"] | null
+          created_at: string | null
+          es_principal: boolean | null
+          id: string
+          moneda: string
+          nombre: string
+          numero_cuenta: string | null
+          saldo: number
+          tipo: Database["public"]["Enums"]["tipo_cuenta_financiera"]
+          titular_cuenta: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          activo?: boolean | null
+          banco_asociado?: Database["public"]["Enums"]["banco_peru"] | null
+          created_at?: string | null
+          es_principal?: boolean | null
+          id?: string
+          moneda?: string
+          nombre: string
+          numero_cuenta?: string | null
+          saldo?: number
+          tipo: Database["public"]["Enums"]["tipo_cuenta_financiera"]
+          titular_cuenta?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          activo?: boolean | null
+          banco_asociado?: Database["public"]["Enums"]["banco_peru"] | null
+          created_at?: string | null
+          es_principal?: boolean | null
+          id?: string
+          moneda?: string
+          nombre?: string
+          numero_cuenta?: string | null
+          saldo?: number
+          tipo?: Database["public"]["Enums"]["tipo_cuenta_financiera"]
+          titular_cuenta?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       departamentos: {
         Row: {
@@ -603,6 +695,8 @@ export type Database = {
       }
       garantias: {
         Row: {
+          _deleted: boolean
+          _modified: string
           anio: number | null
           area: number | null
           capacidad: string | null
@@ -628,10 +722,13 @@ export type Database = {
           serie: string | null
           subcategoria: string | null
           ubicacion: string | null
+          updated_at: string | null
           valor_prestamo_sugerido: number | null
           valor_tasacion: number
         }
         Insert: {
+          _deleted?: boolean
+          _modified?: string
           anio?: number | null
           area?: number | null
           capacidad?: string | null
@@ -657,10 +754,13 @@ export type Database = {
           serie?: string | null
           subcategoria?: string | null
           ubicacion?: string | null
+          updated_at?: string | null
           valor_prestamo_sugerido?: number | null
           valor_tasacion: number
         }
         Update: {
+          _deleted?: boolean
+          _modified?: string
           anio?: number | null
           area?: number | null
           capacidad?: string | null
@@ -686,6 +786,7 @@ export type Database = {
           serie?: string | null
           subcategoria?: string | null
           ubicacion?: string | null
+          updated_at?: string | null
           valor_prestamo_sugerido?: number | null
           valor_tasacion?: number
         }
@@ -711,74 +812,67 @@ export type Database = {
             referencedRelation: "clientes_completo"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "garantias_credito_id_fkey"
+            columns: ["credito_id"]
+            isOneToOne: false
+            referencedRelation: "creditos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garantias_credito_id_fkey"
+            columns: ["credito_id"]
+            isOneToOne: false
+            referencedRelation: "vista_creditos_intereses"
+            referencedColumns: ["id"]
+          },
         ]
       }
-      movimientos_boveda_auditoria: {
+      inversionistas: {
         Row: {
-          boveda_id: string
-          caja_operativa_id: string | null
-          fecha: string | null
+          activo: boolean | null
+          created_at: string | null
+          fecha_ingreso: string | null
           id: string
           metadata: Json | null
-          monto: number
-          referencia: string | null
-          saldo_anterior: number | null
-          saldo_nuevo: number | null
-          tipo: string
-          usuario_responsable_id: string | null
+          participacion_porcentaje: number | null
+          persona_id: string
+          tipo_relacion: Database["public"]["Enums"]["tipo_inversionista"]
         }
         Insert: {
-          boveda_id: string
-          caja_operativa_id?: string | null
-          fecha?: string | null
+          activo?: boolean | null
+          created_at?: string | null
+          fecha_ingreso?: string | null
           id?: string
           metadata?: Json | null
-          monto: number
-          referencia?: string | null
-          saldo_anterior?: number | null
-          saldo_nuevo?: number | null
-          tipo: string
-          usuario_responsable_id?: string | null
+          participacion_porcentaje?: number | null
+          persona_id: string
+          tipo_relacion: Database["public"]["Enums"]["tipo_inversionista"]
         }
         Update: {
-          boveda_id?: string
-          caja_operativa_id?: string | null
-          fecha?: string | null
+          activo?: boolean | null
+          created_at?: string | null
+          fecha_ingreso?: string | null
           id?: string
           metadata?: Json | null
-          monto?: number
-          referencia?: string | null
-          saldo_anterior?: number | null
-          saldo_nuevo?: number | null
-          tipo?: string
-          usuario_responsable_id?: string | null
+          participacion_porcentaje?: number | null
+          persona_id?: string
+          tipo_relacion?: Database["public"]["Enums"]["tipo_inversionista"]
         }
         Relationships: [
           {
-            foreignKeyName: "movimientos_boveda_auditoria_boveda_id_fkey"
-            columns: ["boveda_id"]
+            foreignKeyName: "inversionistas_persona_id_fkey"
+            columns: ["persona_id"]
             isOneToOne: false
-            referencedRelation: "boveda_central"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "movimientos_boveda_auditoria_caja_operativa_id_fkey"
-            columns: ["caja_operativa_id"]
-            isOneToOne: false
-            referencedRelation: "cajas_operativas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "movimientos_boveda_auditoria_usuario_responsable_id_fkey"
-            columns: ["usuario_responsable_id"]
-            isOneToOne: false
-            referencedRelation: "usuarios"
+            referencedRelation: "personas"
             referencedColumns: ["id"]
           },
         ]
       }
       movimientos_caja_operativa: {
         Row: {
+          _deleted: boolean
+          _modified: string
           anulado: boolean | null
           anulado_at: string | null
           anulado_por: string | null
@@ -801,6 +895,8 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
+          _deleted?: boolean
+          _modified?: string
           anulado?: boolean | null
           anulado_at?: string | null
           anulado_por?: string | null
@@ -823,6 +919,8 @@ export type Database = {
           usuario_id: string
         }
         Update: {
+          _deleted?: boolean
+          _modified?: string
           anulado?: boolean | null
           anulado_at?: string | null
           anulado_por?: string | null
@@ -846,10 +944,45 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "movimientos_caja_operativa_caja_id_fkey"
+            columns: ["caja_id"]
+            isOneToOne: false
+            referencedRelation: "cajas_operativas"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "movimientos_caja_operativa_caja_operativa_id_fkey"
             columns: ["caja_operativa_id"]
             isOneToOne: false
             referencedRelation: "cajas_operativas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimientos_caja_operativa_movimiento_original_id_fkey"
+            columns: ["movimiento_original_id"]
+            isOneToOne: false
+            referencedRelation: "movimientos_caja_operativa"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimientos_caja_operativa_movimiento_original_id_fkey"
+            columns: ["movimiento_original_id"]
+            isOneToOne: false
+            referencedRelation: "movimientos_efectivos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimientos_caja_operativa_movimiento_reversion_id_fkey"
+            columns: ["movimiento_reversion_id"]
+            isOneToOne: false
+            referencedRelation: "movimientos_caja_operativa"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimientos_caja_operativa_movimiento_reversion_id_fkey"
+            columns: ["movimiento_reversion_id"]
+            isOneToOne: false
+            referencedRelation: "movimientos_efectivos"
             referencedColumns: ["id"]
           },
           {
@@ -987,10 +1120,41 @@ export type Database = {
           titulo?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notificaciones_pendientes_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificaciones_pendientes_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes_completo"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificaciones_pendientes_credito_id_fkey"
+            columns: ["credito_id"]
+            isOneToOne: false
+            referencedRelation: "creditos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificaciones_pendientes_credito_id_fkey"
+            columns: ["credito_id"]
+            isOneToOne: false
+            referencedRelation: "vista_creditos_intereses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pagos: {
         Row: {
+          _deleted: boolean
+          _modified: string
           anulado: boolean | null
           anulado_at: string | null
           anulado_por: string | null
@@ -1005,12 +1169,16 @@ export type Database = {
           medio_pago: string | null
           metadata: Json | null
           metodo_pago: string | null
+          monto: number | null
           monto_total: number
           motivo_anulacion: string | null
+          observaciones: string | null
           tipo: string | null
           usuario_id: string | null
         }
         Insert: {
+          _deleted?: boolean
+          _modified?: string
           anulado?: boolean | null
           anulado_at?: string | null
           anulado_por?: string | null
@@ -1025,12 +1193,16 @@ export type Database = {
           medio_pago?: string | null
           metadata?: Json | null
           metodo_pago?: string | null
+          monto?: number | null
           monto_total: number
           motivo_anulacion?: string | null
+          observaciones?: string | null
           tipo?: string | null
           usuario_id?: string | null
         }
         Update: {
+          _deleted?: boolean
+          _modified?: string
           anulado?: boolean | null
           anulado_at?: string | null
           anulado_por?: string | null
@@ -1045,8 +1217,10 @@ export type Database = {
           medio_pago?: string | null
           metadata?: Json | null
           metodo_pago?: string | null
+          monto?: number | null
           monto_total?: number
           motivo_anulacion?: string | null
+          observaciones?: string | null
           tipo?: string | null
           usuario_id?: string | null
         }
@@ -1305,6 +1479,79 @@ export type Database = {
           },
         ]
       }
+      transacciones_capital: {
+        Row: {
+          banco_origen: Database["public"]["Enums"]["banco_peru"] | null
+          created_by: string | null
+          descripcion: string | null
+          destino_cuenta_id: string | null
+          evidencia_ref: string | null
+          fecha_operacion: string | null
+          id: string
+          inversionista_id: string | null
+          metadata: Json | null
+          metodo_pago: Database["public"]["Enums"]["metodo_pago_peru"]
+          monto: number
+          numero_operacion: string | null
+          origen_cuenta_id: string | null
+          tipo: Database["public"]["Enums"]["tipo_transaccion_capital"]
+        }
+        Insert: {
+          banco_origen?: Database["public"]["Enums"]["banco_peru"] | null
+          created_by?: string | null
+          descripcion?: string | null
+          destino_cuenta_id?: string | null
+          evidencia_ref?: string | null
+          fecha_operacion?: string | null
+          id?: string
+          inversionista_id?: string | null
+          metadata?: Json | null
+          metodo_pago?: Database["public"]["Enums"]["metodo_pago_peru"]
+          monto: number
+          numero_operacion?: string | null
+          origen_cuenta_id?: string | null
+          tipo: Database["public"]["Enums"]["tipo_transaccion_capital"]
+        }
+        Update: {
+          banco_origen?: Database["public"]["Enums"]["banco_peru"] | null
+          created_by?: string | null
+          descripcion?: string | null
+          destino_cuenta_id?: string | null
+          evidencia_ref?: string | null
+          fecha_operacion?: string | null
+          id?: string
+          inversionista_id?: string | null
+          metadata?: Json | null
+          metodo_pago?: Database["public"]["Enums"]["metodo_pago_peru"]
+          monto?: number
+          numero_operacion?: string | null
+          origen_cuenta_id?: string | null
+          tipo?: Database["public"]["Enums"]["tipo_transaccion_capital"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transacciones_capital_destino_cuenta_id_fkey"
+            columns: ["destino_cuenta_id"]
+            isOneToOne: false
+            referencedRelation: "cuentas_financieras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_capital_inversionista_id_fkey"
+            columns: ["inversionista_id"]
+            isOneToOne: false
+            referencedRelation: "inversionistas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_capital_origen_cuenta_id_fkey"
+            columns: ["origen_cuenta_id"]
+            isOneToOne: false
+            referencedRelation: "cuentas_financieras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       usuarios: {
         Row: {
           activo: boolean | null
@@ -1464,6 +1711,216 @@ export type Database = {
           },
         ]
       }
+      movimientos_efectivos: {
+        Row: {
+          anulado: boolean | null
+          anulado_at: string | null
+          anulado_por: string | null
+          caja_id: string | null
+          caja_operativa_id: string | null
+          descripcion: string | null
+          efecto_neto: number | null
+          es_reversion: boolean | null
+          fecha: string | null
+          id: string | null
+          metadata: Json | null
+          monto: number | null
+          motivo: string | null
+          motivo_anulacion: string | null
+          movimiento_original_id: string | null
+          movimiento_reversion_id: string | null
+          referencia_id: string | null
+          saldo_anterior: number | null
+          saldo_nuevo: number | null
+          tipo: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          anulado?: boolean | null
+          anulado_at?: string | null
+          anulado_por?: string | null
+          caja_id?: string | null
+          caja_operativa_id?: string | null
+          descripcion?: string | null
+          efecto_neto?: never
+          es_reversion?: boolean | null
+          fecha?: string | null
+          id?: string | null
+          metadata?: Json | null
+          monto?: number | null
+          motivo?: string | null
+          motivo_anulacion?: string | null
+          movimiento_original_id?: string | null
+          movimiento_reversion_id?: string | null
+          referencia_id?: string | null
+          saldo_anterior?: number | null
+          saldo_nuevo?: number | null
+          tipo?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          anulado?: boolean | null
+          anulado_at?: string | null
+          anulado_por?: string | null
+          caja_id?: string | null
+          caja_operativa_id?: string | null
+          descripcion?: string | null
+          efecto_neto?: never
+          es_reversion?: boolean | null
+          fecha?: string | null
+          id?: string | null
+          metadata?: Json | null
+          monto?: number | null
+          motivo?: string | null
+          motivo_anulacion?: string | null
+          movimiento_original_id?: string | null
+          movimiento_reversion_id?: string | null
+          referencia_id?: string | null
+          saldo_anterior?: number | null
+          saldo_nuevo?: number | null
+          tipo?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movimientos_caja_operativa_caja_id_fkey"
+            columns: ["caja_id"]
+            isOneToOne: false
+            referencedRelation: "cajas_operativas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimientos_caja_operativa_caja_operativa_id_fkey"
+            columns: ["caja_operativa_id"]
+            isOneToOne: false
+            referencedRelation: "cajas_operativas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimientos_caja_operativa_movimiento_original_id_fkey"
+            columns: ["movimiento_original_id"]
+            isOneToOne: false
+            referencedRelation: "movimientos_caja_operativa"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimientos_caja_operativa_movimiento_original_id_fkey"
+            columns: ["movimiento_original_id"]
+            isOneToOne: false
+            referencedRelation: "movimientos_efectivos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimientos_caja_operativa_movimiento_reversion_id_fkey"
+            columns: ["movimiento_reversion_id"]
+            isOneToOne: false
+            referencedRelation: "movimientos_caja_operativa"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimientos_caja_operativa_movimiento_reversion_id_fkey"
+            columns: ["movimiento_reversion_id"]
+            isOneToOne: false
+            referencedRelation: "movimientos_efectivos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimientos_caja_operativa_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pagos_efectivos: {
+        Row: {
+          anulado: boolean | null
+          anulado_at: string | null
+          anulado_por: string | null
+          caja_operativa_id: string | null
+          created_at: string | null
+          credito_id: string | null
+          desglose_capital: number | null
+          desglose_interes: number | null
+          desglose_mora: number | null
+          fecha_pago: string | null
+          id: string | null
+          medio_pago: string | null
+          metadata: Json | null
+          metodo_pago: string | null
+          monto_total: number | null
+          motivo_anulacion: string | null
+          observaciones: string | null
+          tipo: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          anulado?: boolean | null
+          anulado_at?: string | null
+          anulado_por?: string | null
+          caja_operativa_id?: string | null
+          created_at?: string | null
+          credito_id?: string | null
+          desglose_capital?: number | null
+          desglose_interes?: number | null
+          desglose_mora?: number | null
+          fecha_pago?: string | null
+          id?: string | null
+          medio_pago?: string | null
+          metadata?: Json | null
+          metodo_pago?: string | null
+          monto_total?: number | null
+          motivo_anulacion?: string | null
+          observaciones?: string | null
+          tipo?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          anulado?: boolean | null
+          anulado_at?: string | null
+          anulado_por?: string | null
+          caja_operativa_id?: string | null
+          created_at?: string | null
+          credito_id?: string | null
+          desglose_capital?: number | null
+          desglose_interes?: number | null
+          desglose_mora?: number | null
+          fecha_pago?: string | null
+          id?: string | null
+          medio_pago?: string | null
+          metadata?: Json | null
+          metodo_pago?: string | null
+          monto_total?: number | null
+          motivo_anulacion?: string | null
+          observaciones?: string | null
+          tipo?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagos_caja_operativa_id_fkey"
+            columns: ["caja_operativa_id"]
+            isOneToOne: false
+            referencedRelation: "cajas_operativas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pagos_credito_id_fkey"
+            columns: ["credito_id"]
+            isOneToOne: false
+            referencedRelation: "creditos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pagos_credito_id_fkey"
+            columns: ["credito_id"]
+            isOneToOne: false
+            referencedRelation: "vista_creditos_intereses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vista_creditos_intereses: {
         Row: {
           cliente_dni: string | null
@@ -1483,6 +1940,38 @@ export type Database = {
         }
         Relationships: []
       }
+      vista_rendimientos_inversionistas: {
+        Row: {
+          capital_pendiente: number | null
+          contrato_id: string | null
+          dias_transcurridos: number | null
+          estado: Database["public"]["Enums"]["estado_contrato_fondeo"] | null
+          fecha_inicio: string | null
+          fecha_vencimiento: string | null
+          inversionista_id: string | null
+          monto_pactado: number | null
+          monto_rendimientos_pagados: number | null
+          nombre_inversionista: string | null
+          rendimiento_devengado: number | null
+          rendimiento_pendiente_pago: number | null
+          tasa_retorno: number | null
+          tipo_contrato:
+            | Database["public"]["Enums"]["tipo_contrato_fondeo"]
+            | null
+          tipo_relacion:
+            | Database["public"]["Enums"]["tipo_inversionista"]
+            | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contratos_fondeo_inversionista_id_fkey"
+            columns: ["inversionista_id"]
+            isOneToOne: false
+            referencedRelation: "inversionistas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       admin_asignar_caja: {
@@ -1501,6 +1990,17 @@ export type Database = {
           p_referencia: string
         }
         Returns: string
+      }
+      anular_pago: {
+        Args: { p_motivo: string; p_pago_id: string; p_usuario_id?: string }
+        Returns: {
+          mensaje: string
+          success: boolean
+        }[]
+      }
+      buscar_clientes_con_creditos: {
+        Args: { p_is_dni?: boolean; p_limit?: number; p_search_term: string }
+        Returns: Json
       }
       calcular_interes_actual: {
         Args: { p_credito_id: string; p_fecha_calculo?: string }
@@ -1535,6 +2035,22 @@ export type Database = {
           p_garantia_data: Json
         }
         Returns: string
+      }
+      crear_credito_completo: {
+        Args: {
+          p_caja_id?: string
+          p_cliente_id: string
+          p_descripcion_garantia: string
+          p_fecha_inicio: string
+          p_fotos: string[]
+          p_monto_prestamo: number
+          p_observaciones?: string
+          p_periodo_dias: number
+          p_tasa_interes: number
+          p_usuario_id?: string
+          p_valor_tasacion: number
+        }
+        Returns: Json
       }
       detectar_actividad_sospechosa: {
         Args: never
@@ -1595,12 +2111,15 @@ export type Database = {
           cliente_telefono: string
           codigo: string
           dias_restantes: number
+          dias_transcurridos: number
+          fecha_creacion: string
           fecha_vencimiento: string
           garantia_descripcion: string
           id: string
           interes_acumulado: number
           monto_prestado: number
           saldo_pendiente: number
+          tasa_interes: number
           urgencia: string
         }[]
       }
@@ -1608,6 +2127,7 @@ export type Database = {
         Args: { p_dias?: number }
         Returns: {
           cliente: string
+          cliente_id: string
           codigo: string
           dias_restantes: number
           dni: string
@@ -1645,6 +2165,7 @@ export type Database = {
         }
         Returns: string
       }
+      get_saldo_caja_efectivo: { Args: { p_caja_id: string }; Returns: number }
       get_upcoming_expirations: {
         Args: { p_days?: number }
         Returns: {
@@ -1659,6 +2180,7 @@ export type Database = {
           telefono: string
         }[]
       }
+      get_user_role: { Args: never; Returns: string }
       get_vencimientos_agrupados: {
         Args: never
         Returns: {
@@ -1669,6 +2191,17 @@ export type Database = {
       }
       job_actualizar_estados_creditos: { Args: never; Returns: undefined }
       limpiar_codigos_expirados: { Args: never; Returns: undefined }
+      obtener_resumen_rendimientos: {
+        Args: never
+        Returns: {
+          contratos_activos: number
+          inversionistas_activos: number
+          total_capital_activo: number
+          total_pendiente_pago: number
+          total_rendimientos_devengados: number
+          total_rendimientos_pagados: number
+        }[]
+      }
       proyectar_interes: {
         Args: { p_credito_id: string; p_dias_adicionales: number }
         Returns: {
@@ -1677,24 +2210,102 @@ export type Database = {
           total_a_pagar: number
         }[]
       }
+      puede_anular_movimiento: {
+        Args: { p_movimiento_id: string; p_usuario_id: string }
+        Returns: boolean
+      }
       puede_enviar_notificacion: {
         Args: { p_credito_id: string; p_horas_minimas?: number }
         Returns: Json
       }
-      registrar_pago_oficial: {
+      registrar_evento: {
         Args: {
-          p_caja_id: string
-          p_credito_id: string
-          p_metadata?: Json
-          p_metodo_pago: string
-          p_monto_pago: number
-          p_tipo_operacion: string
+          p_agregado_id: string
+          p_agregado_tipo: string
+          p_evento_tipo: string
+          p_payload?: Json
+          p_usuario_id?: string
         }
-        Returns: Json
+        Returns: number
+      }
+      registrar_pago_oficial:
+        | {
+            Args: {
+              p_caja_id: string
+              p_credito_id: string
+              p_metadata?: Json
+              p_metodo_pago: string
+              p_monto_pago: number
+              p_tipo_operacion: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_caja_id: string
+              p_credito_id: string
+              p_metadata?: Json
+              p_metodo_pago: string
+              p_monto_pago: number
+              p_tipo_operacion: string
+              p_usuario_id?: string
+            }
+            Returns: Json
+          }
+      reversar_movimiento: {
+        Args: {
+          p_motivo: string
+          p_movimiento_id: string
+          p_usuario_id?: string
+        }
+        Returns: {
+          mensaje: string
+          movimiento_reversion_id: string
+          success: boolean
+        }[]
       }
     }
     Enums: {
-      [_ in never]: never
+      banco_peru:
+        | "BCP"
+        | "BBVA"
+        | "INTERBANK"
+        | "SCOTIABANK"
+        | "BANCO_NACION"
+        | "CAJA_AREQUIPA"
+        | "CAJA_PIURA"
+        | "CAJA_CUSCO"
+        | "CAJA_HUANCAYO"
+        | "MIBANCO"
+        | "PICHINCHA"
+        | "BANBIF"
+        | "OTRO"
+      estado_contrato_fondeo: "ACTIVO" | "PAUSADO" | "LIQUIDADO" | "CANCELADO"
+      frecuencia_pago_fondeo:
+        | "SEMANAL"
+        | "QUINCENAL"
+        | "MENSUAL"
+        | "TRIMESTRAL"
+        | "AL_VENCIMIENTO"
+      metodo_pago_peru:
+        | "EFECTIVO"
+        | "YAPE"
+        | "PLIN"
+        | "TRANSFERENCIA"
+        | "CCI"
+        | "CHEQUE"
+        | "DEPOSITO_VENTANILLA"
+        | "AGENTE"
+      tipo_contrato_fondeo: "DEUDA_FIJA" | "PARTICIPACION_EQUITY"
+      tipo_cuenta_financiera: "EFECTIVO" | "BANCO" | "DIGITAL" | "PASARELA"
+      tipo_inversionista: "SOCIO" | "PRESTAMISTA"
+      tipo_transaccion_capital:
+        | "APORTE"
+        | "RETIRO"
+        | "PAGO_INTERES"
+        | "TRANSFERENCIA_FONDEO"
+        | "APERTURA_CAJA"
+        | "CIERRE_CAJA"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1824,7 +2435,52 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      banco_peru: [
+        "BCP",
+        "BBVA",
+        "INTERBANK",
+        "SCOTIABANK",
+        "BANCO_NACION",
+        "CAJA_AREQUIPA",
+        "CAJA_PIURA",
+        "CAJA_CUSCO",
+        "CAJA_HUANCAYO",
+        "MIBANCO",
+        "PICHINCHA",
+        "BANBIF",
+        "OTRO",
+      ],
+      estado_contrato_fondeo: ["ACTIVO", "PAUSADO", "LIQUIDADO", "CANCELADO"],
+      frecuencia_pago_fondeo: [
+        "SEMANAL",
+        "QUINCENAL",
+        "MENSUAL",
+        "TRIMESTRAL",
+        "AL_VENCIMIENTO",
+      ],
+      metodo_pago_peru: [
+        "EFECTIVO",
+        "YAPE",
+        "PLIN",
+        "TRANSFERENCIA",
+        "CCI",
+        "CHEQUE",
+        "DEPOSITO_VENTANILLA",
+        "AGENTE",
+      ],
+      tipo_contrato_fondeo: ["DEUDA_FIJA", "PARTICIPACION_EQUITY"],
+      tipo_cuenta_financiera: ["EFECTIVO", "BANCO", "DIGITAL", "PASARELA"],
+      tipo_inversionista: ["SOCIO", "PRESTAMISTA"],
+      tipo_transaccion_capital: [
+        "APORTE",
+        "RETIRO",
+        "PAGO_INTERES",
+        "TRANSFERENCIA_FONDEO",
+        "APERTURA_CAJA",
+        "CIERRE_CAJA",
+      ],
+    },
   },
 } as const
 

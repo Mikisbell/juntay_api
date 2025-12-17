@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Coins, ArrowRightLeft, AlertTriangle } from "lucide-react"
-import { inyectarCapitalAction, asignarCajaAction, obtenerCajeros } from "@/lib/actions/tesoreria-actions"
+import { registrarIngresoBovedaAction, asignarCajaAction, obtenerCajeros } from "@/lib/actions/tesoreria-actions"
 
 interface Props {
     bovedaDisponible: number
@@ -59,7 +59,7 @@ function ModalInyeccion() {
                 usuario_registro: "Sistema" // En producción: obtener del auth
             }
 
-            const result = await inyectarCapitalAction(
+            const result = await registrarIngresoBovedaAction(
                 parseFloat(monto),
                 origen,
                 referencia || `${origen} - ${nombreAportante}`,
@@ -219,8 +219,12 @@ function ModalAsignacion({ bovedaDisponible }: { bovedaDisponible: number }) {
     const [monto, setMonto] = useState("")
     const [cajeroId, setCajeroId] = useState("")
     const [observacion, setObservacion] = useState("")
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [cajeros, setCajeros] = useState<any[]>([])
+    interface Cajero {
+        id: string
+        nombres: string
+        apellido_paterno?: string
+    }
+    const [cajeros, setCajeros] = useState<Cajero[]>([])
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {

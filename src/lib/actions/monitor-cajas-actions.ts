@@ -142,10 +142,11 @@ export async function obtenerResumenConsolidado(): Promise<ResumenConsolidado> {
     const supabase = getServiceClient()
     const cajas = await obtenerCajasActivas()
 
-    // Obtener saldo de bóveda central
+    // Obtener saldo de bóveda PRINCIPAL (Reemplazo de boveda_central)
     const { data: boveda } = await supabase
-        .from('boveda_central')
-        .select('saldo_disponible')
+        .from('cuentas_financieras')
+        .select('saldo')
+        .eq('es_principal', true)
         .single()
 
     return {
@@ -154,7 +155,7 @@ export async function obtenerResumenConsolidado(): Promise<ResumenConsolidado> {
         total_transacciones_hoy: cajas.reduce((sum, c) => sum + c.num_transacciones_dia, 0),
         total_empenos_hoy: cajas.reduce((sum, c) => sum + c.num_empenos_dia, 0),
         total_pagos_hoy: cajas.reduce((sum, c) => sum + c.num_pagos_dia, 0),
-        saldo_boveda: boveda?.saldo_disponible ? parseFloat(boveda.saldo_disponible) : 0,
+        saldo_boveda: boveda?.saldo ? parseFloat(String(boveda.saldo)) : 0,
     }
 }
 

@@ -3,28 +3,28 @@
 import { useCotizador } from '@/hooks/useCotizador'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, ArrowRight, Check, Save, Trash2, Loader2, AlertCircle } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, Trash2, Loader2 } from 'lucide-react'
 import { useAutoSave } from '@/hooks/useAutoSave'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+
 
 // Steps
 import IdentificacionStep from './steps/IdentificacionStep'
 import TasacionStep from './steps/TasacionStep'
 import CronogramaStep from './steps/CronogramaStep'
-import AcuerdoStep from './steps/AcuerdoStep'
+
 import ResumenStep from './steps/ResumenStep'
 
 export default function CotizadorWizard() {
     const {
-        step, setStep, cliente, setCliente,
-        tipoBien, setTipoBien,
-        gramaje, quilataje, setDatosOro,
-        categoria, marca, modelo, estado, valorMercado, setDatosElectro,
-        montoPrestamo, plazo, tasaInteres, setTasaInteres,
-        detallesGarantia, setDetallesGarantia,
-        frecuenciaPago, numeroCuotas, fechaInicio, cronograma, setFrecuenciaPago, setNumeroCuotas, setFechaInicio, setCronograma,
+        step, setStep, cliente,
+        tipoBien,
+        gramaje, quilataje,
+        categoria, marca, modelo, estado, valorMercado,
+        montoPrestamo, plazo, tasaInteres,
+        detallesGarantia,
+        frecuenciaPago, numeroCuotas, fechaInicio, cronograma,
         restoreState, reset
     } = useCotizador()
 
@@ -74,13 +74,9 @@ export default function CotizadorWizard() {
                 duration: 10000,
             })
         }
-    }, []) // Run once on mount
+    }, [loadDraft, restoreState, clearDraft])
 
-    const handleManualSave = () => {
-        // Force update by triggering a re-render or just rely on auto-save
-        // Since useAutoSave saves on data change, we can just show a toast
-        toast.success('Borrador guardado correctamente')
-    }
+
 
     const handleDiscard = () => {
         if (confirm('¿Estás seguro de descartar el borrador y reiniciar?')) {
