@@ -34,7 +34,7 @@ export function PrendasInventario({ prendas, onVender }: PrendasInventarioProps)
     const [ordenar, setOrdenar] = useState<'mora' | 'valor'>('mora')
 
     const prendasFiltradas = useMemo(() => {
-        let result = prendas.filter(p =>
+        const result = prendas.filter(p =>
             p.descripcion.toLowerCase().includes(busqueda.toLowerCase()) ||
             p.codigoCredito.toLowerCase().includes(busqueda.toLowerCase()) ||
             p.clienteNombre.toLowerCase().includes(busqueda.toLowerCase())

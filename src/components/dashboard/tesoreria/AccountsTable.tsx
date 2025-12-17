@@ -104,6 +104,7 @@ export function AccountsTable({ cuentas }: AccountsTableProps) {
                                         </div>
                                     </TableCell>
                                     <TableCell>
+                                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                         <Badge variant={getBadgeVariant(cuenta.tipo) as any}>
                                             {cuenta.tipo}
                                         </Badge>

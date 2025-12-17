@@ -68,7 +68,7 @@ export default function TasacionStep() {
             marca: detallesGarantia.marca,
             modelo: detallesGarantia.modelo,
             serie: detallesGarantia.serie,
-            estado_bien: detallesGarantia.estado_bien as any,
+            estado_bien: (detallesGarantia.estado_bien || 'BUENO') as 'NUEVO' | 'EXCELENTE' | 'BUENO' | 'REGULAR' | 'MALO',
             descripcion: detallesGarantia.descripcion,
             valorMercado: detallesGarantia.valorMercado,
             montoPrestamo: Math.max(montoPrestamo || 0, 100), // Asegurar que el slider empiece en un valor válido (min: 100)
@@ -115,8 +115,8 @@ export default function TasacionStep() {
     }, [watchedTasaInteres, setTasaInteres])
 
     // Estados adicionales para sistema jerárquico
-    const [subcategoriasDisponibles, setSubcategoriasDisponibles] = useState<any[]>([])
-    const [marcasDisponibles, setMarcasDisponibles] = useState<any[]>([])
+    const [subcategoriasDisponibles, setSubcategoriasDisponibles] = useState<{ value: string; label: string }[]>([])
+    const [marcasDisponibles, setMarcasDisponibles] = useState<{ value: string; label: string; precioFactor?: number }[]>([])
 
     // Watch para subcategoría y marca
     const watchedSubcategoria = useWatch({ control: form.control, name: 'subcategoria' })
@@ -897,7 +897,7 @@ export default function TasacionStep() {
                                                     key={frec.value}
                                                     type="button"
                                                     onClick={() => {
-                                                        setFrecuenciaPago(frec.value as any)
+                                                        setFrecuenciaPago(frec.value as 'DIARIO' | 'SEMANAL' | 'QUINCENAL' | 'TRES_SEMANAS' | 'MENSUAL')
                                                         setNumeroCuotas(1)
                                                     }}
                                                     className={`

@@ -136,6 +136,7 @@ export function CreateInversionistaModal({ inversionistaToEdit, onOpenChange }: 
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleNewPersonRegistered = (cliente: any) => {
         // RegistroClienteCompleto devuelve un 'cliente', pero necesitamos la 'persona_id'
         // Asumimos que cliente tiene { persona_id, nombres, apellido_paterno, etc }
@@ -217,7 +218,7 @@ export function CreateInversionistaModal({ inversionistaToEdit, onOpenChange }: 
                                     <div className="border rounded-md p-2 bg-slate-50">
                                         <PersonSearch onSelect={(pId, pName) => setSelectedPerson({ id: pId, nombres: pName })} />
                                         <p className="text-xs text-center text-muted-foreground mt-2">
-                                            Busca por nombre o DNI. Si no existe, usa la pestaña "Registrar Nuevo".
+                                            Busca por nombre o DNI. Si no existe, usa la pestaña &quot;Registrar Nuevo&quot;.
                                         </p>
                                     </div>
                                 )}

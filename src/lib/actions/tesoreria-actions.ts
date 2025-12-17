@@ -99,7 +99,21 @@ export async function obtenerMovimientosBoveda(limite: number = 15) {
     }
 
     // Mapear al formato que espera el Dashboard
-    return (data || []).map((t: any) => {
+    // Definimos interfaz temporal para el resultado del join
+    type LedgerRow = {
+        id: string
+        tipo: string
+        monto: number
+        descripcion: string | null
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        metadata: Record<string, any> | null
+        fecha_operacion: string
+        origen: { nombre: string; tipo: string } | null
+        destino: { nombre: string; tipo: string } | null
+    }
+
+    return (data || []).map((row: unknown) => {
+        const t = row as LedgerRow
         const origenNombre = t.origen?.nombre || 'Externo'
         const destinoNombre = t.destino?.nombre || 'Externo'
 
@@ -163,7 +177,8 @@ export type TransaccionCapitalDetalle = {
     fecha_operacion: string
     origen?: { nombre: string, tipo: string }
     destino?: { nombre: string, tipo: string }
-    metadata: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    metadata: Record<string, any> | null
 }
 
 export async function obtenerHistorialCapital(limite: number = 10): Promise<TransaccionCapitalDetalle[]> {
@@ -264,10 +279,13 @@ export async function obtenerMovimientosCuenta(cuentaId: string, limite: number 
 
     return (data || []).map(t => {
         // Safe access to joined properties which Supabase might return as array or object depending on relationship cardinality
-        // @ts-ignore
-        const origenNombre = Array.isArray(t.origen) ? t.origen[0]?.nombre : t.origen?.nombre
-        // @ts-ignore
-        const destinoNombre = Array.isArray(t.destino) ? t.destino[0]?.nombre : t.destino?.nombre
+        const row = t as unknown as { origen: { nombre: string } | { nombre: string }[]; destino: { nombre: string } | { nombre: string }[] }
+
+        const origenObj = Array.isArray(row.origen) ? row.origen[0] : row.origen
+        const destinoObj = Array.isArray(row.destino) ? row.destino[0] : row.destino
+
+        const origenNombre = origenObj?.nombre
+        const destinoNombre = destinoObj?.nombre
 
         return {
             id: t.id,
@@ -289,7 +307,8 @@ export interface InversionistaDetalle {
     participacion_porcentaje: number | null
     fecha_ingreso: string
     activo: boolean
-    metadata?: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    metadata?: Record<string, any>
     // Métricas Financieras (Calculadas)
     total_invertido?: number
     rendimiento_acumulado?: number
@@ -328,7 +347,8 @@ export async function obtenerInversionistas(): Promise<InversionistaDetalle[]> {
         return {
             id: inv.id,
             persona_id: inv.persona_id,
-            // @ts-ignore - Join resolution
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore - Join resolution complexity
             nombre_completo: `${inv.persona?.nombres} ${inv.persona?.apellido_paterno} ${inv.persona?.apellido_materno || ''}`.trim(),
             tipo_relacion: inv.tipo_relacion,
             participacion_porcentaje: inv.participacion_porcentaje,
@@ -726,7 +746,8 @@ export async function registrarIngresoBovedaAction(
 
     origen: string,
     referencia: string,
-    metadata: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    metadata: Record<string, any>
 ) {
     const supabase = await createClient()
 

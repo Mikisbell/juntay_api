@@ -120,7 +120,7 @@ export function ComboboxBienes({
                                     className="block mx-auto mt-2"
                                     onClick={handleCustom}
                                 >
-                                    Usar "{search}" como valor personalizado
+                                    Usar &quot;{search}&quot; como valor personalizado
                                 </Button>
                             )}
                         </div>
@@ -153,7 +153,7 @@ export function ComboboxBienes({
                         >
                             <span className="text-amber-600 font-medium">+</span>
                             <div>
-                                <div className="text-sm font-medium">Agregar: "{search}"</div>
+                                <div className="text-sm font-medium">Agregar: &quot;{search}&quot;</div>
                                 <div className="text-xs text-muted-foreground">Artículo no catalogado</div>
                             </div>
                         </div>

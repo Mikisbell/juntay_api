@@ -21,6 +21,8 @@ import { RxDBMigrationSchemaPlugin } from 'rxdb/plugins/migration-schema'
 import { creditosSchema } from './schemas/creditos'
 import { pagosSchema } from './schemas/pagos'
 import { movimientosCajaSchema } from './schemas/movimientos-caja'
+import { clientesSchema } from './schemas/clientes'
+import { garantiasSchema } from './schemas/garantias'
 import { createClient } from '@/lib/supabase/client'
 
 // Habilitar plugins
@@ -206,6 +208,15 @@ export async function initDatabase(): Promise<JuntayDatabase> {
                             // 2: Migración a versión 2 (Agregar campos de auditoría)
                             2: (oldDoc: unknown) => oldDoc
                         }
+                    },
+                    // Nuevas colecciones para Offline-First completo
+                    clientes: {
+                        schema: clientesSchema,
+                        migrationStrategies: {}
+                    },
+                    garantias: {
+                        schema: garantiasSchema,
+                        migrationStrategies: {}
                     }
                 })
             } catch (err: unknown) {

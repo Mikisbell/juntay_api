@@ -30,3 +30,20 @@ export {
     useRegistrarMovimientoLocal,
     useResumenCajaHoy
 } from './useCaja'
+
+// Hooks de clientes (NUEVO - Offline-First completo)
+export {
+    useClientesLocales,
+    useClientePorDocumento,
+    useCrearClienteLocal,
+    useBuscarClientes
+} from './useClientes'
+
+// Hooks de garantías (NUEVO - Offline-First completo)
+export {
+    useGarantiasDeCredito,
+    useGarantiasDeCliente,
+    useCrearGarantiaLocal,
+    useGarantiaPorId,
+    useGarantiasEnCustodia
+} from './useGarantias'

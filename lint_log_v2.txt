@@ -1,0 +1,347 @@
+
+> juntay-api@1.0.0 lint
+> next lint
+
+`next lint` is deprecated and will be removed in Next.js 16.
+For new projects, use create-next-app to choose your preferred linter.
+For existing projects, migrate to the ESLint CLI:
+npx @next/codemod@canary next-lint-to-eslint-cli .
+
+
+./src/app/dashboard/admin/configuracion/page.tsx
+13:16  Warning: 'Settings' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/dashboard/admin/empleados/page.tsx
+140:49  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+163:18  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+177:25  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/dashboard/admin/tesoreria/page.tsx
+24:10  Warning: 'Badge' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/dashboard/caja/page.tsx
+8:10  Warning: 'Alert' is defined but never used.  @typescript-eslint/no-unused-vars
+8:17  Warning: 'AlertDescription' is defined but never used.  @typescript-eslint/no-unused-vars
+8:35  Warning: 'AlertTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+11:10  Warning: 'AlertCircle' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/dashboard/clientes/ClienteRow.tsx
+7:17  Warning: 'Mail' is defined but never used.  @typescript-eslint/no-unused-vars
+7:23  Warning: 'ShieldCheck' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/dashboard/clientes/page.tsx
+17:10  Warning: 'Input' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/dashboard/clientes/[id]/ClienteDetalleView.tsx
+10:5  Warning: 'MapPin' is defined but never used.  @typescript-eslint/no-unused-vars
+14:5  Warning: 'CreditCard' is defined but never used.  @typescript-eslint/no-unused-vars
+15:5  Warning: 'History' is defined but never used.  @typescript-eslint/no-unused-vars
+20:5  Warning: 'AlertTriangle' is defined but never used.  @typescript-eslint/no-unused-vars
+21:5  Warning: 'CheckCircle2' is defined but never used.  @typescript-eslint/no-unused-vars
+27:52  Warning: 'CardDescription' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/dashboard/contratos/page.tsx
+6:10  Warning: 'FileText' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/dashboard/contratos/[id]/page.tsx
+2:10  Warning: 'PageHeader' is defined but never used.  @typescript-eslint/no-unused-vars
+5:10  Warning: 'Button' is defined but never used.  @typescript-eslint/no-unused-vars
+7:10  Warning: 'Calendar' is defined but never used.  @typescript-eslint/no-unused-vars
+7:53  Warning: 'FileText' is defined but never used.  @typescript-eslint/no-unused-vars
+7:63  Warning: 'Clock' is defined but never used.  @typescript-eslint/no-unused-vars
+7:70  Warning: 'ArrowLeft' is defined but never used.  @typescript-eslint/no-unused-vars
+7:116  Warning: 'TrendingUp' is defined but never used.  @typescript-eslint/no-unused-vars
+7:128  Warning: 'Percent' is defined but never used.  @typescript-eslint/no-unused-vars
+8:8  Warning: 'Link' is defined but never used.  @typescript-eslint/no-unused-vars
+164:49  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/dashboard/inventario/page.tsx
+3:10  Warning: 'Package' is defined but never used.  @typescript-eslint/no-unused-vars
+3:19  Warning: 'Filter' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/dashboard/page.tsx
+23:5  Warning: 'Table' is defined but never used.  @typescript-eslint/no-unused-vars
+24:5  Warning: 'TableBody' is defined but never used.  @typescript-eslint/no-unused-vars
+25:5  Warning: 'TableCell' is defined but never used.  @typescript-eslint/no-unused-vars
+26:5  Warning: 'TableRow' is defined but never used.  @typescript-eslint/no-unused-vars
+28:10  Warning: 'Badge' is defined but never used.  @typescript-eslint/no-unused-vars
+30:10  Warning: 'StatsGrid' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/dashboard/reportes/caja-diaria/page.tsx
+7:5  Warning: 'CardDescription' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/dashboard/reportes/cartera/page.tsx
+7:5  Warning: 'CardDescription' is defined but never used.  @typescript-eslint/no-unused-vars
+9:10  Warning: 'Users' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/dashboard/reportes/page.tsx
+4:10  Warning: 'PieChart' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/login/page.tsx
+32:22  Warning: 'networkErr' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/admin/ConexionWhatsapp.tsx
+4:10  Warning: 'QRCodeSVG' is defined but never used.  @typescript-eslint/no-unused-vars
+18:18  Warning: 'err' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/admin/MonitorCajasTable.tsx
+6:43  Warning: 'Activity' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/app-sidebar.tsx
+4:8  Warning: 'Image' is defined but never used.  @typescript-eslint/no-unused-vars
+18:5  Warning: 'MessageSquare' is defined but never used.  @typescript-eslint/no-unused-vars
+20:5  Warning: 'User' is defined but never used.  @typescript-eslint/no-unused-vars
+22:5  Warning: 'Sparkles' is defined but never used.  @typescript-eslint/no-unused-vars
+24:5  Warning: 'Briefcase' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/business/BusquedaClienteRapida.tsx
+10:58  Warning: 'Clock' is defined but never used.  @typescript-eslint/no-unused-vars
+115:11  Warning: 'getEstadoBadge' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/business/CentroComunicacionCliente.tsx
+16:81  Warning: 'AlertCircle' is defined but never used.  @typescript-eslint/no-unused-vars
+90:18  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/business/MensajeWhatsappModal.tsx
+78:18  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/business/RegistroClienteCompleto.tsx
+3:20  Warning: 'useRef' is defined but never used.  @typescript-eslint/no-unused-vars
+11:62  Warning: 'MessageSquare' is defined but never used.  @typescript-eslint/no-unused-vars
+11:77  Warning: 'Send' is defined but never used.  @typescript-eslint/no-unused-vars
+84:8  Warning: React Hook useEffect has missing dependencies: 'datosEntidad', 'handleBuscar', 'initialDNI', 'initialTipoDoc', and 'loading'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+394:18  Warning: 'err' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/caja/CajeroTerminal.tsx
+5:10  Warning: 'Button' is defined but never used.  @typescript-eslint/no-unused-vars
+11:5  Warning: 'Clock' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/caja/CierreCajaSheet.tsx
+75:50  Warning: 'cajaId' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/caja/PendientesPanel.tsx
+18:5  Warning: 'AlertDialogTrigger' is defined but never used.  @typescript-eslint/no-unused-vars
+20:10  Warning: 'DollarSign' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/clientes/ClienteHistorial.tsx
+39:36  Warning: 'clienteId' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/cotizador/CotizadorWizard.tsx
+50:12  Warning: 'draftFound' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/cotizador/steps/AcuerdoStep.tsx
+22:8  Warning: React Hook useEffect has missing dependencies: 'montoPrestamo' and 'setMontoPrestamo'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/cotizador/steps/CronogramaStep.tsx
+4:10  Warning: 'Label' is defined but never used.  @typescript-eslint/no-unused-vars
+8:10  Warning: 'Button' is defined but never used.  @typescript-eslint/no-unused-vars
+89:8  Warning: React Hook useEffect has a missing dependency: 'setCronograma'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+98:8  Warning: React Hook useEffect has missing dependencies: 'fechaInicio' and 'setFechaInicio'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/cotizador/steps/IdentificacionStep.tsx
+6:10  Warning: 'Label' is defined but never used.  @typescript-eslint/no-unused-vars
+9:40  Warning: 'useCallback' is defined but never used.  @typescript-eslint/no-unused-vars
+30:54  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+54:8  Warning: React Hook useEffect has missing dependencies: 'form' and 'handleSearch'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+116:52  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+135:9  Warning: React Hook useMemo has a missing dependency: 'handleSearch'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/cotizador/steps/ResumenStep.tsx
+355:41  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/cotizador/steps/TasacionStep.tsx
+8:29  Warning: 'CardHeader' is defined but never used.  @typescript-eslint/no-unused-vars
+8:41  Warning: 'CardTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+11:21  Warning: 'Upload' is defined but never used.  @typescript-eslint/no-unused-vars
+12:10  Warning: 'Button' is defined but never used.  @typescript-eslint/no-unused-vars
+13:10  Warning: 'sleep' is defined but never used.  @typescript-eslint/no-unused-vars
+26:5  Warning: 'CATEGORIAS_BIENES' is defined but never used.  @typescript-eslint/no-unused-vars
+32:5  Warning: 'FACTORES_ESTADO' is defined but never used.  @typescript-eslint/no-unused-vars
+59:9  Warning: 'plazo' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+272:11  Warning: 'totalPagarMensual' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+275:11  Warning: 'cuotaPorPeriodo' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+767:49  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/creditos/EstadoBadge.tsx
+9:5  Warning: 'XCircle' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/creditos/LiquidacionCalculator.tsx
+8:32  Warning: 'DollarSign' is defined but never used.  @typescript-eslint/no-unused-vars
+10:10  Warning: 'es' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/dashboard/MarketTicker.tsx
+3:10  Warning: 'TrendingUp' is defined but never used.  @typescript-eslint/no-unused-vars
+3:22  Warning: 'TrendingDown' is defined but never used.  @typescript-eslint/no-unused-vars
+3:48  Warning: 'Coins' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/dashboard/StatsGrid.tsx
+11:10  Warning: 'cn' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/dashboard/tesoreria/AccountMovementsModal.tsx
+6:10  Warning: 'Badge' is defined but never used.  @typescript-eslint/no-unused-vars
+10:10  Warning: 'es' is defined but never used.  @typescript-eslint/no-unused-vars
+39:21  Error: Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free.  @typescript-eslint/ban-ts-comment
+
+./src/components/dashboard/tesoreria/AccountsTable.tsx
+14:56  Warning: 'ArrowUpRight' is defined but never used.  @typescript-eslint/no-unused-vars
+107:89  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/dashboard/tesoreria/CapitalInjectionModal.tsx
+41:18  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/dashboard/tesoreria/CreateInversionistaModal.tsx
+132:18  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+139:49  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/dashboard/tesoreria/InversionistasList.tsx
+10:26  Warning: 'Plus' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/dashboard/tesoreria/LiquidezIndicador.tsx
+52:5  Warning: 'totalLiquidez' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/dashboard/tesoreria/TransferModal.tsx
+34:18  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/dashboard/tesoreria/TreasuryStats.tsx
+4:10  Warning: 'Card' is defined but never used.  @typescript-eslint/no-unused-vars
+5:10  Warning: 'DollarSign' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/dashboard/VencimientosPanel.tsx
+31:15  Warning: 'in7Days' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/dashboard/widgets/ExpirationTimeline.tsx
+9:10  Warning: 'format' is defined but never used.  @typescript-eslint/no-unused-vars
+10:10  Warning: 'es' is defined but never used.  @typescript-eslint/no-unused-vars
+33:56  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+46:8  Warning: React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+68:41  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/dashboard/widgets/RiskTrafficLight.tsx
+35:8  Warning: React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/inventario/PrendasInventario.tsx
+10:10  Warning: 'format' is defined but never used.  @typescript-eslint/no-unused-vars
+10:18  Warning: 'differenceInDays' is defined but never used.  @typescript-eslint/no-unused-vars
+11:10  Warning: 'es' is defined but never used.  @typescript-eslint/no-unused-vars
+37:13  Error: 'result' is never reassigned. Use 'const' instead.  prefer-const
+134:49  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/layout/DashboardHeader.tsx
+3:10  Warning: 'useState' is defined but never used.  @typescript-eslint/no-unused-vars
+3:20  Warning: 'useEffect' is defined but never used.  @typescript-eslint/no-unused-vars
+4:23  Warning: 'User' is defined but never used.  @typescript-eslint/no-unused-vars
+4:29  Warning: 'Settings' is defined but never used.  @typescript-eslint/no-unused-vars
+4:39  Warning: 'LogOut' is defined but never used.  @typescript-eslint/no-unused-vars
+4:47  Warning: 'Wallet' is defined but never used.  @typescript-eslint/no-unused-vars
+4:86  Warning: 'ClipboardList' is defined but never used.  @typescript-eslint/no-unused-vars
+41:11  Warning: 'usuario' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+47:11  Warning: 'handleLogout' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/layout/PageHeader.tsx
+2:10  Warning: 'Button' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/layout/StatusAlert.tsx
+2:10  Warning: 'LucideIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/pagos/cockpit/TransactionBuilder.tsx
+4:79  Warning: 'Calendar' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/pagos/cockpit/TrustScore.tsx
+26:9  Warning: 'text' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/pagos/FormularioPago.tsx
+10:43  Warning: 'AlertCircle' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/pagos/PagosPanel.tsx
+4:18  Warning: 'DollarSign' is defined but never used.  @typescript-eslint/no-unused-vars
+60:22  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+77:18  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+117:18  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+152:18  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/pagos/PagosPanelOffline.tsx
+12:62  Warning: 'usePagosDeCredito' is defined but never used.  @typescript-eslint/no-unused-vars
+16:10  Warning: 'WifiOff' is defined but never used.  @typescript-eslint/no-unused-vars
+22:18  Warning: 'AnimatePresence' is defined but never used.  @typescript-eslint/no-unused-vars
+34:32  Warning: 'forceSync' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+34:43  Warning: 'isSyncing' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+39:12  Warning: 'isSearching' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+47:60  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+49:12  Warning: 'isProcessing' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+53:12  Warning: 'loadingServer' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+134:18  Warning: 'err' is defined but never used.  @typescript-eslint/no-unused-vars
+152:18  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+167:47  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/pagos/SelectorModalidadInteres.tsx
+26:5  Warning: 'saldoPendiente' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/pos/PersonSearch.tsx
+4:33  Warning: 'Search' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/pos/QRPhotoBridge.tsx
+32:12  Warning: 'status' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+103:8  Warning: React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+342:41  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/pos/SmartCreditForm.tsx
+35:5  Warning: 'CATEGORIAS_BIENES' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/pos/TransactionSuccessView.tsx
+5:29  Warning: 'CardHeader' is defined but never used.  @typescript-eslint/no-unused-vars
+5:41  Warning: 'CardTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+6:76  Warning: 'Flag' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/printing/documents/ContratoMutuo.ts
+11:11  Warning: 'ContratoMutuoProps' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/providers/RxDBProvider.tsx
+47:28  Warning: 'setPendingChanges' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/renovaciones/RenovacionModal.tsx
+60:18  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/reportes/ReporteMensual.tsx
+3:10  Warning: 'useMemo' is defined but never used.  @typescript-eslint/no-unused-vars
+4:29  Warning: 'CardHeader' is defined but never used.  @typescript-eslint/no-unused-vars
+4:41  Warning: 'CardTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+6:10  Warning: 'Select' is defined but never used.  @typescript-eslint/no-unused-vars
+6:18  Warning: 'SelectContent' is defined but never used.  @typescript-eslint/no-unused-vars
+6:33  Warning: 'SelectItem' is defined but never used.  @typescript-eslint/no-unused-vars
+6:45  Warning: 'SelectTrigger' is defined but never used.  @typescript-eslint/no-unused-vars
+6:60  Warning: 'SelectValue' is defined but never used.  @typescript-eslint/no-unused-vars
+12:5  Warning: 'Users' is defined but never used.  @typescript-eslint/no-unused-vars
+14:5  Warning: 'Calendar' is defined but never used.  @typescript-eslint/no-unused-vars
+15:5  Warning: 'Download' is defined but never used.  @typescript-eslint/no-unused-vars
+18:44  Warning: 'subMonths' is defined but never used.  @typescript-eslint/no-unused-vars
+41:12  Warning: 'vistaDetalle' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+41:26  Warning: 'setVistaDetalle' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+51:11  Warning: 'utilidadBruta' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/ui/ConnectionStatus.tsx
+9:10  Warning: 'Wifi' is defined but never used.  @typescript-eslint/no-unused-vars
+22:28  Warning: 'setPendingChanges' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/ui/smart-location-selector.tsx
+47:8  Warning: React Hook useEffect has missing dependencies: 'departamentos', 'distritos', 'onLocationChange', and 'provincias'. Either include them or remove the dependency array. If 'onLocationChange' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+54:8  Warning: React Hook useEffect has a missing dependency: 'provId'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+60:8  Warning: React Hook useEffect has a missing dependency: 'distId'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/whatsapp/WhatsAppQR.tsx
+85:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/lib/actions/tesoreria-actions.ts
+8:7  Warning: 'getServiceClient' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+108:34  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+179:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+308:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+747:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+752:36  Warning: 'authError' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+805:41  Warning: 'cajeroId' is defined but never used.  @typescript-eslint/no-unused-vars
+805:59  Warning: 'monto' is defined but never used.  @typescript-eslint/no-unused-vars
+805:74  Warning: 'observacion' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/tests/tesoreria.test.ts
+2:36  Warning: 'beforeAll' is defined but never used.  @typescript-eslint/no-unused-vars
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules

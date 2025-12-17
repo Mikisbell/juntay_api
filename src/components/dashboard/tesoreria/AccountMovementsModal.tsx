@@ -36,7 +36,6 @@ export function AccountMovementsModal({ open, onOpenChange, accountId, accountNa
             setIsLoading(true)
             obtenerMovimientosCuenta(accountId)
                 .then(data => {
-                    // @ts-ignore - Mapping simple
                     setMovimientos(data)
                 })
                 .catch(err => console.error(err))

@@ -2,7 +2,7 @@
 import { createClient } from '@supabase/supabase-js'
 import dotenv from 'dotenv'
 
-dotenv.config({ path: '.env.local' })
+dotenv.config({ path: '.env' })
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY! // Use Service Key to bypass RLS if needed, or Anon
@@ -37,6 +37,10 @@ async function inspectTable(tableName: string) {
 
 async function main() {
     await inspectTable('personas')
+    await inspectTable('empleados')
+    await inspectTable('clientes')
+    // Check view too
+    await inspectTable('clientes_completo')
 }
 
 main()

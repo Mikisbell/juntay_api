@@ -27,6 +27,7 @@ export default function IdentificacionStep() {
     const { cliente, setCliente } = useCotizador()
     const [loading, setLoading] = useState(false)
     const [registroModalOpen, setRegistroModalOpen] = useState(false)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [datosEntidad, setDatosEntidad] = useState<any>(null)
     const [esClienteExistente, setEsClienteExistente] = useState(false)
 
@@ -113,7 +114,7 @@ export default function IdentificacionStep() {
         }
     }
 
-    const handleClienteRegistrado = (nuevoCliente: any) => {
+    const handleClienteRegistrado = (nuevoCliente: { id: string; numero_documento: string; nombres?: string; apellido_paterno?: string; apellido_materno?: string }) => {
         setCliente({
             id: nuevoCliente.id,
             dni: nuevoCliente.numero_documento,

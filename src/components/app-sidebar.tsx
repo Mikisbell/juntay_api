@@ -158,8 +158,7 @@ export function AppSidebar() {
 
                 setUser({
                     email: authUser.email || '',
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    nombre: ((userData as any)?.nombres) || authUser.email?.split('@')[0] || 'Usuario'
+                    nombre: ((userData as { nombres: string } | null)?.nombres) || authUser.email?.split('@')[0] || 'Usuario'
                 })
             }
         }
@@ -178,9 +177,17 @@ export function AppSidebar() {
     }
 
     // Helper para renderizar items (Recursivo si fuera necesario, aqui solo 2 niveles)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const renderMenuItem = (item: any) => {
-        const isGroupActive = item.items?.some((sub: any) => isActive(sub.url)) || (item.url && isActive(item.url))
+    interface SidebarItem {
+        title: string
+        url?: string
+        icon?: React.ElementType
+        items?: SidebarItem[]
+        badge?: string
+        desc?: string
+    }
+
+    const renderMenuItem = (item: SidebarItem) => {
+        const isGroupActive = item.items?.some((sub: SidebarItem) => isActive(sub.url || '')) || (item.url && isActive(item.url))
 
         // --- ITEM CON SUBMENÚ (Accordion) ---
         if (item.items) {
@@ -203,8 +210,8 @@ export function AppSidebar() {
                         </CollapsibleTrigger>
                         <CollapsibleContent>
                             <SidebarMenuSub className="border-l border-slate-200/60 ml-5 pl-0 space-y-0.5 my-1">
-                                {item.items.map((subItem: any) => {
-                                    const isSubActive = isActive(subItem.url)
+                                {item.items?.map((subItem: SidebarItem) => {
+                                    const isSubActive = isActive(subItem.url || '')
                                     return (
                                         <SidebarMenuSubItem key={subItem.title}>
                                             <SidebarMenuSubButton

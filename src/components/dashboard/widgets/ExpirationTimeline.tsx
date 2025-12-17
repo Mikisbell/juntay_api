@@ -30,6 +30,7 @@ export function ExpirationTimeline() {
 
     useEffect(() => {
         const fetchData = async () => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const { data, error } = await (supabase as any).rpc('get_upcoming_expirations', { p_days: 7 })
             if (error) {
                 console.error('Error fetching timeline:', {

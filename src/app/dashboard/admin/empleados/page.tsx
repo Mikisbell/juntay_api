@@ -137,6 +137,7 @@ export default function EmpleadosPage() {
                 toast.success('Empleado actualizado exitosamente')
             } else {
                 // Create Logic
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 await crearEmpleado(formData as any)
                 toast.success('Empleado registrado exitosamente')
             }
@@ -173,9 +174,10 @@ export default function EmpleadosPage() {
         try {
             const result = await invitarEmpleado(empleadoId, email)
             toast.success(result.message)
-            cargarEmpleados()
-        } catch (error: any) {
-            toast.error(error.message || 'Error al enviar invitación')
+            toast.success(result.message)
+        } catch (error: unknown) {
+            const msg = error instanceof Error ? error.message : 'Error al enviar invitación'
+            toast.error(msg)
         }
     }
 

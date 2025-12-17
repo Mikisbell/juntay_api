@@ -44,6 +44,7 @@ export function PagosPanelOffline({ cajaId, usuarioId }: PagosPanelOfflineProps)
     const [selectedCreditoIds, setSelectedCreditoIds] = useState<Set<string>>(new Set())
 
     // [New State] Transaction Success Handling
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [lastTransaction, setLastTransaction] = useState<any>(null)
     const [showSuccessModal, setShowSuccessModal] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false) // Assuming local loading state
@@ -164,6 +165,7 @@ export function PagosPanelOffline({ cajaId, usuarioId }: PagosPanelOfflineProps)
     }
 
     // [Modified Handler]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleProcessPayment = async (data: any) => {
         // console.log('[PagosPanelOffline] handleProcessPayment CALLED with:', data)
         // console.log('[PagosPanelOffline] cajaId:', cajaId, 'usuarioId:', usuarioId)
