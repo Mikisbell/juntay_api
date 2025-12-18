@@ -659,3 +659,223 @@ export async function toggleClienteActivo(id: string, nuevoEstado: boolean) {
     }
 }
 
+/**
+ * Obtener historial de pagos REALES de un cliente
+ * Incluye todos los pagos a todos sus créditos
+ */
+export async function getClientePagosHistorial(clienteId: string, limite: number = 20) {
+    const supabase = await createClient()
+
+    // Primero obtener todos los créditos del cliente
+    const { data: creditos } = await supabase
+        .from('creditos')
+        .select('id, codigo_credito')
+        .eq('cliente_id', clienteId)
+
+    if (!creditos || creditos.length === 0) {
+        return []
+    }
+
+    const creditoIds = creditos.map(c => c.id)
+    const codigosMap = new Map(creditos.map(c => [c.id, c.codigo_credito]))
+
+    // Obtener todos los pagos de esos créditos
+    const { data: pagos, error } = await supabase
+        .from('pagos')
+        .select(`
+            id,
+            credito_id,
+            monto_total,
+            monto_capital,
+            monto_interes,
+            monto_mora,
+            metodo_pago,
+            fecha_pago,
+            created_at,
+            anulado
+        `)
+        .in('credito_id', creditoIds)
+        .eq('anulado', false)
+        .order('fecha_pago', { ascending: false })
+        .limit(limite)
+
+    if (error) {
+        console.error('[getClientePagosHistorial] Error:', error)
+        return []
+    }
+
+    // Mapear con código de crédito
+    return (pagos || []).map(p => ({
+        id: p.id,
+        credito_id: p.credito_id,
+        codigo_credito: codigosMap.get(p.credito_id) || 'N/A',
+        monto_total: Number(p.monto_total),
+        monto_capital: Number(p.monto_capital || 0),
+        monto_interes: Number(p.monto_interes || 0),
+        monto_mora: Number(p.monto_mora || 0),
+        metodo_pago: p.metodo_pago,
+        fecha_pago: p.fecha_pago,
+        created_at: p.created_at
+    }))
+}
+
+/**
+ * Obtener datos extendidos del cliente para perfil 360
+ * Incluye: datos personales, referencia, resumen financiero, stats
+ */
+export async function getClienteExtended(clienteId: string) {
+    const supabase = await createClient()
+
+    // 1. Datos base del cliente con referencia
+    const { data: cliente, error } = await supabase
+        .from('clientes_completo')
+        .select('*')
+        .eq('id', clienteId)
+        .single()
+
+    if (error || !cliente) {
+        return null
+    }
+
+    // 2. Estadísticas de créditos
+    const { data: creditos } = await supabase
+        .from('creditos')
+        .select('id, estado, monto_prestado, saldo_pendiente, fecha_vencimiento, estado_detallado')
+        .eq('cliente_id', clienteId)
+
+    const creditosData = creditos || []
+    const totalCreditos = creditosData.length
+    const creditosPagados = creditosData.filter(c =>
+        c.estado === 'cancelado' || c.estado_detallado === 'cancelado'
+    ).length
+    const creditosActivos = creditosData.filter(c =>
+        ['vigente', 'pendiente', 'por_vencer', 'vencido', 'en_mora'].includes(c.estado_detallado || '')
+    ).length
+    const creditosVencidos = creditosData.filter(c =>
+        c.estado_detallado === 'vencido' || c.estado_detallado === 'en_mora'
+    ).length
+
+    const totalPrestado = creditosData.reduce((sum, c) => sum + Number(c.monto_prestado || 0), 0)
+    const deudaActual = creditosData
+        .filter(c => ['vigente', 'pendiente', 'por_vencer', 'vencido', 'en_mora'].includes(c.estado_detallado || ''))
+        .reduce((sum, c) => sum + Number(c.saldo_pendiente || 0), 0)
+
+    // 3. Contar pagos totales
+    const creditoIds = creditosData.map(c => c.id)
+    let totalPagos = 0
+    let montoTotalPagado = 0
+
+    if (creditoIds.length > 0) {
+        const { data: pagos } = await supabase
+            .from('pagos')
+            .select('monto_total')
+            .in('credito_id', creditoIds)
+            .eq('anulado', false)
+
+        totalPagos = pagos?.length || 0
+        montoTotalPagado = (pagos || []).reduce((sum, p) => sum + Number(p.monto_total || 0), 0)
+    }
+
+    // 4. Próximo vencimiento
+    const creditosVigentes = creditosData.filter(c =>
+        ['vigente', 'por_vencer', 'vencido'].includes(c.estado_detallado || '')
+    )
+    const proximoVencimiento = creditosVigentes
+        .map(c => c.fecha_vencimiento)
+        .filter(Boolean)
+        .sort()[0] || null
+
+    let diasParaVencimiento: number | null = null
+    if (proximoVencimiento) {
+        const hoy = new Date()
+        const venc = new Date(proximoVencimiento)
+        diasParaVencimiento = Math.ceil((venc.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24))
+    }
+
+    // 5. Determinar estado de riesgo
+    let estadoRiesgo: 'critico' | 'alerta' | 'normal' | 'sin_deuda' = 'sin_deuda'
+    if (creditosVencidos > 0) {
+        estadoRiesgo = 'critico'
+    } else if (diasParaVencimiento !== null && diasParaVencimiento <= 7 && diasParaVencimiento >= 0) {
+        estadoRiesgo = 'alerta'
+    } else if (creditosActivos > 0) {
+        estadoRiesgo = 'normal'
+    }
+
+    return {
+        // Datos personales
+        id: cliente.id,
+        persona_id: cliente.persona_id,
+        nombres: cliente.nombres,
+        apellido_paterno: cliente.apellido_paterno,
+        apellido_materno: cliente.apellido_materno,
+        nombre_completo: cliente.nombre_completo,
+        tipo_documento: cliente.tipo_documento,
+        numero_documento: cliente.numero_documento,
+        telefono_principal: cliente.telefono_principal,
+        email: cliente.email,
+        direccion: cliente.direccion,
+        activo: cliente.activo,
+        created_at: cliente.created_at,
+        score_crediticio: cliente.score_crediticio,
+
+        // Datos de referencia/emergencia
+        telefono_secundario: cliente.telefono_secundario,
+        parentesco_referencia: cliente.parentesco_referencia,
+
+        // Estadísticas
+        stats: {
+            totalCreditos,
+            creditosPagados,
+            creditosActivos,
+            creditosVencidos,
+            totalPrestado,
+            deudaActual,
+            totalPagos,
+            montoTotalPagado
+        },
+
+        // Estado actual
+        proximoVencimiento,
+        diasParaVencimiento,
+        estadoRiesgo
+    }
+}
+
+/**
+ * Actualizar datos de un cliente
+ */
+export async function actualizarCliente(clienteId: string, personaId: string, datos: {
+    nombres?: string
+    apellido_paterno?: string
+    apellido_materno?: string
+    telefono_principal?: string
+    telefono_secundario?: string
+    parentesco_referencia?: string
+    email?: string
+    direccion?: string
+}) {
+    const supabase = await createClient()
+
+    // Actualizar persona (los datos personales están en tabla personas)
+    const { error } = await supabase
+        .from('personas')
+        .update({
+            nombres: datos.nombres,
+            apellido_paterno: datos.apellido_paterno,
+            apellido_materno: datos.apellido_materno,
+            telefono_principal: datos.telefono_principal,
+            telefono_secundario: datos.telefono_secundario,
+            parentesco_referencia: datos.parentesco_referencia,
+            email: datos.email,
+            direccion: datos.direccion
+        })
+        .eq('id', personaId)
+
+    if (error) {
+        console.error('[actualizarCliente] Error:', error)
+        throw error
+    }
+
+    return { success: true, message: 'Cliente actualizado correctamente' }
+}

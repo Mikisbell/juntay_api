@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { getClienteById, getClienteResumenFinanciero } from "@/lib/actions/clientes-actions"
+import { getClienteExtended, getClientePagosHistorial } from "@/lib/actions/clientes-actions"
 import { ClienteDetalleView } from "./ClienteDetalleView"
 import { createClient } from "@/lib/supabase/server"
 
@@ -17,20 +17,21 @@ export default async function Page(props: PageProps) {
     const { id } = params
     const supabase = await createClient()
 
-    // Fetch data in parallel for performance
-    const [cliente, resumen, creditosResult] = await Promise.all([
-        getClienteById(id),
-        getClienteResumenFinanciero(id),
+    // Fetch all data in parallel for performance
+    const [cliente, pagos, creditosResult] = await Promise.all([
+        getClienteExtended(id),
+        getClientePagosHistorial(id, 30),
         supabase
             .from('creditos')
             .select(`
                 id,
-                codigo,
+                codigo: codigo_credito,
                 monto_prestamo: monto_prestado,
                 saldo_actual: saldo_pendiente,
                 fecha_desembolso: fecha_inicio,
                 fecha_vencimiento,
                 estado,
+                estado_detallado,
                 garantia_id
             `)
             .eq('cliente_id', id)
@@ -50,9 +51,9 @@ export default async function Page(props: PageProps) {
         saldo_actual: c.saldo_actual,
         fecha_desembolso: c.fecha_desembolso,
         fecha_vencimiento: c.fecha_vencimiento,
-        estado: c.estado,
+        estado: c.estado_detallado || c.estado,
         garantia: { descripcion: 'Ver detalle del contrato' }
     }))
 
-    return <ClienteDetalleView cliente={cliente} resumen={resumen} creditos={creditos} />
+    return <ClienteDetalleView cliente={cliente} creditos={creditos} pagos={pagos} />
 }
