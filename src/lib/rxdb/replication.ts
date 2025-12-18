@@ -243,81 +243,91 @@ export async function startReplication(): Promise<void> {
         console.error('[RxDB Replication] Error en movimientos de caja:', err)
     })
 
-    // Replicación de Clientes (NUEVO - Para Offline-First completo)
-    replications.clientes = replicateSupabase({
-        replicationIdentifier: 'clientes-supabase-v1',
-        collection: db.clientes,
-        client: replicationClient,
-        tableName: 'clientes',
-        live: true,
-        pull: {
-            batchSize: 100,
-            modifier: (doc) => {
-                Object.keys(doc).forEach(key => {
-                    if (doc[key] === null) delete doc[key]
-                })
-                // Asegurar campos requeridos
-                if (doc.activo === undefined) doc.activo = true
-                return doc
-            }
-        },
-        push: {
-            batchSize: 50,
-            modifier: (doc) => ({ ...doc })
-        }
-    })
-
-    replications.clientes.error$.subscribe(err => {
-        if (isNetworkError(err)) {
-            if (process.env.NODE_ENV === 'development') {
-                console.debug('[RxDB] Clientes: modo offline')
-            }
-            return
-        }
-        console.error('[RxDB Replication] Error en clientes:', err)
-    })
-
-    // Replicación de Garantías (NUEVO - Para Offline-First completo)
-    replications.garantias = replicateSupabase({
-        replicationIdentifier: 'garantias-supabase-v1',
-        collection: db.garantias,
-        client: replicationClient,
-        tableName: 'garantias',
-        live: true,
-        pull: {
-            batchSize: 100,
-            modifier: (doc) => {
-                Object.keys(doc).forEach(key => {
-                    if (doc[key] === null) delete doc[key]
-                })
-                // Convertir montos numéricos a strings
-                if (typeof doc.valor_tasacion === 'number') {
-                    doc.valor_tasacion = doc.valor_tasacion.toFixed(2)
+    // Replicación de Clientes (Solo si la colección existe)
+    // NOTA: colección temporalmente deshabilitada en database.ts por incompatibilidad de schemas
+    if (db.clientes) {
+        replications.clientes = replicateSupabase({
+            replicationIdentifier: 'clientes-supabase-v1',
+            collection: db.clientes,
+            client: replicationClient,
+            tableName: 'clientes',
+            live: true,
+            pull: {
+                batchSize: 100,
+                modifier: (doc) => {
+                    Object.keys(doc).forEach(key => {
+                        if (doc[key] === null) delete doc[key]
+                    })
+                    // Asegurar campos requeridos
+                    if (doc.activo === undefined) doc.activo = true
+                    return doc
                 }
-                if (typeof doc.valor_prestamo_sugerido === 'number') {
-                    doc.valor_prestamo_sugerido = doc.valor_prestamo_sugerido.toFixed(2)
-                }
-                if (typeof doc.precio_venta === 'number') {
-                    doc.precio_venta = doc.precio_venta.toFixed(2)
-                }
-                return doc
+            },
+            push: {
+                batchSize: 50,
+                modifier: (doc) => ({ ...doc })
             }
-        },
-        push: {
-            batchSize: 50,
-            modifier: (doc) => ({ ...doc })
-        }
-    })
+        })
 
-    replications.garantias.error$.subscribe(err => {
-        if (isNetworkError(err)) {
-            if (process.env.NODE_ENV === 'development') {
-                console.debug('[RxDB] Garantías: modo offline')
+        replications.clientes.error$.subscribe(err => {
+            if (isNetworkError(err)) {
+                if (process.env.NODE_ENV === 'development') {
+                    console.debug('[RxDB] Clientes: modo offline')
+                }
+                return
             }
-            return
-        }
-        console.error('[RxDB Replication] Error en garantías:', err)
-    })
+            console.error('[RxDB Replication] Error en clientes:', err)
+        })
+    } else {
+        console.debug('[RxDB Replication] Colección clientes no disponible, omitiendo replicación')
+    }
+
+    // Replicación de Garantías (Solo si la colección existe)
+    // NOTA: colección temporalmente deshabilitada en database.ts por incompatibilidad de schemas
+    if (db.garantias) {
+        replications.garantias = replicateSupabase({
+            replicationIdentifier: 'garantias-supabase-v1',
+            collection: db.garantias,
+            client: replicationClient,
+            tableName: 'garantias',
+            live: true,
+            pull: {
+                batchSize: 100,
+                modifier: (doc) => {
+                    Object.keys(doc).forEach(key => {
+                        if (doc[key] === null) delete doc[key]
+                    })
+                    // Convertir montos numéricos a strings
+                    if (typeof doc.valor_tasacion === 'number') {
+                        doc.valor_tasacion = doc.valor_tasacion.toFixed(2)
+                    }
+                    if (typeof doc.valor_prestamo_sugerido === 'number') {
+                        doc.valor_prestamo_sugerido = doc.valor_prestamo_sugerido.toFixed(2)
+                    }
+                    if (typeof doc.precio_venta === 'number') {
+                        doc.precio_venta = doc.precio_venta.toFixed(2)
+                    }
+                    return doc
+                }
+            },
+            push: {
+                batchSize: 50,
+                modifier: (doc) => ({ ...doc })
+            }
+        })
+
+        replications.garantias.error$.subscribe(err => {
+            if (isNetworkError(err)) {
+                if (process.env.NODE_ENV === 'development') {
+                    console.debug('[RxDB] Garantías: modo offline')
+                }
+                return
+            }
+            console.error('[RxDB Replication] Error en garantías:', err)
+        })
+    } else {
+        console.debug('[RxDB Replication] Colección garantias no disponible, omitiendo replicación')
+    }
 
     // Esperar a que la primera sincronización se complete
     try {
