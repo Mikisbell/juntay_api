@@ -4,7 +4,8 @@ import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import {
     PlusCircle, Wallet, Phone, AlertTriangle, CheckCircle2,
-    Clock, ChevronRight, X, RefreshCw, ArrowUpRight, ArrowDownLeft
+    Clock, ChevronRight, RefreshCw, ArrowUpRight, ArrowDownLeft,
+    TrendingUp, TrendingDown, BarChart3
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
@@ -51,6 +52,7 @@ export default function DashboardPage() {
     const [contratosUrgentes, setContratosUrgentes] = useState<ContratoUrgente[]>([])
     const [caja, setCaja] = useState<CajaStats | null>(null)
     const [cartera, setCartera] = useState<CarteraResumen | null>(null)
+    const [trendData, setTrendData] = useState<{ date: string; monto: number }[]>([])
     const [loading, setLoading] = useState(true)
     const supabase = createClient()
 
@@ -159,6 +161,31 @@ export default function DashboardPage() {
             } else {
                 setCaja({ abierta: false, saldoInicial: 0, ingresos: 0, egresos: 0, saldoActual: 0, operaciones: 0 })
             }
+
+            // 4. TREND DATA - Last 7 days payments (REAL)
+            const last7Days: { date: string; monto: number }[] = []
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(hoy)
+                date.setDate(date.getDate() - i)
+                const dateStr = date.toISOString().split('T')[0]
+                last7Days.push({ date: dateStr, monto: 0 })
+            }
+
+            const { data: pagos7dias } = await supabase
+                .from('pagos')
+                .select('monto, fecha_pago')
+                .gte('fecha_pago', last7Days[0].date)
+                .lte('fecha_pago', last7Days[6].date + 'T23:59:59')
+                .eq('estado', 'completado')
+
+            if (pagos7dias) {
+                pagos7dias.forEach((p: { monto: number; fecha_pago: string }) => {
+                    const dateStr = p.fecha_pago.split('T')[0]
+                    const dayEntry = last7Days.find(d => d.date === dateStr)
+                    if (dayEntry) dayEntry.monto += Number(p.monto)
+                })
+            }
+            setTrendData(last7Days)
 
         } catch (error) {
             console.error('Error loading dashboard:', error)
@@ -503,6 +530,110 @@ export default function DashboardPage() {
                             <span className="text-sm font-medium text-slate-700">Reportes</span>
                         </Link>
                     </RoleGate>
+                </section>
+
+                {/* ============ CHARTS (Compact, REAL Data) ============ */}
+                <section className="bg-white rounded-2xl border border-slate-200 p-5">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="font-semibold text-slate-900 flex items-center gap-2">
+                            <BarChart3 className="h-5 w-5 text-slate-400" />
+                            Análisis Visual
+                        </h2>
+                    </div>
+
+                    {/* Distribution Bar */}
+                    <div className="mb-6">
+                        <p className="text-xs text-slate-500 mb-2">Distribución de Cartera</p>
+                        {(() => {
+                            const total = (cartera?.alDia.count || 0) + (cartera?.porVencer.count || 0) + (cartera?.enMora.count || 0)
+                            if (total === 0) return <div className="h-4 bg-slate-100 rounded-full" />
+                            const alDiaPct = ((cartera?.alDia.count || 0) / total) * 100
+                            const porVencerPct = ((cartera?.porVencer.count || 0) / total) * 100
+                            const moraPct = ((cartera?.enMora.count || 0) / total) * 100
+                            return (
+                                <div className="h-4 rounded-full overflow-hidden flex">
+                                    <div
+                                        className="bg-emerald-500 transition-all"
+                                        style={{ width: `${alDiaPct}%` }}
+                                        title={`Al Día: ${cartera?.alDia.count || 0} (${alDiaPct.toFixed(0)}%)`}
+                                    />
+                                    <div
+                                        className="bg-amber-500 transition-all"
+                                        style={{ width: `${porVencerPct}%` }}
+                                        title={`Por Vencer: ${cartera?.porVencer.count || 0} (${porVencerPct.toFixed(0)}%)`}
+                                    />
+                                    <div
+                                        className="bg-red-500 transition-all"
+                                        style={{ width: `${moraPct}%` }}
+                                        title={`En Mora: ${cartera?.enMora.count || 0} (${moraPct.toFixed(0)}%)`}
+                                    />
+                                </div>
+                            )
+                        })()}
+                        <div className="flex justify-between mt-2 text-xs">
+                            <span className="text-emerald-600 font-medium">
+                                Al Día {cartera?.alDia.count || 0}
+                            </span>
+                            <span className="text-amber-600 font-medium">
+                                Por Vencer {cartera?.porVencer.count || 0}
+                            </span>
+                            <span className="text-red-600 font-medium">
+                                Mora {cartera?.enMora.count || 0}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* 7-Day Trend Sparkline */}
+                    <div>
+                        <div className="flex items-center justify-between mb-2">
+                            <p className="text-xs text-slate-500">Pagos Recibidos (últimos 7 días)</p>
+                            {(() => {
+                                const todayTotal = trendData[6]?.monto || 0
+                                const yesterdayTotal = trendData[5]?.monto || 0
+                                const change = yesterdayTotal > 0
+                                    ? ((todayTotal - yesterdayTotal) / yesterdayTotal) * 100
+                                    : 0
+                                return change >= 0 ? (
+                                    <span className="text-xs font-medium text-emerald-600 flex items-center gap-1">
+                                        <TrendingUp className="h-3 w-3" />
+                                        {change > 0 ? `+${change.toFixed(0)}%` : 'Sin cambio'}
+                                    </span>
+                                ) : (
+                                    <span className="text-xs font-medium text-red-600 flex items-center gap-1">
+                                        <TrendingDown className="h-3 w-3" />
+                                        {change.toFixed(0)}%
+                                    </span>
+                                )
+                            })()}
+                        </div>
+
+                        {/* Simple bar chart */}
+                        <div className="flex items-end gap-1 h-16">
+                            {trendData.map((day, i) => {
+                                const maxMonto = Math.max(...trendData.map(d => d.monto), 1)
+                                const heightPct = (day.monto / maxMonto) * 100
+                                const dayName = new Date(day.date + 'T12:00:00').toLocaleDateString('es-PE', { weekday: 'short' })
+                                return (
+                                    <div key={day.date} className="flex-1 flex flex-col items-center gap-1">
+                                        <div
+                                            className={cn(
+                                                'w-full rounded-t transition-all',
+                                                i === 6 ? 'bg-blue-500' : 'bg-slate-200'
+                                            )}
+                                            style={{ height: `${Math.max(heightPct, 4)}%` }}
+                                            title={`${dayName}: ${formatearSoles(String(day.monto))}`}
+                                        />
+                                        <span className="text-[10px] text-slate-400">{dayName.charAt(0)}</span>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        <div className="text-center mt-2">
+                            <span className="text-sm font-medium text-slate-700">
+                                Total semana: {formatearSoles(String(trendData.reduce((sum, d) => sum + d.monto, 0)))}
+                            </span>
+                        </div>
+                    </div>
                 </section>
 
             </div>
