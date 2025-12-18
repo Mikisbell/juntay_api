@@ -93,6 +93,13 @@ export default async function ClientesPage(props: {
                                 <p className="text-xs text-red-600/70 mt-1 font-medium">
                                     {meta.clientesCriticos} clientes vencidos
                                 </p>
+                                {/* Mini progress bar */}
+                                <div className="mt-2 h-1.5 w-full bg-red-100 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-red-500 rounded-full transition-all duration-500"
+                                        style={{ width: `${Math.min(100, (meta.clientesCriticos / (meta.totalClientes || 1)) * 100)}%` }}
+                                    />
+                                </div>
                             </CardContent>
                         </Card>
                     </Link>
@@ -121,6 +128,13 @@ export default async function ClientesPage(props: {
                                 <p className="text-xs text-amber-600/70 mt-1 font-medium">
                                     {meta.vencimientosSemana} próximos a vencer
                                 </p>
+                                {/* Mini progress bar */}
+                                <div className="mt-2 h-1.5 w-full bg-amber-100 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-amber-500 rounded-full transition-all duration-500"
+                                        style={{ width: `${Math.min(100, (meta.vencimientosSemana / (meta.totalClientes || 1)) * 100)}%` }}
+                                    />
+                                </div>
                             </CardContent>
                         </Card>
                     </Link>
@@ -149,6 +163,10 @@ export default async function ClientesPage(props: {
                                 <p className="text-xs text-emerald-600/70 mt-1 font-medium">
                                     Clientes vigentes
                                 </p>
+                                {/* Full bar - represents 100% */}
+                                <div className="mt-2 h-1.5 w-full bg-emerald-100 rounded-full overflow-hidden">
+                                    <div className="h-full bg-emerald-500 rounded-full w-full" />
+                                </div>
                             </CardContent>
                         </Card>
                     </Link>
@@ -177,6 +195,13 @@ export default async function ClientesPage(props: {
                                 <p className="text-xs text-slate-500 mt-1 font-medium">
                                     Bloqueados manualmente
                                 </p>
+                                {/* Mini progress bar */}
+                                <div className="mt-2 h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-slate-500 rounded-full transition-all duration-500"
+                                        style={{ width: `${Math.min(100, (meta.clientesSuspendidos / (meta.totalClientes || 1)) * 100)}%` }}
+                                    />
+                                </div>
                             </CardContent>
                         </Card>
                     </Link>
