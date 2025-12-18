@@ -74,9 +74,20 @@ export function useDashboardData(): UseDashboardDataResult {
             if (authError) throw authError
             if (!user) throw new Error('No authenticated user')
 
-            // Use legacy fetch (consolidated RPC will be used after deployment)
-            // TODO: Switch to get_dashboard_complete RPC after migration is applied
-            await fetchLegacyData(user.id)
+            // Try consolidated RPC first (deployed to Supabase)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const { data: rpcData, error: rpcError } = await (supabase as any)
+                .rpc('get_dashboard_complete', { p_usuario_id: user.id })
+
+            if (rpcError) {
+                console.warn('RPC failed, using legacy fallback:', rpcError.message)
+                await fetchLegacyData(user.id)
+                return
+            }
+
+            // RPC success - parse response
+            const parsed = rpcData as DashboardData
+            setData(parsed)
 
         } catch (err) {
             console.error('Error fetching dashboard data:', err)

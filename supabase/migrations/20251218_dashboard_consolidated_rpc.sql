@@ -76,18 +76,18 @@ BEGIN
                             SELECT SUM(monto) FROM movimientos_caja_operativa 
                             WHERE caja_operativa_id = co.id 
                             AND tipo = 'INGRESO'
-                            AND created_at >= v_inicio_hoy
+                            AND fecha >= v_inicio_hoy
                         ), 0),
                         'egresos', COALESCE((
                             SELECT SUM(monto) FROM movimientos_caja_operativa 
                             WHERE caja_operativa_id = co.id 
                             AND tipo = 'EGRESO'
-                            AND created_at >= v_inicio_hoy
+                            AND fecha >= v_inicio_hoy
                         ), 0),
                         'operaciones', (
                             SELECT COUNT(*) FROM movimientos_caja_operativa 
                             WHERE caja_operativa_id = co.id 
-                            AND created_at >= v_inicio_hoy
+                            AND fecha >= v_inicio_hoy
                         )
                     )
                     FROM cajas_operativas co
@@ -109,13 +109,13 @@ BEGIN
             SELECT COALESCE(jsonb_agg(
                 jsonb_build_object(
                     'fecha', fecha_pago::date,
-                    'monto', monto
+                    'monto', monto_total
                 )
             ), '[]'::jsonb)
             FROM pagos
             WHERE fecha_pago >= v_hace_7_dias
             AND fecha_pago < v_hoy + 1
-            AND estado = 'completado'
+            AND (anulado IS NULL OR anulado = false)
         )
     ) INTO v_result;
 
