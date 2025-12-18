@@ -329,16 +329,18 @@ export async function startReplication(): Promise<void> {
         console.debug('[RxDB Replication] Colección garantias no disponible, omitiendo replicación')
     }
 
-    // Esperar a que la primera sincronización se complete
+    // Esperar a que la primera sincronización se complete (solo colecciones activas)
     try {
-        await Promise.all([
-            replications.creditos.awaitInitialReplication(),
-            replications.pagos.awaitInitialReplication(),
-            replications.movimientos_caja.awaitInitialReplication(),
-            replications.clientes.awaitInitialReplication(),
-            replications.garantias.awaitInitialReplication()
-        ])
-        console.log('[RxDB Replication] ✅ Sincronización inicial completada (5 colecciones)')
+        const activeReplications = [
+            replications.creditos,
+            replications.pagos,
+            replications.movimientos_caja,
+            replications.clientes,
+            replications.garantias
+        ].filter(Boolean) // Remove null/undefined replications
+
+        await Promise.all(activeReplications.map(r => r.awaitInitialReplication()))
+        console.log(`[RxDB Replication] ✅ Sincronización inicial completada (${activeReplications.length} colecciones)`)
     } catch (error: any) {
         // Manejar errores de red de forma silenciosa
         if (isNetworkError(error)) {
