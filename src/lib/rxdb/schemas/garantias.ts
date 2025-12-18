@@ -41,8 +41,8 @@ export interface GarantiaDocument {
     created_at: string | null
     updated_at: string | null
     // Campos RxDB para sincronización
-    _deleted: boolean
-    _modified: string
+    isDeleted: boolean
+    updatedAt: string
 }
 
 export const garantiasSchema: RxJsonSchema<GarantiaDocument> = {
@@ -168,20 +168,17 @@ export const garantiasSchema: RxJsonSchema<GarantiaDocument> = {
             maxLength: 30
         },
         // Campos de sincronización RxDB
-        _deleted: {
+        isDeleted: {
             type: 'boolean'
         },
-        _modified: {
+        updatedAt: {
             type: 'string',
             maxLength: 30
         }
     },
-    required: ['id', 'descripcion', 'valor_tasacion', '_deleted', '_modified'],
+    required: ['id', 'descripcion', 'valor_tasacion', 'isDeleted', 'updatedAt'],
     indexes: [
-        'cliente_id',
-        'credito_id',
-        'estado',
-        '_modified'
+        'updatedAt'
     ]
 }
 

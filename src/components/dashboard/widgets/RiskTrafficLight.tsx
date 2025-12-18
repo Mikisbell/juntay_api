@@ -3,8 +3,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
-import { AlertTriangle, CheckCircle2, Clock } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Clock, ArrowUpRight, TrendingUp, Activity } from 'lucide-react'
 import { formatearMonto } from '@/lib/utils/calculadora-credito'
+import Link from 'next/link'
 
 interface RiskSummary {
     estado_grupo: string
@@ -21,12 +22,7 @@ export function RiskTrafficLight() {
         const fetchData = async () => {
             const { data, error } = await supabase.rpc('get_cartera_risk_summary')
             if (error) {
-                console.error('Error fetching risk summary:', {
-                    message: error.message,
-                    code: error.code,
-                    details: error.details,
-                    hint: error.hint
-                })
+                console.error('Error fetching risk summary:', error)
             }
             else setData(data || [])
             setLoading(false)
@@ -46,60 +42,66 @@ export function RiskTrafficLight() {
     const porVencer = getStats('POR_VENCER')
     const vencido = getStats('VENCIDO')
 
-    if (loading) return <div className="h-32 animate-pulse bg-slate-100 rounded-xl" />
+    if (loading) {
+        return (
+            <div className="grid grid-cols-3 gap-4">
+                {[1, 2, 3].map(i => (
+                    <div key={i} className="glass-card-premium p-5 h-[140px] animate-pulse">
+                        <div className="w-10 h-10 rounded-xl bg-slate-700 mb-3" />
+                        <div className="h-4 w-20 bg-slate-700 rounded mb-2" />
+                        <div className="h-8 w-28 bg-slate-700 rounded" />
+                    </div>
+                ))}
+            </div>
+        )
+    }
+
+    const totalCartera = vigente.amount + porVencer.amount + vencido.amount
 
     return (
-        <div className="grid gap-4 md:grid-cols-3">
-            <Card className="border-l-4 border-l-green-500 bg-gradient-to-br from-white to-green-50/50 dark:from-slate-950 dark:to-green-900/10">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                        Vigente (Al día)
-                    </CardTitle>
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold text-slate-900 dark:text-white">
-                        {formatearMonto(vigente.amount)}
+        <div className="grid grid-cols-3 gap-4">
+            {/* Al Día */}
+            <Link href="/dashboard/clientes?f=todos" className="glass-card-premium p-5 hover-lift group">
+                <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                        <CheckCircle2 className="h-5 w-5 text-emerald-400" />
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        {vigente.count} contratos activos
-                    </p>
-                </CardContent>
-            </Card>
+                    <ArrowUpRight className="h-4 w-4 text-slate-600 group-hover:text-emerald-400 transition-colors" />
+                </div>
+                <p className="text-slate-400 text-sm mb-1">Al Día</p>
+                <p className="text-2xl font-bold text-white number-animate">{formatearMonto(vigente.amount)}</p>
+                <p className="text-emerald-400 text-sm mt-2 flex items-center gap-1">
+                    <TrendingUp className="h-3 w-3" /> {vigente.count} contratos
+                </p>
+            </Link>
 
-            <Card className="border-l-4 border-l-yellow-500 bg-gradient-to-br from-white to-yellow-50/50 dark:from-slate-950 dark:to-yellow-900/10">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                        Por Vencer (7 días)
-                    </CardTitle>
-                    <Clock className="h-4 w-4 text-yellow-500" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold text-slate-900 dark:text-white">
-                        {formatearMonto(porVencer.amount)}
+            {/* Por Vencer */}
+            <Link href="/dashboard/clientes?f=alerta" className="glass-card-premium p-5 hover-lift group">
+                <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                        <Clock className="h-5 w-5 text-amber-400" />
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        {porVencer.count} contratos próximos
-                    </p>
-                </CardContent>
-            </Card>
+                    <ArrowUpRight className="h-4 w-4 text-slate-600 group-hover:text-amber-400 transition-colors" />
+                </div>
+                <p className="text-slate-400 text-sm mb-1">Por Vencer</p>
+                <p className="text-2xl font-bold text-white number-animate">{formatearMonto(porVencer.amount)}</p>
+                <p className="text-amber-400 text-sm mt-2 flex items-center gap-1">
+                    <Activity className="h-3 w-3" /> {porVencer.count} contratos
+                </p>
+            </Link>
 
-            <Card className="border-l-4 border-l-red-500 bg-gradient-to-br from-white to-red-50/50 dark:from-slate-950 dark:to-red-900/10">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                        Vencido / Mora
-                    </CardTitle>
-                    <AlertTriangle className="h-4 w-4 text-red-500" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold text-slate-900 dark:text-white">
-                        {formatearMonto(vencido.amount)}
+            {/* En Mora */}
+            <Link href="/dashboard/clientes?f=critico" className="glass-card-premium p-5 hover-lift group border-l-2 border-l-red-500">
+                <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center glow-red">
+                        <AlertTriangle className="h-5 w-5 text-red-400" />
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        {vencido.count} contratos en riesgo
-                    </p>
-                </CardContent>
-            </Card>
+                    <ArrowUpRight className="h-4 w-4 text-slate-600 group-hover:text-red-400 transition-colors" />
+                </div>
+                <p className="text-slate-400 text-sm mb-1">En Mora</p>
+                <p className="text-2xl font-bold text-gradient-red number-animate">{formatearMonto(vencido.amount)}</p>
+                <p className="text-red-400 text-sm mt-2">{vencido.count} contratos</p>
+            </Link>
         </div>
     )
 }

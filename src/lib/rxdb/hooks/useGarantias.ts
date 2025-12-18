@@ -30,7 +30,7 @@ export function useGarantiasDeCredito(creditoId: string | null) {
             .find({
                 selector: {
                     credito_id: creditoId,
-                    _deleted: false
+                    isDeleted: false
                 }
             })
             .$.subscribe({
@@ -69,9 +69,9 @@ export function useGarantiasDeCliente(clienteId: string | null) {
             .find({
                 selector: {
                     cliente_id: clienteId,
-                    _deleted: false
+                    isDeleted: false
                 },
-                sort: [{ _modified: 'desc' }]
+                sort: [{ updatedAt: 'desc' }]
             })
             .$.subscribe({
                 next: (docs: any[]) => {
@@ -97,7 +97,7 @@ export function useCrearGarantiaLocal() {
     const [isCreating, setIsCreating] = useState(false)
     const [error, setError] = useState<Error | null>(null)
 
-    const crearGarantia = useCallback(async (data: Omit<GarantiaDocument, 'id' | '_deleted' | '_modified'>) => {
+    const crearGarantia = useCallback(async (data: Omit<GarantiaDocument, 'id' | 'isDeleted' | 'updatedAt'>) => {
         if (!isDatabaseReady()) {
             throw new Error('Base de datos local no disponible')
         }
@@ -112,8 +112,8 @@ export function useCrearGarantiaLocal() {
                 ...data,
                 estado: data.estado ?? 'custodia',
                 created_at: data.created_at ?? new Date().toISOString(),
-                _deleted: false,
-                _modified: new Date().toISOString()
+                isDeleted: false,
+                updatedAt: new Date().toISOString()
             }
 
             await db.garantias.insert(nuevaGarantia)
@@ -151,7 +151,7 @@ export function useGarantiaPorId(garantiaId: string | null) {
             .findOne({
                 selector: {
                     id: garantiaId,
-                    _deleted: false
+                    isDeleted: false
                 }
             })
             .$.subscribe({
@@ -189,9 +189,9 @@ export function useGarantiasEnCustodia() {
             .find({
                 selector: {
                     estado: 'custodia',
-                    _deleted: false
+                    isDeleted: false
                 },
-                sort: [{ _modified: 'desc' }]
+                sort: [{ updatedAt: 'desc' }]
             })
             .$.subscribe({
                 next: (docs: any[]) => {

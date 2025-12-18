@@ -88,17 +88,6 @@ const SECTIONS = [
         label: "MIDDLE OFFICE (Negocio)",
         items: [
             {
-                title: "Gestión de Créditos",
-                icon: FileText,
-                url: "/dashboard/contratos", // Default link if clicked parent
-                items: [
-                    { title: "Cartera Activa", url: "/dashboard/contratos" },
-                    { title: "Vencimientos", url: "/dashboard/vencimientos", badge: "3" },
-                    { title: "Remates", url: "/dashboard/remates", badge: "1" },
-                    { title: "Renovaciones", url: "/dashboard/renovaciones" }
-                ]
-            },
-            {
                 title: "Inventario (Garantías)",
                 url: "/dashboard/inventario",
                 icon: Package,

@@ -172,6 +172,7 @@ export interface ResumenCartera {
     montoCritico: number
     vencimientosSemana: number
     montoPorVencer: number
+    clientesSuspendidos: number // NUEVO: Conteo de clientes suspendidos
     pagination: {
         page: number
         pageSize: number
@@ -187,13 +188,17 @@ export async function listarClientes(filtros?: {
     busqueda?: string,
     estado?: string,
     page?: number,
-    pageSize?: number
+    pageSize?: number,
+    ordenarPor?: string,  // 'prioridad' | 'nombre' | 'deuda' | 'vencimiento' | 'estado'
+    direccion?: 'asc' | 'desc'
 }) {
     const supabase = await createClient()
     const page = filtros?.page || 1
     const pageSize = filtros?.pageSize || 10
     const from = (page - 1) * pageSize
     const to = from + pageSize - 1
+    const ordenarPor = filtros?.ordenarPor || 'prioridad'
+    const direccion = filtros?.direccion || 'asc'
 
     // 1. Query Base para Contar Total (sin paginación, pero con filtros de búsqueda si aplica)
     // NOTA: Para KPIs globales necesitamos TODOS los activos.
@@ -204,14 +209,19 @@ export async function listarClientes(filtros?: {
     // Dado que el Dashboard Táctico muestra TOTALES DE CARTERA, necesitamos procesar todos los activos para los KPIs Cards,
     // pero solo devolver los registros de la página actual para la tabla.
 
-    // Paso A: Obtener IDs y Datos básicos de TODOS los activos para KPIs Dashboard
+    // Paso A: Obtener datos de TODOS los clientes (activos e inactivos) para KPIs Dashboard
+    // IMPORTANTE: No filtramos por activo aquí para poder contar suspendidos y mostrarlos si se filtra
     const { data: todosClientesBase, error } = await supabase
         .from('clientes_completo')
-        .select('id, nombre_completo, numero_documento, telefono_principal, nombres, activo') // Solo lo necesario para filtrar y relacionar
-        .eq('activo', true)
+        .select('id, nombre_completo, numero_documento, telefono_principal, nombres, activo')
         .order('created_at', { ascending: false })
 
     if (error) throw error
+
+    // Contar clientes suspendidos (activo = false)
+    const clientesSuspendidos = todosClientesBase.filter(c => !c.activo).length
+    // Para KPIs, solo contamos activos como "cartera total"
+    const clientesActivos = todosClientesBase.filter(c => c.activo)
 
     // 2. Obtener TODA la deuda vigente (Optimizado: Solo columnas de cálculo)
     const { data: creditosActivos } = await supabase
@@ -244,6 +254,10 @@ export async function listarClientes(filtros?: {
         })
 
         creditosPorCliente.forEach((listaCreditos, clienteId) => {
+            // IMPORTANTE: Solo contar en KPIs si el cliente está activo
+            const clienteData = todosClientesBase.find(c => c.id === clienteId)
+            const clienteActivo = clienteData?.activo ?? true
+
             let totalDeuda = 0
             let peorVencimiento: string | null = null
             let esCritico = false
@@ -265,12 +279,18 @@ export async function listarClientes(filtros?: {
 
             if (esCritico) {
                 mapaRiesgo.set(clienteId, 'critico')
-                clientesCriticos++
-                montoCritico += totalDeuda
+                // Solo contar en KPIs si cliente está activo
+                if (clienteActivo) {
+                    clientesCriticos++
+                    montoCritico += totalDeuda
+                }
             } else if (esAlerta || (peorVencimiento && new Date(peorVencimiento!) <= en7dias)) {
                 mapaRiesgo.set(clienteId, 'alerta')
-                vencimientosSemana++
-                montoPorVencer += totalDeuda
+                // Solo contar en KPIs si cliente está activo
+                if (clienteActivo) {
+                    vencimientosSemana++
+                    montoPorVencer += totalDeuda
+                }
             } else {
                 mapaRiesgo.set(clienteId, 'normal')
             }
@@ -286,6 +306,7 @@ export async function listarClientes(filtros?: {
         riesgo_calculado: mapaRiesgo.get(c.id) || 'normal'
     }))
 
+    // Filtros de búsqueda
     if (filtros?.busqueda) {
         const q = filtros.busqueda.toLowerCase()
         clientesFiltrados = clientesFiltrados.filter(c =>
@@ -296,15 +317,73 @@ export async function listarClientes(filtros?: {
         )
     }
 
+    // Filtros de estado
     if (filtros?.estado) {
         if (filtros.estado === 'critico') {
-            clientesFiltrados = clientesFiltrados.filter(c => c.riesgo_calculado === 'critico')
+            clientesFiltrados = clientesFiltrados.filter(c => c.riesgo_calculado === 'critico' && c.activo)
         } else if (filtros.estado === 'alerta') {
-            clientesFiltrados = clientesFiltrados.filter(c => c.riesgo_calculado === 'alerta')
+            clientesFiltrados = clientesFiltrados.filter(c => c.riesgo_calculado === 'alerta' && c.activo)
+        } else if (filtros.estado === 'suspendido') {
+            // NUEVO: Filtrar solo clientes suspendidos (activo = false)
+            clientesFiltrados = clientesFiltrados.filter(c => !c.activo)
+        } else if (filtros.estado === 'todos' || !filtros.estado) {
+            // Por defecto mostrar solo activos
+            clientesFiltrados = clientesFiltrados.filter(c => c.activo)
         }
+    } else {
+        // Sin filtro = mostrar solo activos
+        clientesFiltrados = clientesFiltrados.filter(c => c.activo)
     }
 
-    // 4. Paginación
+    // 4. ORDENAMIENTO flexible basado en parámetros
+    clientesFiltrados.sort((a, b) => {
+        const dir = direccion === 'desc' ? -1 : 1
+
+        switch (ordenarPor) {
+            case 'nombre':
+                const nombreA = a.nombre_completo?.toLowerCase() || ''
+                const nombreB = b.nombre_completo?.toLowerCase() || ''
+                return nombreA.localeCompare(nombreB) * dir
+
+            case 'deuda':
+                return ((a.deuda_total || 0) - (b.deuda_total || 0)) * dir
+
+            case 'vencimiento':
+                if (!a.proximo_vencimiento && !b.proximo_vencimiento) return 0
+                if (!a.proximo_vencimiento) return 1 * dir
+                if (!b.proximo_vencimiento) return -1 * dir
+                return (new Date(a.proximo_vencimiento).getTime() - new Date(b.proximo_vencimiento).getTime()) * dir
+
+            case 'estado':
+                const estadoPrioridad = { 'critico': 0, 'alerta': 1, 'normal': 2 }
+                const prioA = estadoPrioridad[a.riesgo_calculado] ?? 2
+                const prioB = estadoPrioridad[b.riesgo_calculado] ?? 2
+                return (prioA - prioB) * dir
+
+            case 'prioridad':
+            default:
+                // Ordenamiento por prioridad de negocio (Críticos primero, Sin Créditos al final)
+                const riesgoPrioridad = { 'critico': 0, 'alerta': 1, 'normal': 2 }
+                const prioridadA = riesgoPrioridad[a.riesgo_calculado] ?? 2
+                const prioridadB = riesgoPrioridad[b.riesgo_calculado] ?? 2
+                if (prioridadA !== prioridadB) return (prioridadA - prioridadB) * dir
+
+                // Los que tienen deuda antes que los sin deuda
+                const tieneDeudaA = a.deuda_total > 0 ? 0 : 1
+                const tieneDeudaB = b.deuda_total > 0 ? 0 : 1
+                if (tieneDeudaA !== tieneDeudaB) return (tieneDeudaA - tieneDeudaB) * dir
+
+                // Por vencimiento más próximo
+                if (a.proximo_vencimiento && b.proximo_vencimiento) {
+                    return (new Date(a.proximo_vencimiento).getTime() - new Date(b.proximo_vencimiento).getTime()) * dir
+                }
+                if (a.proximo_vencimiento) return -1 * dir
+                if (b.proximo_vencimiento) return 1 * dir
+                return 0
+        }
+    })
+
+    // 5. Paginación
     const totalRecords = clientesFiltrados.length
     const totalPages = Math.ceil(totalRecords / pageSize)
     const clientesPaginados = clientesFiltrados.slice(from, to + 1) // slice end is exclusive, so to + 1
@@ -338,13 +417,19 @@ export async function listarClientes(filtros?: {
         }
     }) || []
 
+    // DEBUG: Verificar que activo está presente
+    if (dataFinal.length > 0) {
+        console.log('[DEBUG listarClientes] filtro:', filtros?.estado, 'activo del primero:', dataFinal[0].activo, 'nombre:', dataFinal[0].nombre_completo?.slice(0, 20))
+    }
+
     return {
         meta: {
-            totalClientes: todosClientesBase.length,
+            totalClientes: clientesActivos.length, // Solo activos para KPI de cartera
             clientesCriticos,
             montoCritico,
             vencimientosSemana,
             montoPorVencer,
+            clientesSuspendidos, // NUEVO: Conteo de suspendidos
             pagination: {
                 page,
                 pageSize,
@@ -545,3 +630,32 @@ export async function eliminarCliente(id: string) {
 
     return { success: true, message: 'Cliente eliminado correctamente' }
 }
+
+/**
+ * Activar o desactivar un cliente
+ */
+export async function toggleClienteActivo(id: string, nuevoEstado: boolean) {
+    const supabase = await createClient()
+
+    // Actualizar solo el campo activo (no _modified que no existe en clientes)
+    const { data, error } = await supabase
+        .from('clientes')
+        .update({ activo: nuevoEstado })
+        .eq('id', id)
+        .select('id, activo')
+        .single()
+
+    if (error) {
+        console.error('[toggleClienteActivo] Error:', error)
+        throw error
+    }
+
+    console.log('[toggleClienteActivo] Updated cliente:', id, 'activo:', data?.activo)
+
+    return {
+        success: true,
+        message: nuevoEstado ? 'Cliente reactivado correctamente' : 'Cliente suspendido correctamente',
+        activo: data?.activo
+    }
+}
+

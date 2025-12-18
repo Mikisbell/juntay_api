@@ -30,8 +30,8 @@ export interface ClienteDocument {
     empresa_id: string | null
     created_at: string | null
     // Campos RxDB para sincronización
-    _deleted: boolean
-    _modified: string
+    isDeleted: boolean
+    updatedAt: string
 }
 
 export const clientesSchema: RxJsonSchema<ClienteDocument> = {
@@ -117,19 +117,19 @@ export const clientesSchema: RxJsonSchema<ClienteDocument> = {
             maxLength: 30
         },
         // Campos de sincronización RxDB
-        _deleted: {
+        isDeleted: {
             type: 'boolean'
         },
-        _modified: {
+        updatedAt: {
             type: 'string',
             maxLength: 30
         }
     },
-    required: ['id', 'numero_documento', 'tipo_documento', 'activo', '_deleted', '_modified'],
+    required: ['id', 'numero_documento', 'tipo_documento', 'activo', 'isDeleted', 'updatedAt'],
     indexes: [
         'numero_documento',
         'activo',
-        '_modified'
+        'updatedAt'
     ],
     // 🔒 Campos que serán encriptados en IndexedDB
     encrypted: [

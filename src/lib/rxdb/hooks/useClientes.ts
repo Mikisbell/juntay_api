@@ -30,9 +30,9 @@ export function useClientesLocales() {
             .find({
                 selector: {
                     activo: true,
-                    _deleted: false
+                    isDeleted: false
                 },
-                sort: [{ _modified: 'desc' }]
+                sort: [{ updatedAt: 'desc' }]
             })
             .$.subscribe({
                 next: (docs: any[]) => {
@@ -71,7 +71,7 @@ export function useClientePorDocumento(numeroDocumento: string | null) {
             .findOne({
                 selector: {
                     numero_documento: numeroDocumento,
-                    _deleted: false
+                    isDeleted: false
                 }
             })
             .$.subscribe({
@@ -98,7 +98,7 @@ export function useCrearClienteLocal() {
     const [isCreating, setIsCreating] = useState(false)
     const [error, setError] = useState<Error | null>(null)
 
-    const crearCliente = useCallback(async (data: Omit<ClienteDocument, 'id' | '_deleted' | '_modified'>) => {
+    const crearCliente = useCallback(async (data: Omit<ClienteDocument, 'id' | 'isDeleted' | 'updatedAt'>) => {
         if (!isDatabaseReady()) {
             throw new Error('Base de datos local no disponible')
         }
@@ -112,8 +112,8 @@ export function useCrearClienteLocal() {
                 id: crypto.randomUUID(),
                 ...data,
                 activo: data.activo ?? true,
-                _deleted: false,
-                _modified: new Date().toISOString()
+                isDeleted: false,
+                updatedAt: new Date().toISOString()
             }
 
             await db.clientes.insert(nuevoCliente)
@@ -152,7 +152,7 @@ export function useBuscarClientes(query: string) {
         const subscription = db.clientes
             .find({
                 selector: {
-                    _deleted: false,
+                    isDeleted: false,
                     activo: true
                 }
             })

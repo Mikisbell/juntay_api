@@ -18,7 +18,7 @@ import { obtenerEstadoCaja } from '@/lib/actions/caja-actions'
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { DynamicBreadcrumb } from "@/components/layout/DynamicBreadcrumb"
-import { CommandMenu } from "@/components/dashboard/CommandMenu"
+import { CommandPalette, useCommandPalette } from "@/components/CommandPalette"
 import {
     Tooltip,
     TooltipContent,
@@ -28,6 +28,7 @@ import {
 
 export function DashboardHeader() {
     const router = useRouter()
+    const { isOpen: isPaletteOpen, open: openPalette, close: closePalette } = useCommandPalette()
 
     // Fetch real caja status
     const { data: caja } = useQuery({
@@ -186,8 +187,8 @@ export function DashboardHeader() {
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                {/* 3. Herramientas y Menú */}
-                <CommandMenu />
+                {/* 3. Command Palette */}
+                <CommandPalette isOpen={isPaletteOpen} onClose={closePalette} />
             </div>
         </header>
     )
