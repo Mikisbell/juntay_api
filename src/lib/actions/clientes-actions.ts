@@ -680,41 +680,31 @@ export async function getClientePagosHistorial(clienteId: string, limite: number
     const codigosMap = new Map(creditos.map(c => [c.id, c.codigo_credito]))
 
     // Obtener todos los pagos de esos créditos
+    // NOTA: Columnas pueden variar según schema - usando solo las básicas
     const { data: pagos, error } = await supabase
         .from('pagos')
-        .select(`
-            id,
-            credito_id,
-            monto_total,
-            monto_capital,
-            monto_interes,
-            monto_mora,
-            metodo_pago,
-            fecha_pago,
-            created_at,
-            anulado
-        `)
+        .select('*')
         .in('credito_id', creditoIds)
-        .eq('anulado', false)
         .order('fecha_pago', { ascending: false })
         .limit(limite)
 
     if (error) {
-        console.error('[getClientePagosHistorial] Error:', error)
+        console.error('[getClientePagosHistorial] Error:', error.message, error.code, error.details)
         return []
     }
 
-    // Mapear con código de crédito
-    return (pagos || []).map(p => ({
+    // Mapear con código de crédito - manejar columnas opcionales
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (pagos || []).filter((p: any) => !p.anulado).map((p: any) => ({
         id: p.id,
         credito_id: p.credito_id,
         codigo_credito: codigosMap.get(p.credito_id) || 'N/A',
-        monto_total: Number(p.monto_total),
+        monto_total: Number(p.monto_total || 0),
         monto_capital: Number(p.monto_capital || 0),
         monto_interes: Number(p.monto_interes || 0),
         monto_mora: Number(p.monto_mora || 0),
-        metodo_pago: p.metodo_pago,
-        fecha_pago: p.fecha_pago,
+        metodo_pago: p.metodo_pago || 'Efectivo',
+        fecha_pago: p.fecha_pago || p.created_at,
         created_at: p.created_at
     }))
 }
