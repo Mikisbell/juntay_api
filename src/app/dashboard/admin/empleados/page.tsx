@@ -1,7 +1,6 @@
-
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,13 +10,19 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { UserPlus, Users, Briefcase, Shield, Calculator, Eye, Mail, MoreHorizontal, Pencil, Ban, CheckCircle, RotateCcw, Phone, AlertCircle, PauseCircle, XCircle } from 'lucide-react'
+import {
+    UserPlus, Users, Briefcase, Shield, Calculator, Eye, Mail, MoreHorizontal,
+    Pencil, Ban, CheckCircle, RotateCcw, Phone, AlertCircle, PauseCircle, XCircle,
+    Search, UserX, Clock, MessageCircle
+} from 'lucide-react'
 import { listarEmpleados, crearEmpleado, actualizarEmpleado, darDeBajaEmpleado, reactivarEmpleado, type EmpleadoCompleto, type EstadoEmpleado } from '@/lib/actions/empleados-actions'
 import { invitarEmpleado } from '@/lib/actions/auth-empleados-actions'
 import { toast } from 'sonner'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Textarea } from '@/components/ui/textarea'
 import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from '@/lib/utils'
 
 const CARGOS = {
     cajero: { label: 'Cajero', icon: Calculator, color: 'bg-emerald-500' },
@@ -35,15 +40,20 @@ const ESTADOS: Record<EstadoEmpleado, { label: string; icon: typeof CheckCircle;
 
 const PARENTESCOS = ['Esposa/o', 'Padre', 'Madre', 'Hermano/a', 'Hijo/a', 'Tío/a', 'Otro']
 
+type FilterTab = 'todos' | 'activos' | 'licencia' | 'suspendidos' | 'baja' | 'sin_acceso'
+
 export default function EmpleadosPage() {
     const [empleados, setEmpleados] = useState<EmpleadoCompleto[]>([])
     const [loading, setLoading] = useState(true)
+    const [searchQuery, setSearchQuery] = useState('')
+    const [activeFilter, setActiveFilter] = useState<FilterTab>('todos')
 
     // Create/Edit Dialog State
     const [dialogOpen, setDialogOpen] = useState(false)
     const [isEditing, setIsEditing] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editingPersonaId, setEditingPersonaId] = useState<string | null>(null)
+    const [formTab, setFormTab] = useState('personal')
 
     const [formData, setFormData] = useState({
         tipo_documento: 'DNI',
@@ -56,7 +66,6 @@ export default function EmpleadosPage() {
         telefono_secundario: '',
         email: '',
         direccion: '',
-        // KYE Fields
         estado: 'ACTIVO' as EstadoEmpleado,
         motivo_estado: '',
         nombre_contacto_emergencia: '',
@@ -80,6 +89,69 @@ export default function EmpleadosPage() {
         }
     }
 
+    // Computed stats
+    const stats = useMemo(() => {
+        const activos = empleados.filter(e => e.activo && e.estado === 'ACTIVO')
+        const sinAcceso = empleados.filter(e => e.activo && !e.user_id)
+        const enLicencia = empleados.filter(e => e.estado === 'LICENCIA')
+        const suspendidos = empleados.filter(e => e.estado === 'SUSPENDIDO')
+
+        return {
+            total: empleados.length,
+            activos: activos.length,
+            sinAcceso: sinAcceso.length,
+            enLicencia: enLicencia.length,
+            suspendidos: suspendidos.length,
+            baja: empleados.filter(e => e.estado === 'BAJA').length
+        }
+    }, [empleados])
+
+    // Filtered empleados
+    const filteredEmpleados = useMemo(() => {
+        let result = empleados
+
+        // Apply filter tab
+        switch (activeFilter) {
+            case 'activos':
+                result = result.filter(e => e.activo && e.estado === 'ACTIVO')
+                break
+            case 'licencia':
+                result = result.filter(e => e.estado === 'LICENCIA')
+                break
+            case 'suspendidos':
+                result = result.filter(e => e.estado === 'SUSPENDIDO')
+                break
+            case 'baja':
+                result = result.filter(e => e.estado === 'BAJA')
+                break
+            case 'sin_acceso':
+                result = result.filter(e => e.activo && !e.user_id)
+                break
+        }
+
+        // Apply search
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase()
+            result = result.filter(e =>
+                e.nombre_completo.toLowerCase().includes(query) ||
+                e.numero_documento.includes(query) ||
+                e.email?.toLowerCase().includes(query) ||
+                e.telefono_principal?.includes(query)
+            )
+        }
+
+        return result
+    }, [empleados, activeFilter, searchQuery])
+
+    // Row styling based on status
+    const getRowClass = (emp: EmpleadoCompleto) => {
+        if (emp.estado === 'BAJA') return 'bg-slate-50 opacity-60'
+        if (emp.estado === 'SUSPENDIDO') return 'bg-red-50/50'
+        if (emp.estado === 'LICENCIA') return 'bg-amber-50/50'
+        if (emp.activo && !emp.user_id) return 'bg-yellow-50/50 border-l-4 border-l-yellow-400'
+        return ''
+    }
+
     const resetForm = () => {
         setFormData({
             tipo_documento: 'DNI',
@@ -101,6 +173,7 @@ export default function EmpleadosPage() {
         setIsEditing(false)
         setEditingId(null)
         setEditingPersonaId(null)
+        setFormTab('personal')
     }
 
     const handleEditClick = (emp: EmpleadoCompleto) => {
@@ -132,11 +205,9 @@ export default function EmpleadosPage() {
 
         try {
             if (isEditing && editingId && editingPersonaId) {
-                // Update Logic
                 await actualizarEmpleado(editingId, editingPersonaId, formData)
                 toast.success('Empleado actualizado exitosamente')
             } else {
-                // Create Logic
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 await crearEmpleado(formData as any)
                 toast.success('Empleado registrado exitosamente')
@@ -161,7 +232,7 @@ export default function EmpleadosPage() {
                 toast.success('Empleado dado de baja')
             }
             cargarEmpleados()
-        } catch (error) {
+        } catch {
             toast.error('Error al cambiar estado')
         }
     }
@@ -174,7 +245,6 @@ export default function EmpleadosPage() {
         try {
             const result = await invitarEmpleado(empleadoId, email)
             toast.success(result.message)
-            toast.success(result.message)
         } catch (error: unknown) {
             const msg = error instanceof Error ? error.message : 'Error al enviar invitación'
             toast.error(msg)
@@ -183,10 +253,11 @@ export default function EmpleadosPage() {
 
     return (
         <div className="space-y-6 animate-in-fade-slide">
+            {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Gestión de Talento</h1>
-                    <p className="text-muted-foreground">Administración centralizada del personal y accesos.</p>
+                    <p className="text-muted-foreground">Administración del personal y accesos al sistema.</p>
                 </div>
 
                 <Dialog open={dialogOpen} onOpenChange={(open) => {
@@ -203,249 +274,386 @@ export default function EmpleadosPage() {
                         <DialogHeader>
                             <DialogTitle>{isEditing ? 'Editar Empleado' : 'Registrar Nuevo Empleado'}</DialogTitle>
                         </DialogHeader>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Tipo Documento</Label>
-                                    <Select
-                                        value={formData.tipo_documento}
-                                        onValueChange={(v) => setFormData({ ...formData, tipo_documento: v })}
-                                        disabled={isEditing}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="DNI">DNI</SelectItem>
-                                            <SelectItem value="CE">CE</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Número Documento *</Label>
-                                    <Input
-                                        value={formData.numero_documento}
-                                        onChange={(e) => setFormData({ ...formData, numero_documento: e.target.value })}
-                                        required
-                                        disabled={isEditing}
-                                    />
-                                </div>
-                            </div>
 
-                            <div className="space-y-2">
-                                <Label>Nombres *</Label>
-                                <Input
-                                    value={formData.nombres}
-                                    onChange={(e) => setFormData({ ...formData, nombres: e.target.value })}
-                                    required
-                                />
-                            </div>
+                        {/* Tabbed Form */}
+                        <Tabs value={formTab} onValueChange={setFormTab} className="w-full">
+                            <TabsList className="grid w-full grid-cols-3">
+                                <TabsTrigger value="personal">👤 Personal</TabsTrigger>
+                                <TabsTrigger value="laboral">💼 Laboral</TabsTrigger>
+                                <TabsTrigger value="emergencia">🆘 Emergencia</TabsTrigger>
+                            </TabsList>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Apellido Paterno *</Label>
-                                    <Input
-                                        value={formData.apellido_paterno}
-                                        onChange={(e) => setFormData({ ...formData, apellido_paterno: e.target.value })}
-                                        required
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Apellido Materno *</Label>
-                                    <Input
-                                        value={formData.apellido_materno}
-                                        onChange={(e) => setFormData({ ...formData, apellido_materno: e.target.value })}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Cargo (Rol en Sistema) *</Label>
-                                <Select
-                                    value={formData.cargo}
-                                    onValueChange={(v) => setFormData({ ...formData, cargo: v })}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {Object.entries(CARGOS).map(([key, { label }]) => (
-                                            <SelectItem key={key} value={key}>{label}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Teléfono Principal</Label>
-                                    <Input
-                                        value={formData.telefono}
-                                        onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
-                                        placeholder="Ej: 987654321"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Teléfono Secundario (Referencia)</Label>
-                                    <Input
-                                        value={formData.telefono_secundario}
-                                        onChange={(e) => setFormData({ ...formData, telefono_secundario: e.target.value })}
-                                        placeholder="Familiar o Emergencia"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Email Corporativo</Label>
-                                    <Input
-                                        type="email"
-                                        value={formData.email}
-                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Dirección</Label>
-                                    <Input
-                                        value={formData.direccion}
-                                        onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Estado del Empleado (Solo en edición) */}
-                            {isEditing && (
-                                <>
-                                    <Separator className="my-4" />
-                                    <div className="space-y-4">
-                                        <h4 className="font-semibold text-slate-700 flex items-center gap-2">
-                                            <AlertCircle className="w-4 h-4" /> Estado del Empleado
-                                        </h4>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <Label>Estado</Label>
-                                                <Select
-                                                    value={formData.estado}
-                                                    onValueChange={(v) => setFormData({ ...formData, estado: v as EstadoEmpleado })}
-                                                >
-                                                    <SelectTrigger>
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {Object.entries(ESTADOS).map(([key, { label }]) => (
-                                                            <SelectItem key={key} value={key}>{label}</SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            {formData.estado !== 'ACTIVO' && (
-                                                <div className="space-y-2">
-                                                    <Label>Motivo</Label>
-                                                    <Textarea
-                                                        value={formData.motivo_estado}
-                                                        onChange={(e) => setFormData({ ...formData, motivo_estado: e.target.value })}
-                                                        placeholder="Razón del estado (licencia médica, suspensión, etc.)"
-                                                        className="h-20"
-                                                    />
-                                                </div>
-                                            )}
+                            <form onSubmit={handleSubmit} className="mt-4">
+                                <TabsContent value="personal" className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Tipo Documento</Label>
+                                            <Select
+                                                value={formData.tipo_documento}
+                                                onValueChange={(v) => setFormData({ ...formData, tipo_documento: v })}
+                                                disabled={isEditing}
+                                            >
+                                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="DNI">DNI</SelectItem>
+                                                    <SelectItem value="CE">CE</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Número Documento *</Label>
+                                            <Input
+                                                value={formData.numero_documento}
+                                                onChange={(e) => setFormData({ ...formData, numero_documento: e.target.value })}
+                                                required
+                                                disabled={isEditing}
+                                            />
                                         </div>
                                     </div>
-                                </>
-                            )}
 
-                            {/* Contacto de Emergencia */}
-                            <Separator className="my-4" />
-                            <div className="space-y-4">
-                                <h4 className="font-semibold text-slate-700 flex items-center gap-2">
-                                    <Phone className="w-4 h-4" /> Contacto de Emergencia
-                                </h4>
-                                <div className="grid grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label>Nombre Contacto</Label>
+                                        <Label>Nombres *</Label>
                                         <Input
-                                            value={formData.nombre_contacto_emergencia}
-                                            onChange={(e) => setFormData({ ...formData, nombre_contacto_emergencia: e.target.value })}
-                                            placeholder="Nombre completo"
+                                            value={formData.nombres}
+                                            onChange={(e) => setFormData({ ...formData, nombres: e.target.value })}
+                                            required
                                         />
                                     </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Apellido Paterno *</Label>
+                                            <Input
+                                                value={formData.apellido_paterno}
+                                                onChange={(e) => setFormData({ ...formData, apellido_paterno: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Apellido Materno *</Label>
+                                            <Input
+                                                value={formData.apellido_materno}
+                                                onChange={(e) => setFormData({ ...formData, apellido_materno: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-end">
+                                        <Button type="button" onClick={() => setFormTab('laboral')}>
+                                            Siguiente →
+                                        </Button>
+                                    </div>
+                                </TabsContent>
+
+                                <TabsContent value="laboral" className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label>Parentesco</Label>
+                                        <Label>Cargo (Rol en Sistema) *</Label>
                                         <Select
-                                            value={formData.parentesco_emergencia}
-                                            onValueChange={(v) => setFormData({ ...formData, parentesco_emergencia: v })}
+                                            value={formData.cargo}
+                                            onValueChange={(v) => setFormData({ ...formData, cargo: v })}
                                         >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Seleccionar..." />
-                                            </SelectTrigger>
+                                            <SelectTrigger><SelectValue /></SelectTrigger>
                                             <SelectContent>
-                                                {PARENTESCOS.map((p) => (
-                                                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                                                {Object.entries(CARGOS).map(([key, { label }]) => (
+                                                    <SelectItem key={key} value={key}>{label}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label>Teléfono Emergencia</Label>
-                                        <Input
-                                            value={formData.telefono_emergencia}
-                                            onChange={(e) => setFormData({ ...formData, telefono_emergencia: e.target.value })}
-                                            placeholder="987654321"
-                                            maxLength={9}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div className="flex justify-end gap-2 pt-2">
-                                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                                    Cancelar
-                                </Button>
-                                <Button type="submit" className="bg-slate-900 text-white">
-                                    {isEditing ? 'Guardar Cambios' : 'Registrar Empleado'}
-                                </Button>
-                            </div>
-                        </form>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Teléfono Principal</Label>
+                                            <Input
+                                                value={formData.telefono}
+                                                onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
+                                                placeholder="987654321"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Teléfono Secundario</Label>
+                                            <Input
+                                                value={formData.telefono_secundario}
+                                                onChange={(e) => setFormData({ ...formData, telefono_secundario: e.target.value })}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Email Corporativo</Label>
+                                            <Input
+                                                type="email"
+                                                value={formData.email}
+                                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Dirección</Label>
+                                            <Input
+                                                value={formData.direccion}
+                                                onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {isEditing && (
+                                        <>
+                                            <Separator />
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <Label>Estado del Empleado</Label>
+                                                    <Select
+                                                        value={formData.estado}
+                                                        onValueChange={(v) => setFormData({ ...formData, estado: v as EstadoEmpleado })}
+                                                    >
+                                                        <SelectTrigger><SelectValue /></SelectTrigger>
+                                                        <SelectContent>
+                                                            {Object.entries(ESTADOS).map(([key, { label }]) => (
+                                                                <SelectItem key={key} value={key}>{label}</SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                {formData.estado !== 'ACTIVO' && (
+                                                    <div className="space-y-2">
+                                                        <Label>Motivo</Label>
+                                                        <Textarea
+                                                            value={formData.motivo_estado}
+                                                            onChange={(e) => setFormData({ ...formData, motivo_estado: e.target.value })}
+                                                            placeholder="Razón del estado"
+                                                            className="h-20"
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+
+                                    <div className="flex justify-between">
+                                        <Button type="button" variant="outline" onClick={() => setFormTab('personal')}>
+                                            ← Anterior
+                                        </Button>
+                                        <Button type="button" onClick={() => setFormTab('emergencia')}>
+                                            Siguiente →
+                                        </Button>
+                                    </div>
+                                </TabsContent>
+
+                                <TabsContent value="emergencia" className="space-y-4">
+                                    <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
+                                        <h4 className="font-semibold text-orange-800 flex items-center gap-2 mb-3">
+                                            <Phone className="w-4 h-4" /> Contacto de Emergencia
+                                        </h4>
+                                        <div className="grid grid-cols-3 gap-4">
+                                            <div className="space-y-2">
+                                                <Label>Nombre Contacto</Label>
+                                                <Input
+                                                    value={formData.nombre_contacto_emergencia}
+                                                    onChange={(e) => setFormData({ ...formData, nombre_contacto_emergencia: e.target.value })}
+                                                    placeholder="Nombre completo"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Parentesco</Label>
+                                                <Select
+                                                    value={formData.parentesco_emergencia}
+                                                    onValueChange={(v) => setFormData({ ...formData, parentesco_emergencia: v })}
+                                                >
+                                                    <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
+                                                    <SelectContent>
+                                                        {PARENTESCOS.map((p) => (
+                                                            <SelectItem key={p} value={p}>{p}</SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Teléfono</Label>
+                                                <Input
+                                                    value={formData.telefono_emergencia}
+                                                    onChange={(e) => setFormData({ ...formData, telefono_emergencia: e.target.value })}
+                                                    placeholder="987654321"
+                                                    maxLength={9}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-between pt-4">
+                                        <Button type="button" variant="outline" onClick={() => setFormTab('laboral')}>
+                                            ← Anterior
+                                        </Button>
+                                        <div className="flex gap-2">
+                                            <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                                                Cancelar
+                                            </Button>
+                                            <Button type="submit" className="bg-slate-900 text-white">
+                                                {isEditing ? 'Guardar Cambios' : 'Registrar Empleado'}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </TabsContent>
+                            </form>
+                        </Tabs>
                     </DialogContent>
                 </Dialog>
             </div>
 
-            {/* KPI Cards */}
-            <div className="grid gap-4 md:grid-cols-4">
-                {Object.entries(CARGOS).map(([key, { label, icon: Icon, color }]) => {
-                    const count = empleados.filter(e => e.cargo === key && e.activo).length
-                    return (
-                        <Card key={key} className="glass-panel border-0 shadow-sm overflow-hidden">
-                            <CardContent className="p-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm font-medium text-muted-foreground">{label}s</p>
-                                        <h3 className="text-2xl font-bold">{count}</h3>
-                                    </div>
-                                    <div className={`p-3 rounded-xl ${color} bg-opacity-10`}>
-                                        <Icon className={`w-5 h-5 text-${color.replace('bg-', '')}`} />
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )
-                })}
+            {/* Smart KPI Cards */}
+            <div className="grid gap-4 md:grid-cols-5">
+                {/* Total activos */}
+                <Card className="border-0 shadow-sm bg-gradient-to-br from-slate-50 to-slate-100">
+                    <CardContent className="p-5">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Total Activo</p>
+                                <h3 className="text-3xl font-bold text-slate-800">{stats.activos}</h3>
+                            </div>
+                            <Users className="h-8 w-8 text-slate-400" />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Sin acceso - Actionable */}
+                <Card
+                    className={cn(
+                        "border-0 shadow-sm cursor-pointer transition-all hover:scale-105",
+                        stats.sinAcceso > 0
+                            ? "bg-gradient-to-br from-yellow-50 to-amber-100 border-yellow-300"
+                            : "bg-gradient-to-br from-emerald-50 to-emerald-100"
+                    )}
+                    onClick={() => setActiveFilter(stats.sinAcceso > 0 ? 'sin_acceso' : 'todos')}
+                >
+                    <CardContent className="p-5">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Sin Acceso</p>
+                                <h3 className={cn(
+                                    "text-3xl font-bold",
+                                    stats.sinAcceso > 0 ? "text-amber-700" : "text-emerald-700"
+                                )}>
+                                    {stats.sinAcceso}
+                                </h3>
+                                {stats.sinAcceso > 0 && (
+                                    <p className="text-xs text-amber-600 mt-1">Necesitan invitación →</p>
+                                )}
+                            </div>
+                            <UserX className={cn("h-8 w-8", stats.sinAcceso > 0 ? "text-amber-500" : "text-emerald-500")} />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* En licencia */}
+                <Card
+                    className="border-0 shadow-sm bg-gradient-to-br from-amber-50 to-orange-100 cursor-pointer hover:scale-105 transition-all"
+                    onClick={() => setActiveFilter('licencia')}
+                >
+                    <CardContent className="p-5">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">En Licencia</p>
+                                <h3 className="text-3xl font-bold text-amber-700">{stats.enLicencia}</h3>
+                            </div>
+                            <Clock className="h-8 w-8 text-amber-500" />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Suspendidos */}
+                <Card
+                    className="border-0 shadow-sm bg-gradient-to-br from-red-50 to-red-100 cursor-pointer hover:scale-105 transition-all"
+                    onClick={() => setActiveFilter('suspendidos')}
+                >
+                    <CardContent className="p-5">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Suspendidos</p>
+                                <h3 className="text-3xl font-bold text-red-700">{stats.suspendidos}</h3>
+                            </div>
+                            <AlertCircle className="h-8 w-8 text-red-500" />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Dados de baja */}
+                <Card
+                    className="border-0 shadow-sm bg-gradient-to-br from-slate-100 to-slate-200 cursor-pointer hover:scale-105 transition-all"
+                    onClick={() => setActiveFilter('baja')}
+                >
+                    <CardContent className="p-5">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Dados de Baja</p>
+                                <h3 className="text-3xl font-bold text-slate-600">{stats.baja}</h3>
+                            </div>
+                            <XCircle className="h-8 w-8 text-slate-400" />
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
 
-            <Card className="glass-panel border-0 shadow-md">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Users className="w-5 h-5" />
-                        Directorio de Personal
-                    </CardTitle>
+            {/* Search and Filters */}
+            <Card className="border-0 shadow-md">
+                <CardHeader className="pb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <CardTitle className="flex items-center gap-2">
+                            <Users className="w-5 h-5" />
+                            Directorio de Personal
+                            <Badge variant="secondary" className="ml-2">{filteredEmpleados.length}</Badge>
+                        </CardTitle>
+
+                        {/* Search Bar */}
+                        <div className="relative w-full sm:w-80">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <Input
+                                placeholder="Buscar por nombre, DNI, email..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-10"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Filter Tabs */}
+                    <div className="flex flex-wrap gap-2 mt-4">
+                        {[
+                            { key: 'todos', label: 'Todos', count: empleados.length },
+                            { key: 'activos', label: 'Activos', count: stats.activos },
+                            { key: 'sin_acceso', label: 'Sin Acceso', count: stats.sinAcceso },
+                            { key: 'licencia', label: 'En Licencia', count: stats.enLicencia },
+                            { key: 'suspendidos', label: 'Suspendidos', count: stats.suspendidos },
+                            { key: 'baja', label: 'Dados de Baja', count: stats.baja },
+                        ].map(({ key, label, count }) => (
+                            <Button
+                                key={key}
+                                variant={activeFilter === key ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setActiveFilter(key as FilterTab)}
+                                className={cn(
+                                    "gap-1.5",
+                                    activeFilter === key && "bg-slate-900"
+                                )}
+                            >
+                                {label}
+                                <Badge variant="secondary" className={cn(
+                                    "ml-1 text-xs",
+                                    activeFilter === key && "bg-white/20 text-white"
+                                )}>
+                                    {count}
+                                </Badge>
+                            </Button>
+                        ))}
+                    </div>
                 </CardHeader>
+
                 <CardContent>
                     {loading ? (
                         <div className="text-center py-8 text-muted-foreground">Cargando directorio...</div>
-                    ) : empleados.length === 0 ? (
+                    ) : filteredEmpleados.length === 0 ? (
                         <div className="text-center py-8 text-muted-foreground">
-                            No hay empleados registrados
+                            {searchQuery ? 'No se encontraron resultados' : 'No hay empleados en esta categoría'}
                         </div>
                     ) : (
                         <Table>
@@ -460,10 +668,16 @@ export default function EmpleadosPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {empleados.map((emp) => {
+                                {filteredEmpleados.map((emp) => {
                                     const CargoIcon = CARGOS[emp.cargo as keyof typeof CARGOS]?.icon || Briefcase
                                     return (
-                                        <TableRow key={emp.id} className="group hover:bg-slate-50 transition-colors">
+                                        <TableRow
+                                            key={emp.id}
+                                            className={cn(
+                                                "group transition-colors",
+                                                getRowClass(emp)
+                                            )}
+                                        >
                                             <TableCell>
                                                 <div className="flex items-center gap-3">
                                                     <Avatar className="h-9 w-9 border border-slate-200">
@@ -486,9 +700,22 @@ export default function EmpleadosPage() {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell>
-                                                <div className="flex flex-col text-sm">
-                                                    <span className="text-slate-600">{emp.email || '-'}</span>
-                                                    <span className="text-xs text-muted-foreground">{emp.telefono_principal || '-'}</span>
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-sm text-slate-600">{emp.email || '-'}</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xs text-muted-foreground">{emp.telefono_principal || '-'}</span>
+                                                        {emp.telefono_principal && (
+                                                            <a
+                                                                href={`https://wa.me/51${emp.telefono_principal.replace(/\D/g, '')}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-green-600 hover:text-green-700"
+                                                                title="Enviar WhatsApp"
+                                                            >
+                                                                <MessageCircle className="h-3.5 w-3.5" />
+                                                            </a>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
@@ -498,9 +725,22 @@ export default function EmpleadosPage() {
                                                         Habilitado
                                                     </div>
                                                 ) : (
-                                                    <div className="flex items-center gap-1.5 text-slate-400 text-xs">
+                                                    <div className="flex items-center gap-1.5 text-amber-600 text-xs font-medium">
                                                         <Ban className="w-3.5 h-3.5" />
                                                         Sin Usuario
+                                                        {emp.email && emp.activo && (
+                                                            <Button
+                                                                size="sm"
+                                                                variant="ghost"
+                                                                className="h-5 px-1.5 text-xs text-blue-600 hover:text-blue-700"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation()
+                                                                    handleInvitar(emp.id, emp.email!)
+                                                                }}
+                                                            >
+                                                                Invitar
+                                                            </Button>
+                                                        )}
                                                     </div>
                                                 )}
                                             </TableCell>
