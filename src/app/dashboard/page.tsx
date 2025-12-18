@@ -47,7 +47,7 @@ interface CarteraResumen {
 export default function DashboardPage() {
     const { isOpen: isPaletteOpen, close: closePalette } = useCommandPalette()
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
-    const { role: userRole, isLoading: roleLoading } = useUserRole()
+    const { role: userRole } = useUserRole()
 
     const [contratosUrgentes, setContratosUrgentes] = useState<ContratoUrgente[]>([])
     const [caja, setCaja] = useState<CajaStats | null>(null)
@@ -63,8 +63,6 @@ export default function DashboardPage() {
             if (!user) return
 
             const hoy = new Date()
-            const hoyStr = hoy.toISOString().split('T')[0]
-            const mananaStr = new Date(hoy.getTime() + 86400000).toISOString().split('T')[0]
             const semanaStr = new Date(hoy.getTime() + 7 * 86400000).toISOString().split('T')[0]
             const inicioHoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).toISOString()
 
