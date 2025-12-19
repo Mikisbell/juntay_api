@@ -23,7 +23,7 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [ ] KPIs principales (ingresos, cartera)
 - [ ] Gráfico de flujo de caja diario/semanal
 - [ ] Top 10 clientes más rentables
-- [ ] Alertas de cartera vencida
+- [x] Alertas de cartera vencida
 - [ ] Exportar reportes a Excel/PDF
 
 ### 3. Recibos Digitales
