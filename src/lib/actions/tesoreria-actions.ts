@@ -12,7 +12,6 @@ const _getServiceClient = () => {
         { auth: { persistSession: false } }
     )
 }
-}
 
 export async function obtenerEstadoBoveda() {
     const supabase = await createClient()
