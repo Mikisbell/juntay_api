@@ -192,3 +192,53 @@ export async function enviarRecordatorioCliente(
         return { success: false, error: 'Error de conexión' }
     }
 }
+
+// ============================================
+// HISTORIAL DE MENSAJES
+// ============================================
+
+/**
+ * Tipo para el historial de mensajes
+ */
+export interface MensajeHistorial {
+    id: string
+    credito_id: string | null
+    cliente_id: string
+    tipo_notificacion: string
+    mensaje: string
+    telefono_destino: string
+    enviado_por: string | null
+    estado: string
+    medio: string
+    created_at: string
+}
+
+/**
+ * Obtiene el historial de mensajes WhatsApp enviados a un cliente
+ */
+export async function obtenerHistorialMensajesCliente(clienteId: string): Promise<MensajeHistorial[]> {
+    if (!clienteId) {
+        return []
+    }
+
+    try {
+        const supabase = getServiceClient()
+
+        const { data, error } = await supabase
+            .from('notificaciones_enviadas')
+            .select('*')
+            .eq('cliente_id', clienteId)
+            .order('created_at', { ascending: false })
+            .limit(50)
+
+        if (error) {
+            console.error('Error obteniendo historial de mensajes:', error)
+            return []
+        }
+
+        return (data || []) as MensajeHistorial[]
+    } catch (error) {
+        console.error('Error en obtenerHistorialMensajesCliente:', error)
+        return []
+    }
+}

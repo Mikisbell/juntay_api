@@ -15,7 +15,7 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [ ] Mensaje el día del vencimiento
 - [ ] Mensaje 1 día después (mora)
 - [ ] Configuración de horarios de envío
-- [ ] Historial de mensajes enviados
+- [x] Historial de mensajes enviados
 
 ### 2. Dashboard Gerencial
 
