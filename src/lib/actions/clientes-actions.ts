@@ -700,10 +700,11 @@ export async function getClientePagosHistorial(clienteId: string, limite: number
         credito_id: p.credito_id,
         codigo_credito: codigosMap.get(p.credito_id) || 'N/A',
         monto_total: Number(p.monto_total || 0),
-        monto_capital: Number(p.monto_capital || 0),
-        monto_interes: Number(p.monto_interes || 0),
-        monto_mora: Number(p.monto_mora || 0),
-        metodo_pago: p.metodo_pago || 'Efectivo',
+        // Usar nombres correctos de DB: desglose_* (con fallback a monto_* por compatibilidad)
+        monto_capital: Number(p.desglose_capital || p.monto_capital || 0),
+        monto_interes: Number(p.desglose_interes || p.monto_interes || 0),
+        monto_mora: Number(p.desglose_mora || p.monto_mora || 0),
+        metodo_pago: p.metodo_pago || p.medio_pago || 'Efectivo',
         fecha_pago: p.fecha_pago || p.created_at,
         created_at: p.created_at
     }))
