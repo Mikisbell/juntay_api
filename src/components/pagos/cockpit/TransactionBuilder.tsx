@@ -9,11 +9,19 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { ModalidadInteres, calcularInteresFlexible, calcularDiasTranscurridos } from '@/lib/utils/interes-flexible'
 
+// Typed Contract interface for TransactionBuilder
+interface ContractForPayment {
+    id: string
+    monto_prestado: number | string
+    saldo_pendiente: number | string
+    tasa_interes?: number | string
+    created_at?: string
+    dias_transcurridos?: number
+}
+
 interface TransactionBuilderProps {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    selectedContracts: any[] // TODO: Typed Contract
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onProcessPayment: (data: any) => void
+    selectedContracts: ContractForPayment[]
+    onProcessPayment: (data: { intent: string; amount: string; contracts: string[]; metadata: { condonarInteres: boolean } }) => void
 }
 
 type PaymentIntent = 'RENOVAR' | 'AMORTIZAR' | 'LIQUIDAR' | 'PAGO_LIBRE'
@@ -40,7 +48,7 @@ export function TransactionBuilder({ selectedContracts, onProcessPayment }: Tran
             const diasTranscurridos = c.created_at
                 ? calcularDiasTranscurridos(c.created_at)
                 : (c.dias_transcurridos || 30)
-            const tasaInteres = c.tasa_interes || 20
+            const tasaInteres = Number(c.tasa_interes) || 20
             const montoPrestado = Number(c.monto_prestado) || 0
 
             // Calcular interés según modalidad seleccionada

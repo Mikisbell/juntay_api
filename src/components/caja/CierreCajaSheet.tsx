@@ -44,6 +44,7 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 interface Props {
     saldoEsperado: number
@@ -125,17 +126,16 @@ export function CierreCajaSheet({ saldoEsperado, cajaId }: Props) {
             const resp = await cerrarCajaAction(montoFinal, observaciones || undefined)
 
             if (resp.success) {
-                // Invalidar cache y refrescar
+                toast.success('Caja cerrada correctamente')
                 await queryClient.invalidateQueries({ queryKey: ['caja'] })
                 setOpen(false)
                 router.refresh()
             } else {
-                // TODO: Usar toast en lugar de alert
-                alert('Error: ' + resp.error)
+                toast.error('Error: ' + resp.error)
             }
         } catch (e) {
             console.error(e)
-            alert('Error inesperado al cerrar caja')
+            toast.error('Error inesperado al cerrar caja')
         } finally {
             setLoading(false)
             setShowConfirm(false)

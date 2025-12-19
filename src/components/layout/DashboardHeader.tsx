@@ -38,12 +38,40 @@ export function DashboardHeader() {
         staleTime: 0
     })
 
-    // TODO: Obtener datos reales del usuario desde sesión
-    const usuario = {
-        nombre: 'Administrador',
-        email: 'admin@juntay.com',
-        rol: 'AD'
-    }
+    // Fetch real user data from session
+    const [usuario, setUsuario] = useState({
+        nombre: 'Cargando...',
+        email: '',
+        rol: ''
+    })
+
+    useEffect(() => {
+        // Get user from localStorage auth or session
+        const getUserFromSession = async () => {
+            try {
+                const { createClient } = await import('@/lib/supabase/client')
+                const supabase = createClient()
+                const { data: { user } } = await supabase.auth.getUser()
+                if (user) {
+                    // Get user info - simplified to avoid type issues with complex joins
+                    const { data: userData } = await supabase
+                        .from('usuarios')
+                        .select('rol')
+                        .eq('id', user.id)
+                        .single()
+
+                    setUsuario({
+                        nombre: user.email?.split('@')[0] || 'Usuario',
+                        email: user.email || '',
+                        rol: (userData as { rol?: string } | null)?.rol || 'US'
+                    })
+                }
+            } catch (e) {
+                console.error('Error fetching user:', e)
+            }
+        }
+        getUserFromSession()
+    }, [])
 
     const handleLogout = () => {
         router.push('/login')

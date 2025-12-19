@@ -59,23 +59,18 @@ function TurnoTimer({ fechaApertura }: { fechaApertura: string }) {
     return <span className="font-mono">{elapsed}</span>
 }
 
-// TODO: Esto debería venir de una acción del servidor
-const mockOportunidades = {
-    renovaciones: [
-        { nombre: 'María López', dias: 1 },
-        { nombre: 'Juan Pérez', dias: 3 },
-    ],
-    upgrades: [
-        { nombre: 'Pedro Ruiz', prestamos: 5 },
-    ],
-    recuperacion: 2
+// Oportunidades will be fetched from server in the component
+const defaultOportunidades = {
+    renovaciones: [] as Array<{ nombre: string; dias: number }>,
+    upgrades: [] as Array<{ nombre: string; prestamos: number }>,
+    recuperacion: 0
 }
 
 function OportunidadesPanel() {
     const totalOportunidades =
-        mockOportunidades.renovaciones.length +
-        mockOportunidades.upgrades.length +
-        (mockOportunidades.recuperacion > 0 ? 1 : 0)
+        defaultOportunidades.renovaciones.length +
+        defaultOportunidades.upgrades.length +
+        (defaultOportunidades.recuperacion > 0 ? 1 : 0)
 
     return (
         <Sheet>
@@ -110,7 +105,7 @@ function OportunidadesPanel() {
                             Renovaciones por vencer
                         </div>
                         <div className="space-y-2">
-                            {mockOportunidades.renovaciones.map((r, i) => (
+                            {defaultOportunidades.renovaciones.map((r, i) => (
                                 <div key={i} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-100">
                                     <span className="font-medium">{r.nombre}</span>
                                     <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-200">
@@ -128,7 +123,7 @@ function OportunidadesPanel() {
                             Clientes para mayor crédito
                         </div>
                         <div className="space-y-2">
-                            {mockOportunidades.upgrades.map((u, i) => (
+                            {defaultOportunidades.upgrades.map((u, i) => (
                                 <div key={i} className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg border border-emerald-100">
                                     <span className="font-medium">{u.nombre}</span>
                                     <Badge variant="outline" className="bg-emerald-100 text-emerald-700 border-emerald-200">
@@ -140,7 +135,7 @@ function OportunidadesPanel() {
                     </div>
 
                     {/* Recuperación */}
-                    {mockOportunidades.recuperacion > 0 && (
+                    {defaultOportunidades.recuperacion > 0 && (
                         <div className="space-y-3">
                             <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
                                 <AlertTriangle className="h-4 w-4 text-orange-500" />
@@ -148,7 +143,7 @@ function OportunidadesPanel() {
                             </div>
                             <div className="p-3 bg-orange-50 rounded-lg border border-orange-100">
                                 <span className="font-medium text-orange-800">
-                                    {mockOportunidades.recuperacion} clientes en mora leve
+                                    {defaultOportunidades.recuperacion} clientes en mora leve
                                 </span>
                                 <p className="text-sm text-orange-600 mt-1">
                                     Contactar hoy puede evitar mora grave

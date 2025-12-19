@@ -61,8 +61,33 @@ export function ReporteMensual({ mes, datos, datosMesAnterior }: ReporteMensualP
     const cambiosIntereses = calcularCambio(datos.interesesGanados, datosMesAnterior?.interesesGanados)
 
     const handleExportarExcel = () => {
-        // TODO: Implementar exportación a Excel
-        alert('Funcionalidad de exportación en desarrollo')
+        // Generate CSV content for Excel
+        const csvContent = [
+            ['Reporte Mensual', format(mes, 'MMMM yyyy', { locale: es })],
+            [],
+            ['Métrica', 'Valor'],
+            ['Créditos Otorgados', datos.creditosOtorgados.toString()],
+            ['Monto Total Prestado', `S/ ${datos.montoTotalPrestado.toLocaleString()}`],
+            ['Créditos Pagados', datos.creditosPagados.toString()],
+            ['Monto Recuperado', `S/ ${datos.montoRecuperado.toLocaleString()}`],
+            ['Intereses Ganados', `S/ ${datos.interesesGanados.toLocaleString()}`],
+            ['Créditos Vencidos', datos.creditosVencidos.toString()],
+            ['Prendas Ejecutadas', datos.prendasEjecutadas.toString()],
+            ['Venta Prendas', `S/ ${datos.ventaPrendas.toLocaleString()}`],
+            ['Clientes Nuevos', datos.clientesNuevos.toString()],
+            ['Clientes Recurrentes', datos.clientesRecurrentes.toString()],
+            [],
+            ['Tasa de Recuperación', `${tasaRecuperacion.toFixed(1)}%`],
+            ['Ticket Promedio', `S/ ${ticketPromedio.toFixed(0)}`],
+        ].map(row => row.join(',')).join('\n')
+
+        // Create and download file
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
+        const link = document.createElement('a')
+        link.href = URL.createObjectURL(blob)
+        link.download = `reporte_${format(mes, 'yyyy-MM')}.csv`
+        link.click()
+        URL.revokeObjectURL(link.href)
     }
 
     return (
