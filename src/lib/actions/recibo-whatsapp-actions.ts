@@ -9,6 +9,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { sendFile } from '@/lib/actions/waha-actions'
 import { generarNumeroRecibo, type DatosRecibo } from '@/lib/utils/recibo-pdf'
+import { generarHashRecibo } from '@/lib/utils/recibo-hash'
 import { jsPDF } from 'jspdf'
 
 /**
@@ -212,6 +213,8 @@ Gracias por tu preferencia.
             numeroRecibo,
             codigoCredito: datos.codigoCredito,
             montoPagado: datos.montoPagado,
+            clienteNombre: datos.clienteNombre,
+            fecha,
             exito: resultado.success,
             error: resultado.error
         })
@@ -237,6 +240,8 @@ Gracias por tu preferencia.
             numeroRecibo,
             codigoCredito: datos.codigoCredito,
             montoPagado: datos.montoPagado,
+            clienteNombre: datos.clienteNombre,
+            fecha,
             exito: false,
             error: error instanceof Error ? error.message : 'Error desconocido'
         })
@@ -259,6 +264,8 @@ async function registrarEnvioRecibo(datos: {
     numeroRecibo: string
     codigoCredito: string
     montoPagado: number
+    clienteNombre: string
+    fecha: Date
     exito: boolean
     error?: string
 }) {
@@ -279,6 +286,13 @@ async function registrarEnvioRecibo(datos: {
                 numero_recibo: datos.numeroRecibo,
                 codigo_credito: datos.codigoCredito,
                 monto_pagado: datos.montoPagado,
+                cliente_nombre: datos.clienteNombre,
+                qr_hash: generarHashRecibo({
+                    numeroRecibo: datos.numeroRecibo,
+                    codigoCredito: datos.codigoCredito,
+                    montoPagado: datos.montoPagado,
+                    fecha: datos.fecha
+                }),
                 error: datos.error || null
             }
         })

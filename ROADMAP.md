@@ -26,11 +26,11 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [x] Alertas de cartera vencida
 - [ ] Exportar reportes a Excel/PDF
 
-### 3. Recibos Digitales
+### 3. Recibos Digitales ✅ COMPLETADO
 
 - [x] Generar PDF de recibo al pagar
 - [x] Enviar por WhatsApp automáticamente
-- [ ] Código QR de verificación
+- [x] Código QR de verificación
 - [x] Historial de recibos por cliente
 
 ---
