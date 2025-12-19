@@ -1,5 +1,5 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { LucideIcon, CheckCircle, AlertTriangle, Info, XCircle } from 'lucide-react'
+import { CheckCircle, AlertTriangle, Info, XCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface StatusAlertProps {

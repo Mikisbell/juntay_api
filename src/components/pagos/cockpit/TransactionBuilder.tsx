@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { CreditCard, RefreshCw, Archive, DollarSign, Calculator, Lock, Clock, Calendar } from 'lucide-react'
+import { CreditCard, RefreshCw, Archive, DollarSign, Calculator, Lock, Clock } from 'lucide-react'
 import { dinero, sumar, formatearSoles } from '@/lib/utils/decimal'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'

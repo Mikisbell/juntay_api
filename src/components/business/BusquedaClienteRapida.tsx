@@ -112,7 +112,7 @@ export function BusquedaClienteRapida({ onClienteSeleccionado, autoFocus = true 
         }
     }
 
-    const getEstadoBadge = (estado: string) => {
+    const _getEstadoBadge = (estado: string) => {
         const config: Record<string, { label: string; className: string }> = {
             NUEVO: { label: 'Cliente Nuevo', className: 'bg-blue-100 text-blue-800' },
             BUEN_CLIENTE: { label: 'Buen Cliente', className: 'bg-emerald-100 text-emerald-800' },

@@ -481,7 +481,7 @@ export default function DashboardPage() {
                                         const heightPct = (day.monto / maxMonto) * 100
                                         const isToday = i === 6
                                         const date = new Date(day.date + 'T12:00:00')
-                                        const dayName = date.toLocaleDateString('es-PE', { weekday: 'short' })
+                                        const _dayName = date.toLocaleDateString('es-PE', { weekday: 'short' })
 
                                         return (
                                             <div key={day.date} className="flex-1 flex flex-col items-center">

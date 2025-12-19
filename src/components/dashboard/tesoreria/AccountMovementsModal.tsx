@@ -6,7 +6,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Loader2 } from "lucide-react"
 import { obtenerMovimientosCuenta } from "@/lib/actions/tesoreria-actions"
 import { format } from "date-fns"
-import { es } from "date-fns/locale"
 
 // Definimos un tipo locaL o importamos
 interface Movimiento {

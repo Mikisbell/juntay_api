@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Sparkles, TrendingUp, Calendar, AlertCircle, Lightbulb } from 'lucide-react'
+import { Sparkles, TrendingUp, AlertCircle, Lightbulb } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 

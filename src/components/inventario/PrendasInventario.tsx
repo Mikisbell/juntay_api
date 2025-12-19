@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Package, Search, DollarSign, Calendar, Tag, Store } from 'lucide-react'
-import { es } from 'date-fns/locale'
 
 interface PrendaInventario {
     id: string

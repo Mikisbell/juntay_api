@@ -44,7 +44,7 @@ export function RxDBProvider({ children }: RxDBProviderProps) {
     const [isReady, setIsReady] = useState(false)
     const [isOnline, setIsOnline] = useState(true)
     const [isSyncing, setIsSyncing] = useState(false)
-    const [pendingChanges, setPendingChanges] = useState(0)
+    const [pendingChanges, _setPendingChanges] = useState(0)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [db, setDb] = useState<any | null>(null)
     const [initError, setInitError] = useState<string | null>(null)

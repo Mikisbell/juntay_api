@@ -28,7 +28,7 @@ import {
 
 export function DashboardHeader() {
     const router = useRouter()
-    const { isOpen: isPaletteOpen, open: openPalette, close: closePalette } = useCommandPalette()
+    const { isOpen: isPaletteOpen, open: _openPalette, close: closePalette } = useCommandPalette()
 
     // Fetch real caja status
     const { data: caja } = useQuery({

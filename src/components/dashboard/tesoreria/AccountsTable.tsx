@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Wallet, Landmark, Smartphone, MoreHorizontal, ArrowUpRight, Star } from "lucide-react"
+import { Wallet, Landmark, Smartphone, MoreHorizontal, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,

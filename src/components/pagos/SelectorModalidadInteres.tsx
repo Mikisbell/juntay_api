@@ -23,7 +23,7 @@ type Props = {
 
 export function SelectorModalidadInteres({
     montoPrestado,
-    saldoPendiente,
+    saldoPendiente: _saldoPendiente,
     tasaMensual,
     diasTranscurridos,
     onModalidadChange,
@@ -62,8 +62,8 @@ export function SelectorModalidadInteres({
                 {/* Opción Por Días */}
                 <Card
                     className={`p-4 cursor-pointer transition-all hover:shadow-md ${modalidad === 'dias'
-                            ? 'ring-2 ring-primary bg-primary/5'
-                            : 'hover:bg-muted/50'
+                        ? 'ring-2 ring-primary bg-primary/5'
+                        : 'hover:bg-muted/50'
                         }`}
                     onClick={() => handleSeleccion('dias')}
                 >
@@ -102,8 +102,8 @@ export function SelectorModalidadInteres({
                 {/* Opción Por Semanas */}
                 <Card
                     className={`p-4 cursor-pointer transition-all hover:shadow-md ${modalidad === 'semanas'
-                            ? 'ring-2 ring-primary bg-primary/5'
-                            : 'hover:bg-muted/50'
+                        ? 'ring-2 ring-primary bg-primary/5'
+                        : 'hover:bg-muted/50'
                         }`}
                     onClick={() => handleSeleccion('semanas')}
                 >

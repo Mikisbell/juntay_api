@@ -1,8 +1,7 @@
 
 'use client'
 
-import { Card } from "@/components/ui/card"
-import { DollarSign, TrendingUp, Wallet, Landmark } from "lucide-react"
+import { TrendingUp, Wallet, Landmark } from "lucide-react"
 
 interface TreasuryStatsProps {
     totalCapital: number

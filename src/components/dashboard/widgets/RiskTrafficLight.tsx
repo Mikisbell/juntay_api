@@ -1,6 +1,5 @@
 'use client'
 
-import { CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
 import { AlertTriangle, CheckCircle2, Clock, ArrowUpRight, TrendingUp, Activity } from 'lucide-react'
@@ -56,7 +55,7 @@ export function RiskTrafficLight() {
         )
     }
 
-    const totalCartera = vigente.amount + porVencer.amount + vencido.amount
+    const _totalCartera = vigente.amount + porVencer.amount + vencido.amount
 
     return (
         <div className="grid grid-cols-3 gap-4">

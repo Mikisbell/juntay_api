@@ -52,7 +52,7 @@ export default function TasacionStep() {
         setNumeroCuotas,
         frecuenciaPago,
         setFrecuenciaPago,
-        plazo
+        plazo: _plazo
     } = useCotizador()
 
     const form = useForm<TasacionFormData>({
@@ -265,10 +265,10 @@ export default function TasacionStep() {
 
     // Interés mensual completo (para mostrar en resumen)
     const interesesMensual = monto * (tasaMensual / 100)
-    const totalPagarMensual = monto + interesesMensual
+    const _totalPagarMensual = monto + interesesMensual
 
     // Cuota por periodo (asumiendo pago único al final del periodo seleccionado)
-    const cuotaPorPeriodo = totalPagarPorPeriodo
+    const _cuotaPorPeriodo = totalPagarPorPeriodo
 
     return (
         <Form {...form}>

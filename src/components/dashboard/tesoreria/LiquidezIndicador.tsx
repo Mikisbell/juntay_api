@@ -49,7 +49,7 @@ const alertaConfig = {
 export function LiquidezIndicador({
     efectivoDisponible,
     digitalDisponible,
-    totalLiquidez,
+    totalLiquidez: _totalLiquidez,
     ratioEfectivo,
     umbralMinimo,
     alertaLiquidez,

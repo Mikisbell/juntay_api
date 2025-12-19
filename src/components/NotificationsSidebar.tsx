@@ -5,11 +5,11 @@ import Link from 'next/link'
 import {
     Bell, X, Check, Clock, AlertTriangle, CreditCard,
     Wallet, RefreshCw, TrendingUp,
-    ChevronRight, CheckCircle2, Phone
+    ChevronRight, CheckCircle2
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
-import { formatDistanceToNow, isToday, isYesterday, isThisWeek, format } from 'date-fns'
+import { formatDistanceToNow, isToday, isYesterday, isThisWeek } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { formatearSoles } from '@/lib/utils/decimal'
 

@@ -27,7 +27,7 @@ export function ExpandableMetricCard({
     subtitle,
     icon,
     iconBgColor = 'bg-blue-100',
-    accentColor = 'blue',
+    accentColor: _accentColor = 'blue',
     trend,
     expandedContent,
     children,
