@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
@@ -9,17 +8,13 @@ import {
     LayoutDashboard,
     Monitor, // "Ventanilla"
     Users,
-    FileText,
     Package,
     Landmark,
     PieChart,
     Settings,
     ChevronRight,
-    MessageSquare,
     LogOut,
-    User,
     ChevronUp,
-    Sparkles,
     Gem, // "Juntay Icon"
     Briefcase // "Cartera" fallback
 } from "lucide-react"

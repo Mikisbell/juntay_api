@@ -8,9 +8,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
 import { useState } from 'react'
-import { Camera, X, Upload, Loader2 } from 'lucide-react'
+import { Camera, X, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { sleep } from '@/lib/utils/performance'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { tasacionSchema, TasacionFormData } from '@/lib/validators/empeno-schemas'
@@ -23,13 +22,11 @@ import { es } from 'date-fns/locale'
 
 // Importar sistema de categorías jerárquico inteligente
 import {
-    CATEGORIAS_BIENES,
     getCategoriaConfig,
     getSubcategoriaConfig,
     getCategoriasOrdenadas,
     getSubcategoriasOrdenadas,
-    calcularValorMercado,
-    FACTORES_ESTADO
+    calcularValorMercado
 } from '@/lib/constants/categorias-bienes'
 
 import {

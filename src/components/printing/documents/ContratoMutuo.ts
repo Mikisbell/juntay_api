@@ -8,10 +8,6 @@
 
 import { PrintData, EMPRESA, calcularFinancieros } from './types'
 
-interface ContratoMutuoProps {
-    data: PrintData
-}
-
 /**
  * Genera el contenido HTML del contrato completo para impresión
  */

@@ -29,7 +29,7 @@ interface Props {
 export function QRPhotoBridge({ sessionId, onPhotosUploaded, onAnalysisComplete, maxPhotos = 10 }: Props) {
     const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([])
     const [listening, setListening] = useState(false)
-    const [status, setStatus] = useState<'idle' | 'connected' | 'uploading'>('idle')
+    const [_status, setStatus] = useState<'idle' | 'connected' | 'uploading'>('idle')
     const [isUploadingManual, setIsUploadingManual] = useState(false)
 
     // Estado de análisis IA
