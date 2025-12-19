@@ -16,6 +16,7 @@ export function ConexionWhatsapp() {
             const res = await checkRenderStatus()
             setStatus(res)
         } catch (err) {
+            console.error('[ConexionWhatsapp] Error verificando estado:', err)
             setStatus({ connected: false, error: 'Error verificando estado' })
         } finally {
             setLoading(false)

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Clock, TrendingUp, TrendingDown, Activity, Users, Wallet } from "lucide-react"
+import { Clock, TrendingUp, TrendingDown, Users, Wallet } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { es } from "date-fns/locale"
 import type { CajaActivaDetalle, ResumenConsolidado } from "@/lib/actions/monitor-cajas-actions"

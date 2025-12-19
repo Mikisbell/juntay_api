@@ -157,6 +157,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                 dni: c.numero_documento
             })))
         } catch (error) {
+            console.error(error)
             console.error('Error searching clients:', error)
         } finally {
             setIsSearching(false)

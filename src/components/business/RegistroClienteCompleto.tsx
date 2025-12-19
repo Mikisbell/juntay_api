@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Loader2, Search, CheckCircle2, Phone, Mail, MapPin, MessageSquare, Send } from 'lucide-react'
+import { Loader2, Search, CheckCircle2, Phone, Mail, MapPin } from 'lucide-react'
 import { toast } from 'sonner'
 import { consultarEntidad, type DatosEntidad } from '@/lib/apis/consultasperu'
 import { enviarCodigoWhatsapp, verificarCodigoWhatsapp } from '@/lib/actions/whatsapp-actions'
@@ -392,6 +392,7 @@ export function RegistroClienteCompleto({
                 toast.success('Cliente registrado exitosamente')
             }
         } catch (err) {
+            console.error('[RegistroClienteCompleto] Error guardando cliente:', err)
             setError('Error inesperado al guardar cliente')
         } finally {
             setLoading(false)
