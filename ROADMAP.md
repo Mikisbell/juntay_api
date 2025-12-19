@@ -19,7 +19,8 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 
 ### 2. Dashboard Gerencial
 
-- [ ] KPIs principales (ingresos, cartera, mora)
+- [x] KPIs principales - Mora (% cartera en mora)
+- [ ] KPIs principales (ingresos, cartera)
 - [ ] Gráfico de flujo de caja diario/semanal
 - [ ] Top 10 clientes más rentables
 - [ ] Alertas de cartera vencida
