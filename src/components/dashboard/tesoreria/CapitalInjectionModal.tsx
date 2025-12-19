@@ -38,7 +38,7 @@ export function CapitalInjectionModal({ cuentas }: CapitalInjectionModalProps) {
                 toast.success("Capital inyectado correctamente")
                 setOpen(false)
             }
-        } catch (error) {
+        } catch (_error) {
             toast.error("Error inesperado")
         } finally {
             setLoading(false)

@@ -129,7 +129,7 @@ export function CreateInversionistaModal({ inversionistaToEdit, onOpenChange }: 
                 }
                 router.refresh()
             }
-        } catch (error) {
+        } catch (_error) {
             toast.error("Error inesperado")
         } finally {
             setLoading(false)

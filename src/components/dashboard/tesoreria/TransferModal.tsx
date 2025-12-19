@@ -31,7 +31,7 @@ export function TransferModal({ cuentas }: TransferModalProps) {
                 toast.success("Transferencia realizada correctamente")
                 setOpen(false)
             }
-        } catch (error) {
+        } catch (_error) {
             toast.error("Error inesperado")
         } finally {
             setLoading(false)
