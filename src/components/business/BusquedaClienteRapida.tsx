@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Loader2, UserPlus, CheckCircle2, AlertTriangle, Clock } from 'lucide-react'
+import { Loader2, UserPlus, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { buscarClientePorDNI, crearClienteDesdeEntidad, type PerfilCliente } from '@/lib/actions/clientes-actions'
 import type { DatosEntidad } from '@/lib/apis/consultasperu'
 

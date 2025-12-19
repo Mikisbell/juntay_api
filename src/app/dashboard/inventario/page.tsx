@@ -1,6 +1,6 @@
 import { obtenerInventario } from '@/lib/actions/inventario-actions'
 import { TablaInventario } from '@/components/inventario/TablaInventario'
-import { Package, Filter, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
