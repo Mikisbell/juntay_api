@@ -130,6 +130,69 @@ export async function sendMessage(numero: string, mensaje: string) {
     }
 }
 
+/**
+ * Enviar archivo por WhatsApp (PDF, imágenes, etc.)
+ * 
+ * @param numero - Número de teléfono (9 dígitos)
+ * @param file - Datos del archivo
+ * @param file.filename - Nombre del archivo con extensión
+ * @param file.mimetype - Tipo MIME (application/pdf, image/png, etc.)
+ * @param file.base64 - Contenido del archivo en base64
+ * @param caption - Mensaje que acompaña al archivo (opcional)
+ */
+export async function sendFile(
+    numero: string,
+    file: {
+        filename: string
+        mimetype: string
+        base64: string
+    },
+    caption?: string
+) {
+    'use server'
+
+    try {
+        // Formatear número: 51XXXXXXXXX@c.us
+        const cleanNumber = numero.replace(/\D/g, '');
+        const chatId = cleanNumber.startsWith('51')
+            ? `${cleanNumber}@c.us`
+            : `51${cleanNumber}@c.us`;
+
+        const response = await fetch(`${WAHA_URL}/api/sendFile`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Api-Key': API_KEY
+            },
+            body: JSON.stringify({
+                session: SESSION_NAME,
+                chatId: chatId,
+                file: {
+                    mimetype: file.mimetype,
+                    filename: file.filename,
+                    data: file.base64
+                },
+                caption: caption || ''
+            }),
+            cache: 'no-store'
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error WAHA sendFile:', errorText);
+            throw new Error(`WAHA Error: ${response.status} - ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log('✅ WhatsApp file sent successfully:', chatId, file.filename);
+        return { success: true, data };
+
+    } catch (error) {
+        console.error("Error sending WhatsApp file:", error);
+        return { success: false, error: "Error enviando archivo por WhatsApp" };
+    }
+}
+
 
 /**
  * Crea una nueva sesión de WhatsApp

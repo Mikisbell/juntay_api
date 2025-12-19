@@ -29,7 +29,7 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 ### 3. Recibos Digitales
 
 - [x] Generar PDF de recibo al pagar
-- [ ] Enviar por WhatsApp automáticamente
+- [x] Enviar por WhatsApp automáticamente
 - [ ] Código QR de verificación
 - [ ] Historial de recibos por cliente
 
