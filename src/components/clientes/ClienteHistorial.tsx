@@ -36,7 +36,7 @@ const estadoConfig: Record<string, { label: string; color: string; icon: any }> 
     CANCELADO: { label: 'Cancelado', color: 'bg-slate-100 text-slate-800', icon: CheckCircle },
 }
 
-export function ClienteHistorial({ clienteId, clienteNombre, creditos }: ClienteHistorialProps) {
+export function ClienteHistorial({ clienteId: _clienteId, clienteNombre, creditos }: ClienteHistorialProps) {
     // Ordenar por fecha más reciente primero
     const creditosOrdenados = [...creditos].sort((a, b) =>
         new Date(b.fecha_desembolso).getTime() - new Date(a.fecha_desembolso).getTime()

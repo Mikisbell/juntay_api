@@ -3,10 +3,9 @@ import {
     Card,
     CardContent,
     CardHeader,
-    CardTitle,
-    CardDescription
+    CardTitle
 } from "@/components/ui/card"
-import { Users, AlertTriangle, CheckCircle, DollarSign } from 'lucide-react'
+import { AlertTriangle, CheckCircle, DollarSign } from 'lucide-react'
 
 export default async function ReporteCarteraPage() {
     const stats = await obtenerCartera()

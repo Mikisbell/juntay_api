@@ -4,8 +4,8 @@ import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import {
     Bell, X, Check, Clock, AlertTriangle, CreditCard,
-    Wallet, RefreshCw, TrendingUp, MessageSquare, Filter,
-    ChevronRight, CheckCircle2, XCircle, Phone
+    Wallet, RefreshCw, TrendingUp,
+    ChevronRight, CheckCircle2, Phone
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'

@@ -73,7 +73,7 @@ function formatCurrency(value: number): string {
     }).format(value)
 }
 
-export function CierreCajaSheet({ saldoEsperado, cajaId }: Props) {
+export function CierreCajaSheet({ saldoEsperado, cajaId: _cajaId }: Props) {
     const [open, setOpen] = useState(false)
     const [montoContado, setMontoContado] = useState('')
     const [observaciones, setObservaciones] = useState('')

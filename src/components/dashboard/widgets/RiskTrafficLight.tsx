@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
 import { AlertTriangle, CheckCircle2, Clock, ArrowUpRight, TrendingUp, Activity } from 'lucide-react'

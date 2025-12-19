@@ -6,7 +6,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { MessageCircle, CalendarClock } from 'lucide-react'
 import { useWhatsApp } from '@/hooks/useWhatsApp'
-import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Badge } from '@/components/ui/badge'
 

@@ -1,11 +1,9 @@
 'use client'
 
 import { useCotizador, FrecuenciaPago } from '@/hooks/useCotizador'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Calendar, Calculator, FileText } from 'lucide-react'
 
 import { useEffect, useMemo } from 'react'

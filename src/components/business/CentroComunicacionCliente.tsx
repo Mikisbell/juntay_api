@@ -87,7 +87,7 @@ export function CentroComunicacionCliente({ open, onOpenChange, cliente }: Centr
                     description: resultado.error
                 })
             }
-        } catch (error) {
+        } catch (_error) {
             toast.error("Error de conexión", { description: "Intenta nuevamente" })
         } finally {
             setEnviando(false)

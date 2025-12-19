@@ -57,7 +57,7 @@ export function RenovacionModal({ contrato, open, onOpenChange }: Props) {
             } else {
                 alert(result.mensaje)
             }
-        } catch (error) {
+        } catch (_error) {
             alert('Error al renovar contrato')
         } finally {
             setLoading(false)

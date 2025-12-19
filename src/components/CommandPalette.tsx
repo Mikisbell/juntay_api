@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import {
     Search, PlusCircle, Wallet, RefreshCw, Users,
-    FileText, Settings, BarChart3, X, ArrowRight,
+    FileText, Settings, BarChart3, ArrowRight,
     Clock, TrendingUp, Home
 } from 'lucide-react'
 import { cn } from '@/lib/utils'

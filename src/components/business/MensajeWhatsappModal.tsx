@@ -75,7 +75,7 @@ export function MensajeWhatsappModal({ open, onOpenChange, cliente }: MensajeWha
                     description: resultado.error
                 })
             }
-        } catch (error) {
+        } catch (_error) {
             toast.error("Error de conexión")
         } finally {
             setEnviando(false)
