@@ -26,6 +26,8 @@ Precedence order:
 3. Existing code patterns
 4. External references
 
+**These rules apply equally to humans and AI contributors.**
+
 AI must cite the document it relied on when proposing changes.
 
 ---
@@ -252,4 +254,4 @@ Ask > Assume
 
 ---
 
-*Version: 1.0 | Last updated: December 2024*
+*Version: 1.0.0 (Governance Baseline) | Last updated: December 2024*
