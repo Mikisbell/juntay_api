@@ -95,6 +95,7 @@ export function useDashboardData(): UseDashboardDataResult {
         } finally {
             setLoading(false)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [supabase])
 
     // Legacy fallback for when RPC is not deployed yet

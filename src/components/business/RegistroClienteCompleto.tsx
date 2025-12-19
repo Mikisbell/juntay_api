@@ -81,6 +81,7 @@ export function RegistroClienteCompleto({
         if (initialDNI && initialTipoDoc && !datosEntidad && !loading) {
             handleBuscar()
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []) // Solo al montar
 
     // ============================================

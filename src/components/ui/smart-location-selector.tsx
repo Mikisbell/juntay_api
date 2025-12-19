@@ -44,6 +44,7 @@ export function SmartLocationSelector({ onLocationChange, defaultValues }: Smart
             provinciaId: provId,
             distritoId: distId
         })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [deptId, provId, distId])
 
     // Auto-select Huancayo/El Tambo si se selecciona Junín y no hay nada seleccionado
@@ -51,12 +52,14 @@ export function SmartLocationSelector({ onLocationChange, defaultValues }: Smart
         if (deptId === '12' && !provId) {
             setProvId('1201') // Huancayo
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [deptId])
 
     useEffect(() => {
         if (provId === '1201' && !distId) {
             setDistId('120114') // El Tambo (Default inteligente)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [provId])
 
     return (

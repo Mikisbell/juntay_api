@@ -51,6 +51,7 @@ export default function IdentificacionStep() {
             form.setValue('numeroDocumento', dniParam)
             handleSearch(dniParam)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dniParam])
 
     const handleSearch = async (dniOverride?: string) => {
@@ -132,6 +133,7 @@ export default function IdentificacionStep() {
                 handleSearch(dni)
             }
         }, 300),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [tipoDoc, form.formState.errors.numeroDocumento]
     )
 

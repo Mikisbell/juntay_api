@@ -42,7 +42,7 @@ export function ExpirationTimeline() {
             setLoading(false)
         }
         fetchData()
-    }, [])
+    }, [supabase])
 
     if (loading) return <div className="h-48 animate-pulse bg-slate-100 rounded-xl" />
     if (items.length === 0) return null
@@ -64,6 +64,7 @@ export function ExpirationTimeline() {
                             <div className="flex gap-3">
                                 <div className="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden shrink-0">
                                     {item.garantia_foto ? (
+                                        /* eslint-disable-next-line @next/next/no-img-element */
                                         <img src={item.garantia_foto} alt="" className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-xs text-slate-400">Sin foto</div>

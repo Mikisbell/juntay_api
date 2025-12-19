@@ -352,6 +352,7 @@ export default function ResumenStep() {
                                         key={idx}
                                         className="w-16 h-16 rounded border-2 border-slate-200 overflow-hidden"
                                     >
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img src={foto} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" />
                                     </div>
                                 ))}

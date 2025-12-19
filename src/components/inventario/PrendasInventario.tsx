@@ -129,6 +129,7 @@ export function PrendasInventario({ prendas, onVender }: PrendasInventarioProps)
                                         {/* Imagen */}
                                         <div className="w-20 h-20 bg-slate-200 rounded-lg flex items-center justify-center overflow-hidden">
                                             {prenda.fotos && prenda.fotos[0] ? (
+                                                /* eslint-disable-next-line @next/next/no-img-element */
                                                 <img src={prenda.fotos[0]} alt={prenda.descripcion} className="w-full h-full object-cover" />
                                             ) : (
                                                 <Package className="h-8 w-8 text-slate-400" />

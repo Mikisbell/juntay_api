@@ -760,6 +760,7 @@ export default function TasacionStep() {
                                     <div className="grid grid-cols-4 gap-2">
                                         {previews.map((url, index) => (
                                             <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200 group shadow-sm">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                                 <img src={url} alt={`Foto ${index + 1}`} className="w-full h-full object-cover" />
                                                 <button
                                                     type="button"

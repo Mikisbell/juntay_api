@@ -100,7 +100,7 @@ export function QRPhotoBridge({ sessionId, onPhotosUploaded, onAnalysisComplete,
         return () => {
             supabase.removeChannel(channel)
         }
-    }, [sessionId])
+    }, [sessionId, supabase])
 
     // Sincronizar con padre
     useEffect(() => {
@@ -339,6 +339,7 @@ export function QRPhotoBridge({ sessionId, onPhotosUploaded, onAnalysisComplete,
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                                 {uploadedPhotos.map((url, i) => (
                                     <div key={i} className="group relative aspect-video bg-white rounded-lg border overflow-hidden shadow-sm">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img
                                             src={url}
                                             alt={`Evidencia ${i + 1}`}

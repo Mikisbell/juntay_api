@@ -82,6 +82,7 @@ export function WhatsAppQR() {
                 </div>
             ) : qrCode ? (
                 <div className="flex flex-col items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={qrCode}
                         alt="WhatsApp QR"

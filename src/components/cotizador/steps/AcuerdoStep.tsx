@@ -19,6 +19,7 @@ export default function AcuerdoStep() {
         if (montoPrestamo === 0 && montoPrestamoMaximo > 0) {
             setMontoPrestamo(montoPrestamoMaximo)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [montoPrestamoMaximo])
 
     // Calcular interés (simulado 10% mensual)

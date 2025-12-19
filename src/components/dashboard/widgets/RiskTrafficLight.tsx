@@ -27,7 +27,7 @@ export function RiskTrafficLight() {
             setLoading(false)
         }
         fetchData()
-    }, [])
+    }, [supabase])
 
     const getStats = (group: string) => {
         const item = data.find(d => d.estado_grupo === group)

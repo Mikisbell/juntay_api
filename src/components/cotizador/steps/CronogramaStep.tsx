@@ -84,6 +84,7 @@ export default function CronogramaStep() {
             )
             setCronograma(nuevoCronograma)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [montoPrestamo, tasaInteres, frecuenciaPago, numeroCuotas, fechaInicio])
 
     // Establecer fecha de inicio por defecto (mañana)
@@ -93,6 +94,7 @@ export default function CronogramaStep() {
             manana.setDate(manana.getDate() + 1)
             setFechaInicio(manana)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     // Memoize expensive calculations - prevents re-computation on every render
