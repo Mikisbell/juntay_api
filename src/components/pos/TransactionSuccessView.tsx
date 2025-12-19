@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { CheckCircle2, FileText, Printer, Plus, Scroll, Banknote, Loader2, Flag, AlertTriangle } from "lucide-react"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { CheckCircle2, FileText, Printer, Plus, Scroll, Banknote, Loader2, AlertTriangle } from "lucide-react"
 import { toast } from "sonner"
 import { confirmarDesembolsoCredito } from "@/lib/actions/creditos-actions"
 import { Separator } from "@/components/ui/separator"

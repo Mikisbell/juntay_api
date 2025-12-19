@@ -126,6 +126,23 @@ export default function CotizadorWizard() {
                 </div>
             </div>
 
+            {/* Draft Found Indicator */}
+            {draftFound && (
+                <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between">
+                    <span className="text-sm text-amber-700">
+                        📝 Se encontró un borrador de tu última sesión
+                    </span>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setDraftFound(false)}
+                        className="text-amber-700 hover:text-amber-900"
+                    >
+                        Cerrar
+                    </Button>
+                </div>
+            )}
+
             {/* Step Content */}
             <Card className="border-2 shadow-lg bg-white">
                 <CardHeader className="border-b bg-white py-2 sm:py-3">
