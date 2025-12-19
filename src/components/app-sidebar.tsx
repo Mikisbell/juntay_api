@@ -15,8 +15,7 @@ import {
     ChevronRight,
     LogOut,
     ChevronUp,
-    Gem, // "Juntay Icon"
-    Briefcase // "Cartera" fallback
+    Gem // "Juntay Icon"
 } from "lucide-react"
 
 import {

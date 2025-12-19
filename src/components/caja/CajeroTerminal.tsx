@@ -2,13 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { CierreCajaSheet } from './CierreCajaSheet'
 import { PendientesPanel } from './PendientesPanel'
 import {
-    Clock,
     Lightbulb,
     ArrowRight,
     Phone,

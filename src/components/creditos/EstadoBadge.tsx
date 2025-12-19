@@ -6,7 +6,6 @@ import {
     Clock,
     AlertTriangle,
     AlertCircle,
-    XCircle,
     RefreshCw,
     Store,
     Ban

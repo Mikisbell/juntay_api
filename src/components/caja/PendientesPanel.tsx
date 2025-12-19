@@ -15,9 +15,8 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { DollarSign, Clock, AlertTriangle, Banknote } from "lucide-react"
+import { Clock, AlertTriangle, Banknote } from "lucide-react"
 import { toast } from "sonner"
 import { useState } from 'react'
 import { PrintSuccessModal } from "@/components/pos/PrintSuccessModal"

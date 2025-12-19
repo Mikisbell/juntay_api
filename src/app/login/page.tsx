@@ -29,7 +29,7 @@ export default function LoginPage() {
                     email,
                     password,
                 })
-            } catch (networkErr: unknown) {
+            } catch (_networkErr: unknown) {
                 // This catches raw TypeError: Failed to fetch when server is down
                 // Intentionally DO NOT log to console - this is expected when server is offline
                 setError('⚠️ Servidor no disponible. Verifica que Docker/Supabase esté corriendo.')

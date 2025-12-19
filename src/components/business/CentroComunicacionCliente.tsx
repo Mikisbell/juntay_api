@@ -13,7 +13,7 @@ import {
     SheetHeader,
     SheetTitle,
 } from "@/components/ui/sheet"
-import { Loader2, Send, MessageSquare, Clock, CreditCard, CheckCheck, Sparkles, AlertCircle } from "lucide-react"
+import { Loader2, Send, MessageSquare, Clock, CreditCard, CheckCheck, Sparkles } from "lucide-react"
 import { toast } from "sonner"
 import { enviarMensajeCliente } from "@/lib/actions/whatsapp-actions"
 import { getClienteResumenFinanciero } from "@/lib/actions/clientes-actions"

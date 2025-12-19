@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { CheckCircle2, XCircle, Wallet, Activity, Clock, ArrowUpRight } from 'lucide-react'
+import { XCircle, Wallet, Activity, Clock, ArrowUpRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { formatearSoles } from '@/lib/utils/decimal'
 

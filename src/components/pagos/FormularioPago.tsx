@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { buscarContratoPorCodigo, registrarPago, ContratoParaPago } from '@/lib/actions/pagos-actions'
-import { Search, DollarSign, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react'
+import { Search, DollarSign, CheckCircle, RefreshCw } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 // import { ModalRenovar } from '@/components/renovaciones/ModalRenovar' // Commented out - component removed
 
