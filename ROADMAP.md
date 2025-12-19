@@ -31,7 +31,7 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [x] Generar PDF de recibo al pagar
 - [x] Enviar por WhatsApp automáticamente
 - [ ] Código QR de verificación
-- [ ] Historial de recibos por cliente
+- [x] Historial de recibos por cliente
 
 ---
 
