@@ -215,7 +215,71 @@ export function DashboardHeader() {
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                {/* 3. Command Palette */}
+                {/* 3. USER MENU - Perfil y Configuración */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="gap-2 hover:bg-slate-100"
+                        >
+                            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
+                                <User className="h-4 w-4 text-white" />
+                            </div>
+                            <div className="hidden md:flex flex-col items-start">
+                                <span className="text-sm font-medium text-slate-700">{usuario.nombre}</span>
+                                <span className="text-[10px] text-slate-500 uppercase">{usuario.rol}</span>
+                            </div>
+                            <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuLabel className="font-normal">
+                            <div className="flex flex-col space-y-1">
+                                <p className="text-sm font-medium">{usuario.nombre}</p>
+                                <p className="text-xs text-slate-500">{usuario.email}</p>
+                            </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+
+                        {/* Saldo de Caja Personal */}
+                        {caja && (
+                            <>
+                                <div className="px-2 py-2">
+                                    <div className="flex items-center gap-2 p-2 bg-emerald-50 rounded-lg">
+                                        <Wallet className="h-4 w-4 text-emerald-600" />
+                                        <div className="flex-1">
+                                            <p className="text-xs text-emerald-600 font-medium">Mi Caja</p>
+                                            <p className="text-sm font-bold text-emerald-700">
+                                                S/ {caja.saldoActual.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <DropdownMenuSeparator />
+                            </>
+                        )}
+
+                        <DropdownMenuItem onClick={() => router.push('/dashboard/configuracion')}>
+                            <Settings className="mr-2 h-4 w-4" />
+                            Configuración
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push('/dashboard/caja')}>
+                            <ClipboardList className="mr-2 h-4 w-4" />
+                            Mi Caja
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                            onClick={handleLogout}
+                            className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                        >
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Cerrar Sesión
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* 4. Command Palette */}
                 <CommandPalette isOpen={isPaletteOpen} onClose={closePalette} />
             </div>
         </header>
