@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react'
-import { Wifi, WifiOff, RefreshCw, Check, AlertTriangle } from 'lucide-react'
+import { WifiOff, RefreshCw, Check, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type SyncStatus = 'synced' | 'syncing' | 'pending' | 'offline' | 'error'
@@ -19,7 +19,7 @@ interface ConnectionStatusProps {
 export function ConnectionStatus({ className, showLabel = true }: ConnectionStatusProps) {
     const [isOnline, setIsOnline] = useState(true)
     const [syncStatus, setSyncStatus] = useState<SyncStatus>('synced')
-    const [pendingChanges, setPendingChanges] = useState(0)
+    const [pendingChanges, _setPendingChanges] = useState(0)
 
 
     useEffect(() => {

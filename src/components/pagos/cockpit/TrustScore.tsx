@@ -47,9 +47,12 @@ export function TrustScore({ score, level }: TrustScoreProps) {
                 </div>
             </div>
 
-            <div className="flex items-center gap-2 mt-[-10px]">
-                <Icon size={16} color={color} />
-                <span className="text-sm font-medium text-slate-600">{level}</span>
+            <div className="flex flex-col items-center gap-0.5 mt-[-10px]">
+                <div className="flex items-center gap-2">
+                    <Icon size={16} color={color} />
+                    <span className="text-sm font-medium text-slate-600">{level}</span>
+                </div>
+                <span className="text-[10px] text-slate-400">{text}</span>
             </div>
         </div>
     )

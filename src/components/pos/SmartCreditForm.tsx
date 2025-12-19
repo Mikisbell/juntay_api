@@ -32,7 +32,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { WifiOff, Search } from 'lucide-react'
 
 import {
-    CATEGORIAS_BIENES,
     getCategoriasOrdenadas,
     getSubcategoriasOrdenadas,
     calcularValorMercado
@@ -529,7 +528,7 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
                                                     // Auto-llenar categoría del sistema
                                                     const catSistema = getCategoriaDelSistema(item.categoria)
                                                     setCategoria(catSistema)
-                                                    
+
                                                     // Auto-llenar subcategoría si existe en el mapeo
                                                     if (item.subcategoriaSistema) {
                                                         // Forzar actualización inmediata de opciones para evitar que el Select limpie el valor
