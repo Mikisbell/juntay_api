@@ -208,9 +208,15 @@ export async function initDatabase(): Promise<JuntayDatabase> {
                             // 2: Migración a versión 2 (Agregar campos de auditoría)
                             2: (oldDoc: unknown) => oldDoc
                         }
+                    },
+                    clientes: {
+                        schema: clientesSchema,
+                        migrationStrategies: {}
+                    },
+                    garantias: {
+                        schema: garantiasSchema,
+                        migrationStrategies: {}
                     }
-                    // NOTA: clientes y garantias removidos temporalmente por incompatibilidad de schemas RxDB
-                    // Ver: https://rxdb.info/errors.html - SC1, SC17, SC36
                 })
             } catch (err: unknown) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
