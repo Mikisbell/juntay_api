@@ -338,7 +338,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                     {/* Empty state */}
                     {query && filteredCommands.length === 0 && searchResults.length === 0 && !isSearching && (
                         <div className="px-4 py-8 text-center text-slate-400">
-                            <p>No se encontraron resultados para "{query}"</p>
+                            <p>No se encontraron resultados para &quot;{query}&quot;</p>
                         </div>
                     )}
                 </div>
