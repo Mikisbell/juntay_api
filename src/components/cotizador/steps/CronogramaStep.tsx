@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Calendar, Calculator, FileText } from 'lucide-react'
 
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { cronogramaSchema, CronogramaFormData } from '@/lib/validators/empeno-schemas'
@@ -84,18 +84,20 @@ export default function CronogramaStep() {
             )
             setCronograma(nuevoCronograma)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [montoPrestamo, tasaInteres, frecuenciaPago, numeroCuotas, fechaInicio])
+    }, [montoPrestamo, tasaInteres, frecuenciaPago, numeroCuotas, fechaInicio, setCronograma])
 
-    // Establecer fecha de inicio por defecto (mañana)
+    // Ref to track if we've initialized the default date
+    const hasInitializedFechaRef = useRef(false)
+
+    // Establecer fecha de inicio por defecto (mañana) - solo una vez
     useEffect(() => {
-        if (!fechaInicio) {
+        if (!fechaInicio && !hasInitializedFechaRef.current) {
+            hasInitializedFechaRef.current = true
             const manana = new Date()
             manana.setDate(manana.getDate() + 1)
             setFechaInicio(manana)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [fechaInicio, setFechaInicio])
 
     // Memoize expensive calculations - prevents re-computation on every render
     const tasaFraccionada = useMemo(

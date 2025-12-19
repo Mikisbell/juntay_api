@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { getDepartamentos, getProvincias, getDistritos } from '@/lib/data/ubigeo-data'
@@ -26,9 +26,17 @@ export function SmartLocationSelector({ onLocationChange, defaultValues }: Smart
     const [provId, setProvId] = useState(defaultValues?.provinciaId || '')
     const [distId, setDistId] = useState(defaultValues?.distritoId || '')
 
+    // Ref to keep latest callback without adding it to deps
+    const onLocationChangeRef = useRef(onLocationChange)
+    onLocationChangeRef.current = onLocationChange
+
+    // Refs to track if we've auto-selected defaults
+    const hasAutoSelectedProvRef = useRef(false)
+    const hasAutoSelectedDistRef = useRef(false)
+
     const departamentos = getDepartamentos()
-    const provincias = deptId ? getProvincias(deptId) : []
-    const distritos = provId ? getDistritos(provId) : []
+    const provincias = useMemo(() => deptId ? getProvincias(deptId) : [], [deptId])
+    const distritos = useMemo(() => provId ? getDistritos(provId) : [], [provId])
 
     // Efecto para notificar cambios al padre
     useEffect(() => {
@@ -36,7 +44,7 @@ export function SmartLocationSelector({ onLocationChange, defaultValues }: Smart
         const provName = provincias.find(p => p.id === provId)?.nombre || ''
         const distName = distritos.find(d => d.id === distId)?.nombre || ''
 
-        onLocationChange({
+        onLocationChangeRef.current({
             departamento: deptName,
             provincia: provName,
             distrito: distName,
@@ -44,23 +52,31 @@ export function SmartLocationSelector({ onLocationChange, defaultValues }: Smart
             provinciaId: provId,
             distritoId: distId
         })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [deptId, provId, distId])
+    }, [deptId, provId, distId, departamentos, provincias, distritos])
 
-    // Auto-select Huancayo/El Tambo si se selecciona Junín y no hay nada seleccionado
+    // Auto-select Huancayo si se selecciona Junín y no hay provincia
     useEffect(() => {
-        if (deptId === '12' && !provId) {
+        if (deptId === '12' && !provId && !hasAutoSelectedProvRef.current) {
+            hasAutoSelectedProvRef.current = true
             setProvId('1201') // Huancayo
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [deptId])
-
-    useEffect(() => {
-        if (provId === '1201' && !distId) {
-            setDistId('120114') // El Tambo (Default inteligente)
+        // Reset flag when dept changes
+        if (deptId !== '12') {
+            hasAutoSelectedProvRef.current = false
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [provId])
+    }, [deptId, provId])
+
+    // Auto-select El Tambo si se selecciona Huancayo y no hay distrito  
+    useEffect(() => {
+        if (provId === '1201' && !distId && !hasAutoSelectedDistRef.current) {
+            hasAutoSelectedDistRef.current = true
+            setDistId('120114') // El Tambo
+        }
+        // Reset flag when prov changes
+        if (provId !== '1201') {
+            hasAutoSelectedDistRef.current = false
+        }
+    }, [provId, distId])
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

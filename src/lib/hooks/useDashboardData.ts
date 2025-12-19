@@ -64,41 +64,7 @@ export function useDashboardData(): UseDashboardDataResult {
     const [error, setError] = useState<Error | null>(null)
     const supabase = createClient()
 
-    const fetchData = useCallback(async () => {
-        try {
-            setLoading(true)
-            setError(null)
-
-            // Get current user
-            const { data: { user }, error: authError } = await supabase.auth.getUser()
-            if (authError) throw authError
-            if (!user) throw new Error('No authenticated user')
-
-            // Try consolidated RPC first (deployed to Supabase)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const { data: rpcData, error: rpcError } = await (supabase as any)
-                .rpc('get_dashboard_complete', { p_usuario_id: user.id })
-
-            if (rpcError) {
-                console.warn('RPC failed, using legacy fallback:', rpcError.message)
-                await fetchLegacyData(user.id)
-                return
-            }
-
-            // RPC success - parse response
-            const parsed = rpcData as DashboardData
-            setData(parsed)
-
-        } catch (err) {
-            console.error('Error fetching dashboard data:', err)
-            setError(err instanceof Error ? err : new Error('Unknown error'))
-        } finally {
-            setLoading(false)
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [supabase])
-
-    // Legacy fallback for when RPC is not deployed yet
+    // Define fetchLegacyData FIRST (before fetchData which uses it)
     const fetchLegacyData = useCallback(async (userId: string) => {
         const hoy = new Date()
         const semanaStr = new Date(hoy.getTime() + 7 * 86400000).toISOString().split('T')[0]
@@ -223,6 +189,40 @@ export function useDashboardData(): UseDashboardDataResult {
             pagos_7_dias
         })
     }, [supabase])
+
+    // Now define fetchData which can properly depend on fetchLegacyData
+    const fetchData = useCallback(async () => {
+        try {
+            setLoading(true)
+            setError(null)
+
+            // Get current user
+            const { data: { user }, error: authError } = await supabase.auth.getUser()
+            if (authError) throw authError
+            if (!user) throw new Error('No authenticated user')
+
+            // Try consolidated RPC first (deployed to Supabase)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const { data: rpcData, error: rpcError } = await (supabase as any)
+                .rpc('get_dashboard_complete', { p_usuario_id: user.id })
+
+            if (rpcError) {
+                console.warn('RPC failed, using legacy fallback:', rpcError.message)
+                await fetchLegacyData(user.id)
+                return
+            }
+
+            // RPC success - parse response
+            const parsed = rpcData as DashboardData
+            setData(parsed)
+
+        } catch (err) {
+            console.error('Error fetching dashboard data:', err)
+            setError(err instanceof Error ? err : new Error('Unknown error'))
+        } finally {
+            setLoading(false)
+        }
+    }, [supabase, fetchLegacyData])
 
     useEffect(() => {
         fetchData()

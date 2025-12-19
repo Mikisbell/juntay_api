@@ -5,7 +5,7 @@ import { Slider } from '@/components/ui/slider'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 export default function AcuerdoStep() {
     const {
@@ -14,13 +14,16 @@ export default function AcuerdoStep() {
         plazo, setPlazo
     } = useCotizador()
 
-    // Inicializar monto si es 0
+    // Ref to track if we've already initialized the monto
+    const hasInitializedMontoRef = useRef(false)
+
+    // Inicializar monto si es 0 (solo una vez cuando max es válido)
     useEffect(() => {
-        if (montoPrestamo === 0 && montoPrestamoMaximo > 0) {
+        if (montoPrestamoMaximo > 0 && montoPrestamo === 0 && !hasInitializedMontoRef.current) {
+            hasInitializedMontoRef.current = true
             setMontoPrestamo(montoPrestamoMaximo)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [montoPrestamoMaximo])
+    }, [montoPrestamoMaximo, montoPrestamo, setMontoPrestamo])
 
     // Calcular interés (simulado 10% mensual)
     const interes = montoPrestamo * 0.10

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Search, UserPlus, CheckCircle2, UserX, Loader2 } from 'lucide-react'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { buscarClientePorDNI } from '@/lib/actions/clientes-actions'
 import { consultarEntidad } from '@/lib/apis/consultasperu'
@@ -46,15 +46,11 @@ export default function IdentificacionStep() {
     const tipoDoc = useWatch({ control: form.control, name: 'tipoDocumento' })
     const dniSearch = useWatch({ control: form.control, name: 'numeroDocumento' })
 
-    useEffect(() => {
-        if (dniParam) {
-            form.setValue('numeroDocumento', dniParam)
-            handleSearch(dniParam)
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dniParam])
+    // Ref to track if we've already searched for this dniParam
+    const searchedDniParamRef = useRef<string | null>(null)
 
-    const handleSearch = async (dniOverride?: string) => {
+    // Define handleSearch as useCallback first (before useEffect that uses it)
+    const handleSearch = useCallback(async (dniOverride?: string) => {
         const dni = dniOverride || dniSearch
         if (!dni) {
             toast.error('Ingresa un número de documento')
@@ -112,7 +108,16 @@ export default function IdentificacionStep() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [dniSearch, tipoDoc, setCliente])
+
+    // Auto-search when dniParam changes (from URL)
+    useEffect(() => {
+        if (dniParam && searchedDniParamRef.current !== dniParam) {
+            searchedDniParamRef.current = dniParam
+            form.setValue('numeroDocumento', dniParam)
+            handleSearch(dniParam)
+        }
+    }, [dniParam, form, handleSearch])
 
     const handleClienteRegistrado = (nuevoCliente: { id: string; numero_documento: string; nombres?: string; apellido_paterno?: string; apellido_materno?: string }) => {
         setCliente({
@@ -133,8 +138,7 @@ export default function IdentificacionStep() {
                 handleSearch(dni)
             }
         }, 300),
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [tipoDoc, form.formState.errors.numeroDocumento]
+        [form.formState.errors.numeroDocumento, handleSearch]
     )
 
     // Handle input change with debounce

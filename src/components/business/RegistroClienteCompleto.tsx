@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -76,13 +76,8 @@ export function RegistroClienteCompleto({
     const [distritos, setDistritos] = useState<any[]>([])
     const [referencia, setReferencia] = useState('')
 
-    // Auto-buscar si viene con datos pre-llenados (desde modal)
-    useEffect(() => {
-        if (initialDNI && initialTipoDoc && !datosEntidad && !loading) {
-            handleBuscar()
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []) // Solo al montar
+    // Ref to track if we've already auto-searched for this DNI
+    const autoSearchedDNIRef = useRef<string | null>(null)
 
     // ============================================
     // PERSISTENCIA: Guardar y restaurar formulario
@@ -156,7 +151,7 @@ export function RegistroClienteCompleto({
         cargarDatos()
     }, [])
 
-    const handleBuscar = async () => {
+    const handleBuscar = useCallback(async () => {
         if (!numeroDoc) return
         setLoading(true)
         setError(null)
@@ -226,7 +221,22 @@ export function RegistroClienteCompleto({
         } finally {
             setLoading(false)
         }
-    }
+    }, [numeroDoc, tipoDoc, onClienteRegistrado])
+
+    // Auto-buscar si viene con datos pre-llenados (desde modal)
+    // Placed here after handleBuscar definition
+    useEffect(() => {
+        if (
+            initialDNI &&
+            initialTipoDoc &&
+            autoSearchedDNIRef.current !== initialDNI &&
+            !datosEntidad &&
+            !loading
+        ) {
+            autoSearchedDNIRef.current = initialDNI
+            handleBuscar()
+        }
+    }, [initialDNI, initialTipoDoc, datosEntidad, loading, handleBuscar])
 
     // Función para limpiar todo (Reset manual)
     const handleLimpiar = () => {
