@@ -23,11 +23,11 @@ export default async function ContratosPage() {
                     <p className="text-muted-foreground">Gestione los contratos de empeño vigentes y su estado.</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline">
+                    <Button variant="outline" onClick={() => { /* TODO: Implement filter modal */ }}>
                         <Filter className="mr-2 h-4 w-4" />
                         Filtrar
                     </Button>
-                    <Button>
+                    <Button onClick={() => { /* TODO: Implement export */ }}>
                         Exportar
                     </Button>
                 </div>

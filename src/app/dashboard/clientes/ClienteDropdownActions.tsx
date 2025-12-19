@@ -129,7 +129,10 @@ export function ClienteDropdownActions({ cliente }: ClienteDropdownActionsProps)
                         )}
                     </DropdownMenuItem>
 
-                    <DropdownMenuItem className="text-red-600 cursor-pointer">
+                    <DropdownMenuItem
+                        className="text-red-600 cursor-pointer"
+                        onSelect={() => toast.info('Función de reportar incidencia próximamente disponible')}
+                    >
                         <AlertTriangle className="h-4 w-4 mr-2" />
                         Reportar Incidencia
                     </DropdownMenuItem>
