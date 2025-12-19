@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Search, DollarSign, CheckCircle, RefreshCw, AlertCircle, Calendar, Package, User, ChevronRight, Users } from 'lucide-react'
+import { Search, CheckCircle, RefreshCw, AlertCircle, Calendar, Package, User, ChevronRight, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -57,7 +57,7 @@ export function PagosPanel({ cajaId }: PagosPanelProps) {
                     // Show client list
                     setClientes(resultados)
                 }
-            } catch (e) {
+            } catch (_e) {
                 toast.error('Error al buscar clientes')
             }
         })
@@ -74,7 +74,7 @@ export function PagosPanel({ cajaId }: PagosPanelProps) {
             if (resultados.length === 0) {
                 toast.info('Este cliente no tiene contratos vigentes')
             }
-        } catch (e) {
+        } catch (_e) {
             toast.error('Error al cargar contratos')
         }
     }
@@ -114,7 +114,7 @@ export function PagosPanel({ cajaId }: PagosPanelProps) {
             } else {
                 toast.error(result.error || 'Error al renovar')
             }
-        } catch (e) {
+        } catch (_e) {
             toast.error('Error inesperado')
         } finally {
             setProcesando(false)
@@ -149,7 +149,7 @@ export function PagosPanel({ cajaId }: PagosPanelProps) {
             } else {
                 toast.error(result.error || 'Error al procesar desempeño')
             }
-        } catch (e) {
+        } catch (_e) {
             toast.error('Error inesperado')
         } finally {
             setProcesando(false)

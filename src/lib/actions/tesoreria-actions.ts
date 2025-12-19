@@ -5,12 +5,13 @@ import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 
 // Service client para testing sin auth
-const getServiceClient = () => {
+const _getServiceClient = () => {
     return createServiceClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
         { auth: { persistSession: false } }
     )
+}
 }
 
 export async function obtenerEstadoBoveda() {
@@ -752,7 +753,7 @@ export async function registrarIngresoBovedaAction(
     const supabase = await createClient()
 
     // VERIFICACIÓN DE IDENTIDAD REAL (Security Hardening)
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const { data: { user }, error: _authError } = await supabase.auth.getUser()
 
     // Por ahora permitimos operaciones anónimas en DEV si falla auth, 
     // pero marcamos claramente que no está autenticado. 
@@ -805,7 +806,7 @@ export async function registrarIngresoBovedaAction(
     return { success: true }
 }
 
-export async function asignarCajaAction(cajeroId: string, monto: number, observacion: string) {
+export async function asignarCajaAction(_cajeroId: string, _monto: number, _observacion: string) {
     // TODO: Implementar lógica real de asignación (Transferencia Bóveda -> Caja Usuario)
     // Por ahora retornamos error controlado para no romper el build
     return { error: "Funcionalidad en mantenimiento: La asignación de cajas se está migrando al nuevo sistema de Cuentas Financieras." }

@@ -41,7 +41,7 @@ describe('Módulo de Pagos - Integración', () => {
      * PRUEBA 1: Verificar que la tabla pagos existe con estructura correcta
      */
     it('Debe poder consultar la tabla pagos', async () => {
-        const { data, error } = await supabase
+        const { data: _data, error } = await supabase
             .from('pagos')
             .select('id, monto_total, desglose_capital, desglose_interes, desglose_mora')
             .limit(1)

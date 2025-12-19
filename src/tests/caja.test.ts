@@ -25,11 +25,8 @@ vi.mock('@/lib/supabase/server', () => ({
     }
 }))
 
-// Importar acciones DESPUÉS del mock
-import {
-    obtenerEstadoCaja,
-    obtenerCajaCompleta
-} from '../lib/actions/caja-actions'
+// Unused imports removed - kept for future tests
+// import { obtenerEstadoCaja, obtenerCajaCompleta } from '../lib/actions/caja-actions'
 
 // Cliente directo para assertions
 const supabase = createClient(supabaseUrl, supabaseKey)
@@ -40,7 +37,7 @@ describe('Módulo de Caja - Integración', () => {
      * PRUEBA 1: Verificar que la tabla cajas_operativas existe
      */
     it('Debe poder consultar la tabla cajas_operativas', async () => {
-        const { data, error } = await supabase
+        const { data: _data, error } = await supabase
             .from('cajas_operativas')
             .select('id, estado, saldo_actual')
             .limit(1)

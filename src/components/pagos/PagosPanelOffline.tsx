@@ -9,20 +9,20 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { useRxDB, useCreditosLocales, useRegistrarPagoLocal, usePagosDeCredito } from '@/lib/rxdb/hooks'
+import { useRxDB, useCreditosLocales, useRegistrarPagoLocal } from '@/lib/rxdb/hooks'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { WifiOff, RefreshCw, Search, User, CheckCircle2, ChevronRight, AlertCircle, Clock, AlertTriangle, Send } from 'lucide-react'
+import { RefreshCw, Search, User, CheckCircle2, ChevronRight, AlertCircle, Clock, AlertTriangle, Send } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatearNumero } from '@/lib/utils/decimal'
 import { buscarClientes, type ClienteBusqueda, buscarContratosPorClienteId, type ContratoParaPago } from '@/lib/actions/pagos-actions'
 import { obtenerVencimientosAgrupados, type ContratoVencimiento } from '@/lib/actions/vencimientos-actions'
 import { enviarRecordatorioCliente } from '@/lib/actions/whatsapp-actions'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { TransactionBuilder } from './cockpit/TransactionBuilder'
 import { TrustScore } from './cockpit/TrustScore'
-import { imprimirVoucherPago } from '@/components/printing/documents' // New import
+import { imprimirVoucherPago } from '@/components/printing/documents'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 
 interface PagosPanelOfflineProps {
@@ -31,12 +31,12 @@ interface PagosPanelOfflineProps {
 }
 
 export function PagosPanelOffline({ cajaId, usuarioId }: PagosPanelOfflineProps) {
-    const { isReady, isOnline, forceSync, isSyncing } = useRxDB()
+    const { isReady, isOnline, forceSync: _forceSync, isSyncing: _isSyncing } = useRxDB()
     const { registrarPago } = useRegistrarPagoLocal()
 
     // State
     const [busqueda, setBusqueda] = useState('')
-    const [isSearching, setIsSearching] = useState(false)
+    const [_isSearching, setIsSearching] = useState(false)
     const [searchResults, setSearchResults] = useState<ClienteBusqueda[]>([])
     const [clienteSeleccionado, setClienteSeleccionado] = useState<ClienteBusqueda | null>(null)
 
@@ -47,11 +47,11 @@ export function PagosPanelOffline({ cajaId, usuarioId }: PagosPanelOfflineProps)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [lastTransaction, setLastTransaction] = useState<any>(null)
     const [showSuccessModal, setShowSuccessModal] = useState(false)
-    const [isProcessing, setIsProcessing] = useState(false) // Assuming local loading state
+    const [_isProcessing, setIsProcessing] = useState(false)
 
     // Data Loading
     const [creditosServer, setCreditosServer] = useState<ContratoParaPago[]>([])
-    const [loadingServer, setLoadingServer] = useState(false)
+    const [_loadingServer, setLoadingServer] = useState(false)
     const { creditos: creditosLocales } = useCreditosLocales(clienteSeleccionado?.id)
 
     // Vencimientos data for sidebar
@@ -133,6 +133,7 @@ export function PagosPanelOffline({ cajaId, usuarioId }: PagosPanelOfflineProps)
                 toast.error(result.error || 'Error enviando recordatorio')
             }
         } catch (err) {
+            console.error('[PagosPanelOffline] Error sending reminder:', err)
             toast.error('Error de conexión')
         } finally {
             setEnviandoRecordatorio(null)
@@ -150,7 +151,7 @@ export function PagosPanelOffline({ cajaId, usuarioId }: PagosPanelOfflineProps)
             } else {
                 toast.warning("Búsqueda solo disponible Online por ahora")
             }
-        } catch (e) {
+        } catch (_e) {
             toast.error("Error buscando cliente")
         } finally {
             setIsSearching(false)

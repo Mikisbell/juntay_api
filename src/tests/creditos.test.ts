@@ -41,7 +41,7 @@ describe('Módulo de Créditos - Integración', () => {
      * PRUEBA 1: Verificar estructura de tabla créditos
      */
     it('Debe tener las columnas correctas en creditos', async () => {
-        const { data, error } = await supabase
+        const { data: _data, error } = await supabase
             .from('creditos')
             .select('id, codigo, monto_prestado, saldo_pendiente, tasa_interes, estado, fecha_vencimiento')
             .limit(1)

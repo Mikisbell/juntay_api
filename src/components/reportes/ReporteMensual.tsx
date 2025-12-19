@@ -1,21 +1,17 @@
 "use client"
 
-import { useMemo, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
     BarChart3,
     TrendingUp,
     TrendingDown,
     DollarSign,
-    Users,
     Package,
-    Calendar,
-    Download,
     FileSpreadsheet
 } from 'lucide-react'
-import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns'
+import { format, startOfMonth, endOfMonth } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 interface DatosReporte {
@@ -38,7 +34,7 @@ interface ReporteMensualProps {
 }
 
 export function ReporteMensual({ mes, datos, datosMesAnterior }: ReporteMensualProps) {
-    const [vistaDetalle, setVistaDetalle] = useState(false)
+    const [_vistaDetalle, _setVistaDetalle] = useState(false)
 
     // Calcular porcentajes de cambio
     const calcularCambio = (actual: number, anterior?: number): { valor: number; positivo: boolean } | null => {
@@ -48,7 +44,7 @@ export function ReporteMensual({ mes, datos, datosMesAnterior }: ReporteMensualP
     }
 
     // Métricas Resumen
-    const utilidadBruta = datos.interesesGanados + datos.ventaPrendas - datos.montoTotalPrestado
+    const _utilidadBruta = datos.interesesGanados + datos.ventaPrendas - datos.montoTotalPrestado
     const tasaRecuperacion = datos.creditosOtorgados > 0
         ? (datos.creditosPagados / datos.creditosOtorgados) * 100
         : 0
