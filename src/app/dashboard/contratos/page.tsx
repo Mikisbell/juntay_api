@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Suspense } from 'react'
 import { TableSkeleton } from '@/components/ui/skeletons'
 import dynamic from 'next/dynamic'
-import { FileText, Search, Filter } from 'lucide-react'
+import { Search, Filter } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 

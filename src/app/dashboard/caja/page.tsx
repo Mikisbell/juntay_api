@@ -5,10 +5,9 @@ import { CajeroTerminal } from '@/components/caja/CajeroTerminal'
 import { useQuery } from '@tanstack/react-query'
 import { obtenerCajaCompleta, obtenerRolUsuario } from '@/lib/actions/caja-actions'
 import { CardSkeleton } from '@/components/ui/skeletons'
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AlertCircle, Wallet, Monitor } from 'lucide-react'
+import { Wallet, Monitor } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 

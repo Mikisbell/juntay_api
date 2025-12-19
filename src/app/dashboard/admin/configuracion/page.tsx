@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
-import { Save, Settings, Shield, Percent, Calendar } from 'lucide-react'
+import { Save, Shield, Percent, Calendar } from 'lucide-react'
 
 export default function ConfiguracionPage() {
     return (

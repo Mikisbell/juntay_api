@@ -1,13 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
-import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Calendar, DollarSign, User, Phone, MapPin, FileText, Clock, ArrowLeft, Image as ImageIcon, AlertTriangle, TrendingUp, Percent } from 'lucide-react'
-import Link from 'next/link'
+import { DollarSign, User, Phone, MapPin, Image as ImageIcon, AlertTriangle } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { ContratoHeader } from '@/components/contratos/ContratoHeader'
+import Image from 'next/image'
 
 export default async function ContratoDetallePage({
     params,
@@ -161,10 +159,11 @@ export default async function ContratoDetallePage({
                                     <div className="grid grid-cols-2 gap-4">
                                         {garantiaActual.fotos.map((foto: string, index: number) => (
                                             <div key={index} className="relative aspect-square rounded-lg overflow-hidden border bg-muted">
-                                                <img
+                                                <Image
                                                     src={foto}
                                                     alt={`Evidencia ${index + 1}`}
-                                                    className="object-cover w-full h-full hover:scale-105 transition-transform duration-300"
+                                                    fill
+                                                    className="object-cover hover:scale-105 transition-transform duration-300"
                                                 />
                                             </div>
                                         ))}

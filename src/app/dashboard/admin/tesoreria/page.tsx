@@ -21,7 +21,6 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
 import { Landmark, TrendingUp, TrendingDown, DollarSign, Wallet, LayoutGrid, Users, History } from 'lucide-react'
 
 export default async function TesoreriaPage() {

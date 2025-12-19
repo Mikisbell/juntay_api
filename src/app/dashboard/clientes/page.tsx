@@ -20,7 +20,6 @@ import { SearchInput } from "@/components/ui/search-input"
 
 import { ClientesActions } from './ClientesActions'
 import { ClienteRow } from './ClienteRow'
-import { SortableColumnHeader } from './SortableColumnHeader'
 
 export default async function ClientesPage(props: {
     searchParams: Promise<{ q?: string, f?: string, page?: string, sort?: string, dir?: string }>
