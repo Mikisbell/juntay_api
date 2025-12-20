@@ -44,12 +44,12 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [x] Tasas preferenciales para VIPs
 - [x] Alertas para clientes riesgosos
 
-### 5. Gestión de Garantías Mejorada
+### 5. Gestión de Garantías Mejorada ✅ COMPLETADO
 
-- [ ] Galería de fotos por artículo
-- [ ] Registro de estado (nuevo/usado/dañado)
-- [ ] Historial de tasaciones
-- [ ] Pre-valoración automática por categoría
+- [x] Galería de fotos por artículo
+- [x] Registro de estado (nuevo/usado/dañado)
+- [x] Historial de tasaciones
+- [x] Pre-valoración automática por categoría
 
 ### 6. Integración Yape/Plin ✅ COMPLETADO
 
