@@ -83,11 +83,11 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [x] Registro de ventas
 - [x] Cálculo de utilidad
 
-### 10. Integración Bancaria
+### 10. Integración Bancaria ✅ COMPLETADO
 
-- [ ] Lectura de estados de cuenta
-- [ ] Conciliación automática
-- [ ] Alertas de depósitos
+- [x] Lectura de estados de cuenta
+- [x] Conciliación automática
+- [x] Alertas de depósitos
 
 ---
 
