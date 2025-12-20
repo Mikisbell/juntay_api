@@ -6,7 +6,7 @@ import { LandingFooterB2C } from "@/components/landing/LandingFooterB2C";
 
 export default function HomePage() {
     return (
-        <main className="min-h-screen bg-white font-sans selection:bg-yellow-200 selection:text-black">
+        <main className="min-h-screen bg-slate-950 font-sans selection:bg-amber-400 selection:text-black">
             <LandingNavbarB2C />
             <LandingHeroB2C />
             <LandingProcessB2C />

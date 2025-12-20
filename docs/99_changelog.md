@@ -25,10 +25,10 @@
 - **Verification**: Script `verify-cloud.ts` validado contra producción.
 
 ### Frontend
-- **Landing Page B2C**: Implementada "Casa de Empeño Digital" en `/`.
-- **Conversion**: Enfoque 100% en cotización por WhatsApp y visita física (Mapa integrado).
-- **Assets IA**: Generación de imágenes exclusivas para Local y Proceso de Tasación.
-- **Components**: Nueva arquitectura `src/components/landing` optimizada para venta local.
+- **Landing Page B2C**: IMPLEMENTADO **PREMIUM GOLD VAULT UI**.
+- **Design System**: Nueva paleta Dark/Gold para transmitir solidez financiera y lujo.
+- **Glassmorphism**: Componentes flotantes con efectos de vidrio y luz.
+- **Components**: Reescritura total de Hero, Navbar, Process y Footer.
 
 
 
