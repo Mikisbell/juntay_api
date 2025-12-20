@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import {
-    Image,
+    Image as ImageIcon,
     Plus,
     Trash2,
     Star,
@@ -121,7 +121,7 @@ export function GaleriaFotosArticulo({
         <Card>
             <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-base">
-                    <Image className="h-5 w-5" />
+                    <ImageIcon className="h-5 w-5" />
                     Galería de Fotos
                     {fotos.length > 0 && (
                         <span className="text-sm font-normal text-muted-foreground">
@@ -134,6 +134,7 @@ export function GaleriaFotosArticulo({
                 {/* Foto principal */}
                 <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
                     {fotoSeleccionada ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
                         <img
                             src={fotoSeleccionada.url}
                             alt={fotoSeleccionada.descripcion || 'Foto del artículo'}
@@ -141,7 +142,7 @@ export function GaleriaFotosArticulo({
                         />
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                            <Image className="h-12 w-12 mb-2 opacity-50" />
+                            <ImageIcon className="h-12 w-12 mb-2 opacity-50" />
                             <p>Sin fotos</p>
                         </div>
                     )}
@@ -169,9 +170,10 @@ export function GaleriaFotosArticulo({
                                         : 'border-transparent hover:border-muted-foreground/30'
                                 )}
                             >
+                                {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
                                 <img
                                     src={foto.url}
-                                    alt=""
+                                    alt={foto.descripcion || 'Miniatura'}
                                     className="w-full h-full object-cover"
                                 />
                                 {foto.esPrincipal && (
@@ -243,9 +245,10 @@ export function FotoAmpliadaModal({
             onClick={onClose}
         >
             <div className="relative max-w-4xl max-h-[90vh]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                     src={foto.url}
-                    alt={foto.descripcion || 'Foto'}
+                    alt={foto.descripcion || 'Foto ampliada'}
                     className="max-w-full max-h-[90vh] object-contain"
                 />
                 <Button
