@@ -414,6 +414,7 @@ Todos los server actions están en `src/lib/actions/`. Documentación completa:
 | `auditoria-actions.ts` | 2 | Logs de auditoría |
 | `seed-actions.ts` | 1 | Datos de prueba |
 | `render-status.ts` | 1 | Estado de Render.com |
+| `pagos-wrapper.ts` | 0 | Re-export para uso en cliente (wrapper) |
 
 ---
 

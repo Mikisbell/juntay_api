@@ -6,8 +6,8 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ OK | 61 |
-| ⚠️ Warnings | 1 |
+| ✅ OK | 62 |
+| ⚠️ Warnings | 0 |
 | ❌ Errors | 0 |
 
 ## Details
@@ -40,7 +40,7 @@
 - ✅ **Actions/pagos-actions.ts**: 8 functions, documented
 - ✅ **Actions/pagos-digitales-actions.ts**: 5 functions, documented
 - ✅ **Actions/pagos-rpc-actions.ts**: 1 functions, documented
-- ⚠️ **Actions/pagos-wrapper.ts**: 0 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
+- ✅ **Actions/pagos-wrapper.ts**: 0 functions, documented
 - ✅ **Actions/recibo-whatsapp-actions.ts**: 1 functions, documented
 - ✅ **Actions/recibos-historial-actions.ts**: 3 functions, documented
 - ✅ **Actions/recordatorios-config-actions.ts**: 4 functions, documented
