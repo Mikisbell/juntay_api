@@ -11,7 +11,8 @@ import {
     DollarSign,
     RefreshCw,
     User,
-    ChevronRight
+    ChevronRight,
+    Camera
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -27,6 +28,7 @@ import {
     type ResumenCobrador
 } from '@/lib/actions/cobrador-movil-actions'
 import { cn } from '@/lib/utils'
+import { CapturaFotoGarantia, GaleriaFotosCapturadas } from './CapturaFotoGarantia'
 
 interface CobradorDashboardProps {
     cobradorId: string
@@ -43,6 +45,8 @@ export function CobradorDashboard({ cobradorId, cobradorNombre }: CobradorDashbo
     const [cobroActivo, setCobroActivo] = useState<CobroDelDia | null>(null)
     const [montoCobro, setMontoCobro] = useState('')
     const [registrando, setRegistrando] = useState(false)
+    const [fotosCapturadas, setFotosCapturadas] = useState<string[]>([])
+    const [mostrarCamara, setMostrarCamara] = useState(false)
 
     const cargarDatos = async () => {
         setLoading(true)
@@ -258,6 +262,42 @@ export function CobradorDashboard({ cobradorId, cobradorNombre }: CobradorDashbo
                                 value={montoCobro}
                                 onChange={(e) => setMontoCobro(e.target.value)}
                             />
+                        </div>
+
+                        {/* Fotos de garantía */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium flex items-center gap-2">
+                                <Camera className="h-4 w-4" />
+                                Fotos de Garantía
+                            </label>
+
+                            {mostrarCamara ? (
+                                <CapturaFotoGarantia
+                                    onFotoCapturada={(foto) => {
+                                        setFotosCapturadas([...fotosCapturadas, foto])
+                                        setMostrarCamara(false)
+                                    }}
+                                    onCancel={() => setMostrarCamara(false)}
+                                />
+                            ) : (
+                                <>
+                                    <GaleriaFotosCapturadas
+                                        fotos={fotosCapturadas}
+                                        onEliminar={(index) => {
+                                            setFotosCapturadas(fotosCapturadas.filter((_, i) => i !== index))
+                                        }}
+                                    />
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setMostrarCamara(true)}
+                                        className="w-full"
+                                    >
+                                        <Camera className="h-4 w-4 mr-2" />
+                                        {fotosCapturadas.length > 0 ? 'Agregar otra foto' : 'Tomar foto'}
+                                    </Button>
+                                </>
+                            )}
                         </div>
 
                         {/* Botones de resultado */}
