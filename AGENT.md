@@ -20,11 +20,14 @@ If something is not explicit here or in `/docs`, **STOP and ASK**.
 
 This document governs all automated and AI-assisted contributions.
 
+> ⚠️ **ANTES DE EMPEZAR:** Lee `PROMPT_PRINCIPAL.md` primero.
+
 Precedence order:
-1. `AGENT.md` (this file)
-2. `/docs/*.md`
-3. Existing code patterns
-4. External references
+1. `PROMPT_PRINCIPAL.md` (comportamiento y reglas de interacción)
+2. `AGENT.md` (this file - reglas técnicas)
+3. `/docs/*.md`
+4. Existing code patterns
+5. External references
 
 **These rules apply equally to humans and AI contributors.**
 
