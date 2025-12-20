@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { requireEmpresaActual } from '@/lib/auth/empresa-context'
 
 export type ContratoParaPago = {
     id: string
@@ -541,23 +542,24 @@ export async function condonarMora({
     motivo: string
     montoCondonado: number
 }) {
-    const supabase = await createClient()
+    const { empresaId, usuarioId } = await requireEmpresaActual()
 
-    // Obtener usuario actual para auditoría
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-        return { success: false, error: 'Usuario no autenticado' }
-    }
+    const supabase = await createClient()
 
     // Obtener crédito actual
     const { data: credito, error: errorCredito } = await supabase
         .from('creditos')
-        .select('id, codigo_credito, saldo_pendiente, cliente_id')
+        .select('id, codigo_credito, saldo_pendiente, cliente_id, empresa_id')
         .eq('id', creditoId)
         .single()
 
     if (errorCredito || !credito) {
         return { success: false, error: 'Crédito no encontrado' }
+    }
+
+    // Validación Cross-Tenant
+    if (credito.empresa_id !== empresaId) {
+        return { success: false, error: 'No autorizado para acceder a este crédito' }
     }
 
     // Registrar la condonación como un movimiento/nota
@@ -571,7 +573,8 @@ export async function condonarMora({
             tipo: 'CONDONACION_MORA',
             metodo_pago: 'CONDONACION',
             observaciones: `MORA CONDONADA: S/${montoCondonado.toFixed(2)} - Motivo: ${motivo}`,
-            usuario_id: user.id
+            usuario_id: usuarioId,
+            empresa_id: empresaId // NUEVO Multi-tenant
         })
 
     if (errorRegistro) {

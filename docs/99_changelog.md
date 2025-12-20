@@ -6,23 +6,29 @@
 ---
 
 ## [Unreleased]
-
 ### Added
 - Script `npm run docs:audit` para verificar health de documentación
 - Archivo `STATUS.md` auto-generado
 - Helper `src/lib/auth/empresa-context.ts` para contexto multi-tenant centralizado
 - Estrategia "SaaS-Ready Single-Tenant" en ROADMAP (Fase 0)
-- Migración `20251220000001_multitenant_foundation.sql`:
-  - `empresa_id` en tablas: sucursales, cuentas_financieras, inversionistas, garantias
-  - Función `get_user_empresa()` para RLS multi-tenant
-- Reporte de auditoría multi-tenant completo (BD, RLS, Actions, Frontend)
-- Seed `supabase/seed.sql` con datos iniciales para empresa piloto
-- Script `npm run db:verify` para verificar BD antes de producción
-- Guía `docs/DEPLOYMENT.md` con pasos para Supabase + Vercel
-- `vercel.json` con configuración optimizada y headers de seguridad
 
-### Changed
-- ROADMAP 2026 actualizado con Fase 0 de producción urgente antes de multi-tenant
+## [2025.12.20] - Producción Multi-Tentant Core
+### Security & Architecture
+- **Schema Hardening**: `empresa_id` agregado a tablas financieras críticas (`pagos`, `cajas_operativas`, `movimientos_caja_operativa`, `garantias`, `inversionistas`, `transacciones_capital`).
+- **RLS Enforced**: Implementado aislamiento total "Deny by Default" en las 12 tablas principales usando `get_user_empresa()`.
+- **RPCs Seguros**: Nuevas versiones de `registrar_pago_oficial`, `admin_asignar_caja` y `cerrar_caja_oficial` con validación de empresa y aislamiento de datos.
+- **Server Actions**: `pagos-actions.ts` y `caja-actions.ts` actualizados para usar `requireEmpresaActual` y prevenir fugas de datos.
+
+### Deployment
+- **Producción**: Configuración final para Vercel + Supabase Prod.
+- **Data Seed**: Script mejorado para inicializar Empresa Piloto, Sucursal y Admin.
+- **Verification**: Script `verify-cloud.ts` validado contra producción.
+
+### Frontend
+- **Landing Page B2C**: Implementada "Casa de Empeño Digital" en `/`.
+- **Conversion**: Enfoque 100% en cotización por WhatsApp y visita física (Mapa integrado).
+- **Assets IA**: Generación de imágenes exclusivas para Local y Proceso de Tasación.
+- **Components**: Nueva arquitectura `src/components/landing` optimizada para venta local.
 
 
 

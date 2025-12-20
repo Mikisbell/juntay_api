@@ -59,7 +59,7 @@
 - ✅ **Actions/vision-actions.ts**: 1 functions, documented
 - ✅ **Actions/waha-actions.ts**: 4 functions, documented
 - ✅ **Actions/whatsapp-actions.ts**: 5 functions, documented
-- ✅ **Migrations/Recent**: 33 migrations in last 7 days
+- ✅ **Migrations/Recent**: 38 migrations in last 7 days
 - ✅ **Tests/Integration Scripts**: 5 scripts in /scripts/
 - ✅ **Tests/Unit Tests**: 9 test files in /src/
 - ✅ **Docs/AGENT.md**: Exists
@@ -82,7 +82,7 @@
 | Metric | Value |
 |--------|-------|
 | Action files | 47 |
-| Migrations | 33 |
+| Migrations | 38 |
 | Test scripts | 5 |
 | Doc files | 14 |
 

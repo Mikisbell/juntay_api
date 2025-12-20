@@ -144,9 +144,13 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 
 - [x] Tabla `empresas` con datos de cada empresa *(YA EXISTE)*
 - [x] Columna `empresa_id` en tablas principales *(PARCIAL: usuarios, clientes, creditos, boveda)*
-- [ ] Completar `empresa_id` en tablas faltantes (garantias, pagos, movimientos)
-- [ ] RLS policies por tenant
-- [ ] Aislamiento completo de datos
+- [x] Completar `empresa_id` en tablas faltantes (garantias, pagos, movimientos, cajas, inversionistas)
+- [x] RLS policies por tenant - Aislamiento Total Activado 🛡️
+- [x] Aislamiento completo de datos
+- [x] Landing Page B2C "Casa de Empeño" (juntay.app)
+  - [x] Componentes UI (Hero, Process, Location, Footer)
+  - [x] Integración de WhatsApp y Geolocalización
+  - [x] Imágenes generadas por IA (Local + App)
 - [ ] Script de creación de nuevo tenant
 
 
