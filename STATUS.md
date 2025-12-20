@@ -6,8 +6,8 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ OK | 30 |
-| ⚠️ Warnings | 32 |
+| ✅ OK | 34 |
+| ⚠️ Warnings | 28 |
 | ❌ Errors | 0 |
 
 ## Details
@@ -66,11 +66,11 @@
 - ✅ **Docs/ROADMAP.md**: Exists
 - ✅ **Docs/README.md**: Exists
 - ✅ **Docs/docs/SYSTEM_BLUEPRINT.md**: Exists
-- ⚠️ **Docs/docs/99_changelog.md**: MISSING
-- ⚠️ **Docs/docs/03_auth.md**: MISSING
-- ⚠️ **Docs/docs/05_testing.md**: MISSING
+- ✅ **Docs/docs/99_changelog.md**: Exists
+- ✅ **Docs/docs/03_auth.md**: Exists
+- ✅ **Docs/docs/05_testing.md**: Exists
 - ✅ **Docs/docs/06_conventions.md**: Exists
-- ⚠️ **Docs/.agent/workflows**: MISSING
+- ✅ **Docs/.agent/workflows**: Exists
 - ✅ **Consistency/ROADMAP**: 10 features marked complete
 - ✅ **Consistency/BLUEPRINT**: 3 phases complete, 1 pending
 - ✅ **Consistency/BLUEPRINT Version**: Unknown, Unknown
@@ -84,7 +84,7 @@
 | Action files | 47 |
 | Migrations | 32 |
 | Test scripts | 5 |
-| Doc files | 6 |
+| Doc files | 9 |
 
 ---
 
