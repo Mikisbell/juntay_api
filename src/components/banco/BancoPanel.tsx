@@ -40,12 +40,12 @@ import {
     conciliarTransaccion,
     ignorarTransaccion,
     importarTransacciones,
-    parsearLineaExtracto,
     type TransaccionBancaria,
     type ResumenBancario,
     type SugerenciaConciliacion,
     type TipoBanco
 } from '@/lib/actions/integracion-bancaria-actions'
+import { parsearLineaExtracto } from '@/lib/utils/banco-parser'
 import { cn } from '@/lib/utils'
 
 /**
