@@ -119,16 +119,36 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 
 ---
 
-## � Q1 2026 - Listo para Vender
+## 🚨 Fase 0: Producción Urgente (Actual)
 
-### 1. Multi-tenant [ ] 🔴 CRÍTICO
-> Sin esto, no pueden tener múltiples clientes
+> **Estrategia:** "SaaS-Ready Single-Tenant" - Desplegar para el cliente #1 sin crear deuda técnica.
 
-- [ ] Tabla `tenants` con datos de cada empresa
-- [ ] Columna `tenant_id` en todas las tablas de negocio
+### 0.1 Infraestructura SaaS-Ready [/] EN PROGRESO
+- [x] Crear helper `getEmpresaActual()` centralizado
+- [ ] Auditar server actions críticos (creditos, pagos, clientes)
+- [ ] Agregar filtros `empresa_id` donde falten
+- [ ] Documentar reglas de compatibilidad futura
+
+### 0.2 Deploy Producción [ ]
+- [ ] Configurar Supabase producción
+- [ ] Configurar Vercel con variables de entorno
+- [ ] Seed: Empresa #1 + Sucursal + Admin
+- [ ] Go-live cliente piloto
+
+---
+
+## 🏢 Q1 2026 - Multi-Tenant Completo
+
+### 1. Multi-tenant [/] 🔴 CRÍTICO (Ya tiene 70% base)
+> Tablas `empresas` y `sucursales` ya existen. Falta completar.
+
+- [x] Tabla `empresas` con datos de cada empresa *(YA EXISTE)*
+- [x] Columna `empresa_id` en tablas principales *(PARCIAL: usuarios, clientes, creditos, boveda)*
+- [ ] Completar `empresa_id` en tablas faltantes (garantias, pagos, movimientos)
 - [ ] RLS policies por tenant
 - [ ] Aislamiento completo de datos
 - [ ] Script de creación de nuevo tenant
+
 
 ### 2. Onboarding Automatizado [ ]
 - [ ] Wizard de configuración inicial
@@ -165,7 +185,7 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [ ] Exportación programada automática
 
 ### 7. WhatsApp API Real [ ]
-- [ ] Integración con API oficial de Meta
+- [ ] Integración con API oficial de Meta (Por ahora usar WAHA, solo cuando el cliente adquiera el plan Pro lo configuramos)
 - [ ] Templates pre-aprobados
 - [ ] Envío masivo de recordatorios
 - [ ] Métricas de entrega/lectura
@@ -202,14 +222,14 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 
 ## 🔗 Q4 2026 - Diferenciadores
 
-### 12. Integraciones [ ]
+### 12. Integraciones [ ](De Preferencia planes gratuitos)
 - [ ] RENIEC (validación DNI)
 - [ ] Centrales de riesgo (Sentinel, Equifax)
 - [ ] Contabilidad (Contasis, etc)
 - [ ] Pasarelas de pago (Culqi, MercadoPago)
 
-### 13. API Pública [ ]
-- [ ] REST API documentada
+### 13. API Pública [ ] (imagino que revisaste mi proeycto a detalle para recomendarme estas opciones)
+- [ ] REST API documentada 
 - [ ] Webhooks para eventos
 - [ ] SDK JavaScript/Python
 - [ ] Rate limiting por plan

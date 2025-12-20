@@ -40,7 +40,9 @@ BEGIN
 END $$;
 
 -- 6. Actualizar vista empleados_completo para incluir nuevos campos
-CREATE OR REPLACE VIEW public.empleados_completo AS
+-- NOTA: DROP requerido porque CREATE OR REPLACE no permite cambiar posición de columnas
+DROP VIEW IF EXISTS public.empleados_completo;
+CREATE VIEW public.empleados_completo AS
 SELECT 
     e.id,
     e.persona_id,

@@ -8,6 +8,7 @@
         "test:e2e": "playwright test",
         "verify": "npx tsx verify-system-integrity.ts",
         "audit:db": "npx tsx scripts/run_audit_node.js",
+        "db:verify": "npx tsx scripts/verify-database.ts",
         "docs:audit": "npx tsx scripts/audit-docs.ts",
         "ops:squash": "bash ./scripts/ops_squash_migrations.sh",
         "dev:next": "next dev",

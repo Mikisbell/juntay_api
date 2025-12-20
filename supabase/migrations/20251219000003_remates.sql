@@ -33,20 +33,24 @@ CREATE INDEX IF NOT EXISTS idx_ventas_remates_articulo ON ventas_remates(articul
 CREATE INDEX IF NOT EXISTS idx_garantias_remate ON garantias(para_remate) WHERE para_remate = true;
 
 -- Vista "inventario" como alias de garantías para compatibilidad con actions
+-- Usa COALESCE para columnas opcionales y omite las que no existen
 CREATE OR REPLACE VIEW inventario AS
 SELECT 
-    id,
-    descripcion,
-    categoria,
-    subcategoria,
-    valor_tasacion AS valor_tasado,
-    estado,
-    fotos,
-    metadata,
-    para_remate,
-    cliente_id,
-    credito_id,
-    created_at
-FROM garantias;
+    g.id,
+    g.descripcion,
+    g.categoria_id,
+    c.nombre AS categoria_nombre,
+    g.subcategoria,
+    g.valor_tasacion AS valor_tasado,
+    g.estado,
+    g.estado_bien,
+    g.fotos_urls AS fotos,
+    g.para_remate,
+    g.cliente_id,
+    g.credito_id,
+    g.created_at
+FROM garantias g
+LEFT JOIN categorias_garantia c ON g.categoria_id = c.id;
 
 COMMENT ON VIEW inventario IS 'Vista de compatibilidad: alias de garantias para módulo de remates';
+

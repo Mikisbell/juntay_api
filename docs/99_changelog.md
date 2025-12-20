@@ -10,6 +10,21 @@
 ### Added
 - Script `npm run docs:audit` para verificar health de documentación
 - Archivo `STATUS.md` auto-generado
+- Helper `src/lib/auth/empresa-context.ts` para contexto multi-tenant centralizado
+- Estrategia "SaaS-Ready Single-Tenant" en ROADMAP (Fase 0)
+- Migración `20251220000001_multitenant_foundation.sql`:
+  - `empresa_id` en tablas: sucursales, cuentas_financieras, inversionistas, garantias
+  - Función `get_user_empresa()` para RLS multi-tenant
+- Reporte de auditoría multi-tenant completo (BD, RLS, Actions, Frontend)
+- Seed `supabase/seed.sql` con datos iniciales para empresa piloto
+- Script `npm run db:verify` para verificar BD antes de producción
+- Guía `docs/DEPLOYMENT.md` con pasos para Supabase + Vercel
+- `vercel.json` con configuración optimizada y headers de seguridad
+
+### Changed
+- ROADMAP 2026 actualizado con Fase 0 de producción urgente antes de multi-tenant
+
+
 
 ---
 
