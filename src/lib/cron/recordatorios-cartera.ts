@@ -16,6 +16,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { sendMessage } from '@/lib/actions/waha-actions'
+import { estaDentroDeHorario, tipoRecordatorioActivo } from '@/lib/actions/recordatorios-config-actions'
 
 // Tipos
 interface ContratoParaRecordatorio {
@@ -30,7 +31,7 @@ interface ContratoParaRecordatorio {
     dias_vencido: number
 }
 
-type TipoRecordatorio = 'VENCIDO' | 'VENCE_HOY' | 'VENCE_MANANA'
+type TipoRecordatorio = 'VENCIDO' | 'VENCE_HOY' | 'VENCE_MANANA' | 'VENCE_3_DIAS'
 
 interface ResultadoEjecucion {
     total_procesados: number
@@ -60,9 +61,11 @@ async function obtenerContratosParaRecordatorio(): Promise<ContratoParaRecordato
         return []
     }
 
-    // Filtrar solo los que necesitan recordatorio (vencidos, hoy, mañana)
+    // Filtrar: vencidos, hoy, mañana, o 3 días antes
     return (data || [])
-        .filter((c: { dias_restantes: number }) => c.dias_restantes <= 1) // -1, 0, o positivo (vencido)
+        .filter((c: { dias_restantes: number }) =>
+            c.dias_restantes <= 1 || c.dias_restantes === 3
+        )
         .map((c: {
             id: string
             codigo: string
@@ -117,7 +120,9 @@ async function yaNotificadoHoy(creditoId: string): Promise<boolean> {
 function getTipoRecordatorio(diasVencido: number): TipoRecordatorio {
     if (diasVencido > 0) return 'VENCIDO'
     if (diasVencido === 0) return 'VENCE_HOY'
-    return 'VENCE_MANANA'
+    if (diasVencido === -1) return 'VENCE_MANANA'
+    if (diasVencido === -3) return 'VENCE_3_DIAS'
+    return 'VENCE_MANANA' // Default
 }
 
 /**
@@ -164,6 +169,19 @@ Tu crédito *${contrato.codigo}* vence *mañana*.
 💰 Monto a pagar: *S/ ${monto}*
 
 Te esperamos para renovar o cancelar.
+
+— JUNTAY Financiera`
+
+        case 'VENCE_3_DIAS':
+            return `📆 *RECORDATORIO DE PAGO*
+
+Hola ${nombre},
+
+Te recordamos que tu crédito *${contrato.codigo}* vence en *3 días*.
+
+💰 Monto a pagar: *S/ ${monto}*
+
+Planifica tu pago con anticipación.
 
 — JUNTAY Financiera`
     }
@@ -221,6 +239,13 @@ export async function runRecordatoriosCartera(): Promise<ResultadoEjecucion> {
     }
 
     try {
+        // 0. Verificar horario de envío
+        const horario = await estaDentroDeHorario()
+        if (!horario.permitido) {
+            console.log(`⏰ Fuera de horario: ${horario.razon}`)
+            return resultado
+        }
+
         // 1. Obtener contratos que necesitan recordatorio
         const contratos = await obtenerContratosParaRecordatorio()
         resultado.total_procesados = contratos.length
@@ -230,6 +255,17 @@ export async function runRecordatoriosCartera(): Promise<ResultadoEjecucion> {
         // 2. Procesar cada contrato
         for (const contrato of contratos) {
             const tipo = getTipoRecordatorio(contrato.dias_vencido)
+
+            // Verificar si este tipo de recordatorio está activo
+            if (!(await tipoRecordatorioActivo(tipo))) {
+                resultado.detalles.push({
+                    codigo: contrato.codigo,
+                    tipo,
+                    resultado: 'omitido',
+                    razon: `Tipo ${tipo} desactivado`
+                })
+                continue
+            }
 
             // Verificar teléfono
             if (!contrato.cliente_telefono) {
