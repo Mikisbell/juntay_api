@@ -113,100 +113,118 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 
 ---
 
-# 📅 ROADMAP 2026
+# 📅 ROADMAP 2026 - Producto SaaS
 
-## 🔧 Q1 2026 - Estabilización y Producción
-
-### 1. Verificación Offline/RxDB [ ]
-> **CRÍTICO**: Validar que el sistema offline-first funciona correctamente
-
-- [ ] Test sincronización después de reconexión
-- [ ] Verificar resolución de conflictos
-- [ ] Probar app cobrador sin conexión
-- [ ] Documentar flujo offline
-
-### 2. Seguridad RLS [ ]
-- [ ] Implementar RLS en todas las tablas Q3
-- [ ] Test: Cajero solo ve su sucursal
-- [ ] Test: Cliente no ve datos de otros
-- [ ] Auditoría de permisos
-
-### 3. Monitoreo y Observabilidad [ ]
-- [ ] Configurar Sentry para errores
-- [ ] Logs estructurados en acciones críticas
-- [ ] Dashboard de health check
-- [ ] Alertas de fallos
-
-### 4. Documentación Técnica [ ]
-- [ ] API docs con ejemplos
-- [ ] Guía de deployment
-- [ ] Manual de usuario (cajero/admin)
-- [ ] Onboarding de desarrolladores
+> **Objetivo:** Producto listo para vender a casas de empeño como SaaS o white-label.
 
 ---
 
-## 🚀 Q2 2026 - Optimización UX
+## � Q1 2026 - Listo para Vender
 
-### 5. Mejoras de Interfaz [ ]
-- [ ] Dark mode completo
-- [ ] Accesibilidad (WCAG 2.1)
-- [ ] Optimización mobile
+### 1. Multi-tenant [ ] 🔴 CRÍTICO
+> Sin esto, no pueden tener múltiples clientes
+
+- [ ] Tabla `tenants` con datos de cada empresa
+- [ ] Columna `tenant_id` en todas las tablas de negocio
+- [ ] RLS policies por tenant
+- [ ] Aislamiento completo de datos
+- [ ] Script de creación de nuevo tenant
+
+### 2. Onboarding Automatizado [ ]
+- [ ] Wizard de configuración inicial
+- [ ] Crear empresa + sucursal + admin en 5 min
+- [ ] Importar catálogo de categorías
+- [ ] Configurar tasas de interés por defecto
+
+### 3. Landing Page + Demo [ ]
+- [ ] Landing page de producto
+- [ ] Demo interactivo con datos ficticios
+- [ ] Formulario de contacto/solicitud
+- [ ] Video explicativo
+
+### 4. Seguridad RLS [ ]
+- [ ] RLS en TODAS las tablas
+- [ ] Test: Empresa A no ve datos de B
+- [ ] Audit log de accesos
+- [ ] 2FA para admins
+
+---
+
+## 🎨 Q2 2026 - El "Wow" del Demo
+
+### 5. Dashboard Gerencial Premium [ ]
+- [ ] Gráficos animados e interactivos
+- [ ] KPIs en tiempo real
+- [ ] Comparativas mes a mes
+- [ ] Diseño ejecutivo que impresione
+
+### 6. Reportes PDF Profesionales [ ]
+- [ ] Reporte de cartera con logo empresa
+- [ ] Estado de cuenta por cliente
+- [ ] Reporte de mora con gráficos
+- [ ] Exportación programada automática
+
+### 7. WhatsApp API Real [ ]
+- [ ] Integración con API oficial de Meta
+- [ ] Templates pre-aprobados
+- [ ] Envío masivo de recordatorios
+- [ ] Métricas de entrega/lectura
+
+### 8. UX Polish [ ]
+- [ ] Dark mode
 - [ ] Micro-animaciones
-
-### 6. Performance [ ]
-- [ ] Lazy loading de componentes pesados
-- [ ] Optimización de queries N+1
-- [ ] Cache de datos frecuentes
-- [ ] Bundle size reduction
-
-### 7. PWA Completa [ ]
-- [ ] Install prompt
-- [ ] Push notifications
-- [ ] Background sync
-- [ ] Offline indicator mejorado
+- [ ] Loading states mejorados
+- [ ] Mobile responsive perfecto
 
 ---
 
-## 📊 Q3 2026 - Analytics Avanzado
+## � Q3 2026 - Monetización
 
-### 8. BI Dashboard [ ]
-- [ ] Reportes personalizables
-- [ ] Gráficos interactivos
-- [ ] Exportación programada
-- [ ] Comparativas YoY/MoM
+### 9. Billing/Suscripciones [ ]
+- [ ] Planes: Básico / Pro / Enterprise
+- [ ] Cobro mensual automático
+- [ ] Límites por plan (usuarios, créditos)
+- [ ] Portal de facturación para cliente
 
-### 9. Predicción de Mora [ ]
-- [ ] ML model para riesgo de impago
-- [ ] Alertas predictivas
-- [ ] Recomendaciones automáticas
-- [ ] A/B testing de estrategias
+### 10. Admin Panel (Super Admin) [ ]
+- [ ] Ver todos los tenants
+- [ ] Métricas de uso por tenant
+- [ ] Activar/desactivar tenants
+- [ ] Soporte técnico interno
 
-### 10. Análisis de Rentabilidad [ ]
-- [ ] Cálculo de ROI por cliente
-- [ ] Análisis de categorías más rentables
-- [ ] Optimización de tasas
+### 11. Analytics de Uso [ ]
+- [ ] Qué features usan más
+- [ ] Retención de usuarios
+- [ ] Churn prediction
+- [ ] Feedback in-app
 
 ---
 
-## 🔗 Q4 2026 - Integraciones
+## 🔗 Q4 2026 - Diferenciadores
 
-### 11. API Pública [ ]
+### 12. Integraciones [ ]
+- [ ] RENIEC (validación DNI)
+- [ ] Centrales de riesgo (Sentinel, Equifax)
+- [ ] Contabilidad (Contasis, etc)
+- [ ] Pasarelas de pago (Culqi, MercadoPago)
+
+### 13. API Pública [ ]
 - [ ] REST API documentada
 - [ ] Webhooks para eventos
-- [ ] Rate limiting
-- [ ] API keys por cliente
+- [ ] SDK JavaScript/Python
+- [ ] Rate limiting por plan
 
-### 12. Integraciones Terceros [ ]
-- [ ] Contabilidad (Contasis, etc)
-- [ ] RENIEC/validación DNI
-- [ ] Centrales de riesgo
-- [ ] Pasarelas de pago adicionales
+### 14. White-label Completo [ ]
+- [ ] Dominio personalizado por cliente
+- [ ] Logo y colores por tenant
+- [ ] Emails con branding del cliente
+- [ ] App móvil con marca del cliente
 
-### 13. Multi-tenant [ ]
-- [ ] Soporte para múltiples empresas
-- [ ] Aislamiento de datos
-- [ ] Facturación por uso
-- [ ] White-label
+### 15. App Cobradores (Opcional) [ ]
+- [ ] Solo para clientes enterprise
+- [ ] GPS y fotos de visitas
+- [ ] Offline mode
+- [ ] Cobro en campo
 
 ---
 
@@ -222,29 +240,26 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 
 ---
 
-## 🎯 ¿Qué Sigue?
+## 🎯 Próximos Pasos Inmediatos
 
-> ROADMAP 2025 completado al 100%. Opciones para comenzar 2026:
+> Para comenzar Q1 2026:
 
-| Opción | Descripción | Recomendado |
-|--------|-------------|-------------|
-| **A. Estabilización** | Q1 completo (RLS, offline, docs) | ⭐ Si vas a producción |
-| **B. Features nuevas** | Saltar a Q2-Q3 | Si ya tienes usuarios |
-| **C. Optimización** | Performance y UX polish | Si sistema es lento |
-| **D. Documentación** | API docs, user guides | Si onboardeas equipo |
-
-### Mi Recomendación:
-> **Opción A primero** → El sistema tiene código completo pero gaps de producción.
-> Resolver RLS + Offline antes de agregar más features.
+| Prioridad | Tarea | Tiempo Est. |
+|-----------|-------|-------------|
+| 1 | Diseñar schema multi-tenant | 2-3 días |
+| 2 | Migración tenant_id | 1 día |
+| 3 | RLS policies | 2 días |
+| 4 | Script onboarding | 2 días |
+| 5 | Landing page | 3-5 días |
 
 ---
 
-## Métricas 2026
+## 📊 Métricas de Éxito 2026
 
-| Métrica | Objetivo |
-|---------|----------|
-| Uptime | 99.5% |
-| Error rate | < 0.1% |
-| Page load | < 2s |
-| Mobile score | > 90 |
-| Test coverage | > 80% |
+| Métrica | Q1 | Q2 | Q3 | Q4 |
+|---------|----|----|----|----|
+| Tenants activos | 1-3 | 5-10 | 15-25 | 30+ |
+| MRR objetivo | $500 | $2,000 | $5,000 | $10,000 |
+| Churn | <10% | <10% | <5% | <5% |
+| NPS | >50 | >60 | >70 | >70 |
+
