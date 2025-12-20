@@ -93,6 +93,11 @@ const SECTIONS = [
         label: "BACK OFFICE (Sistema)",
         items: [
             {
+                title: "Centro de Monitoreo",
+                url: "/dashboard/admin/monitoreo",
+                icon: LayoutDashboard,
+            },
+            {
                 title: "Tesorería Central",
                 url: "/dashboard/admin/tesoreria",
                 icon: Landmark,
