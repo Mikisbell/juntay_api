@@ -12,7 +12,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { InventarioItem, cambiarEstadoGarantia } from "@/lib/actions/inventario-actions"
 import { useState } from "react"
-import { Loader2, Gavel, Archive } from "lucide-react"
+import { Loader2, Gavel, Archive, Eye } from "lucide-react"
+import Link from "next/link"
 
 export function TablaInventario({ items }: { items: InventarioItem[] }) {
     const [loadingId, setLoadingId] = useState<string | null>(null)
@@ -96,6 +97,11 @@ export function TablaInventario({ items }: { items: InventarioItem[] }) {
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-right space-x-2">
+                                    <Link href={`/dashboard/inventario/${item.id}`}>
+                                        <Button size="sm" variant="ghost" title="Ver detalles">
+                                            <Eye className="h-4 w-4" />
+                                        </Button>
+                                    </Link>
                                     {item.estado === 'custodia' && (
                                         <Button
                                             size="sm"

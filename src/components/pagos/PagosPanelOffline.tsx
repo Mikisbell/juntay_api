@@ -21,7 +21,7 @@ import { obtenerVencimientosAgrupados, type ContratoVencimiento } from '@/lib/ac
 import { enviarRecordatorioCliente } from '@/lib/actions/whatsapp-actions'
 import { motion } from 'framer-motion'
 import { TransactionBuilder } from './cockpit/TransactionBuilder'
-import { TrustScore } from './cockpit/TrustScore'
+import { TrustScoreReal } from './cockpit/TrustScoreReal'
 import { imprimirVoucherPago } from '@/components/printing/documents'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 
@@ -421,7 +421,7 @@ export function PagosPanelOffline({ cajaId, usuarioId }: PagosPanelOfflineProps)
                             </div>
 
                             <div className="relative z-10 hidden lg:block">
-                                <TrustScore score={85} level="VIP" />
+                                <TrustScoreReal clienteId={clienteSeleccionado.id} />
                             </div>
                         </div>
 
