@@ -61,12 +61,12 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 
 ## 🔷 Prioridad BAJA (Q3-Q4 2025)
 
-### 7. App Móvil para Cobradores
+### 7. App Móvil para Cobradores (En Progreso)
 
-- [ ] Login seguro
-- [ ] Lista de cobros del día
-- [ ] Registrar pago en campo
-- [ ] Geolocalización de visitas
+- [x] Login seguro
+- [x] Lista de cobros del día
+- [x] Registrar pago en campo
+- [x] Geolocalización de visitas
 - [ ] Tomar fotos de garantías
 
 ### 8. Sistema Multi-sucursal
