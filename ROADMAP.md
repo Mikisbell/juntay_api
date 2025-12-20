@@ -37,12 +37,12 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 
 ## 🔶 Prioridad MEDIA (Q2 2025)
 
-### 4. Scoring de Cliente
+### 4. Scoring de Cliente ✅ COMPLETADO
 
-- [ ] Calcular puntaje basado en historial
-- [ ] Indicador visual en ficha de cliente
-- [ ] Tasas preferenciales para VIPs
-- [ ] Alertas para clientes riesgosos
+- [x] Calcular puntaje basado en historial
+- [x] Indicador visual en ficha de cliente
+- [x] Tasas preferenciales para VIPs
+- [x] Alertas para clientes riesgosos
 
 ### 5. Gestión de Garantías Mejorada
 
