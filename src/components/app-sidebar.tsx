@@ -9,7 +9,6 @@ import {
     Monitor, // "Ventanilla"
     Users,
     Package,
-    Landmark,
     PieChart,
     Settings,
     ChevronRight,
@@ -93,32 +92,21 @@ const SECTIONS = [
         label: "BACK OFFICE (Sistema)",
         items: [
             {
-                title: "Centro de Monitoreo",
-                url: "/dashboard/admin/monitoreo",
-                icon: LayoutDashboard,
-            },
-            {
-                title: "Tesorería Central",
-                url: "/dashboard/admin/tesoreria",
-                icon: Landmark,
-            },
-            {
-                title: "Socios e Inversores",
-                url: "/dashboard/admin/inversionistas",
-                icon: Users, // Or Briefcase
-            },
-            {
                 title: "Reportes",
                 url: "/dashboard/reportes",
                 icon: PieChart,
             },
             {
-                title: "Configuración",
+                title: "Admin",
+                url: "/dashboard/admin",
                 icon: Settings,
                 items: [
-                    { title: "WhatsApp Business", url: "/dashboard/whatsapp" },
+                    { title: "Centro de Monitoreo", url: "/dashboard/admin/monitoreo" },
+                    { title: "Tesorería Central", url: "/dashboard/admin/tesoreria" },
+                    { title: "Socios e Inversores", url: "/dashboard/admin/inversionistas" },
                     { title: "Empleados", url: "/dashboard/admin/empleados" },
-                    { title: "Sistema", url: "/dashboard/admin/configuracion" }
+                    { title: "Configuración", url: "/dashboard/admin/configuracion" },
+                    { title: "WhatsApp Business", url: "/dashboard/whatsapp" }
                 ]
             }
         ]
