@@ -76,12 +76,12 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [x] Transferencia de garantías entre sucursales
 - [x] Permisos por sucursal
 
-### 9. Módulo de Remates
+### 9. Módulo de Remates ✅ COMPLETADO
 
-- [ ] Catálogo de artículos a rematar
-- [ ] Precio mínimo de venta
-- [ ] Registro de ventas
-- [ ] Cálculo de utilidad
+- [x] Catálogo de artículos a rematar
+- [x] Precio mínimo de venta
+- [x] Registro de ventas
+- [x] Cálculo de utilidad
 
 ### 10. Integración Bancaria
 
