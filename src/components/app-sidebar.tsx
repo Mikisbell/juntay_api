@@ -14,7 +14,9 @@ import {
     ChevronRight,
     LogOut,
     ChevronUp,
-    Gem // "Juntay Icon"
+    Gem, // "Juntay Icon"
+    Gavel, // Remates
+    Landmark // Banco
 } from "lucide-react"
 
 import {
@@ -84,6 +86,12 @@ const SECTIONS = [
                 title: "Inventario (Garantías)",
                 url: "/dashboard/inventario",
                 icon: Package,
+            },
+            {
+                title: "Remates",
+                url: "/dashboard/remates",
+                icon: Gavel,
+                desc: "Catálogo de artículos a rematar"
             }
         ]
     },
@@ -97,16 +105,24 @@ const SECTIONS = [
                 icon: PieChart,
             },
             {
+                title: "Banco",
+                url: "/dashboard/banco",
+                icon: Landmark,
+                desc: "Conciliación bancaria"
+            },
+            {
                 title: "Admin",
                 url: "/dashboard/admin",
                 icon: Settings,
                 items: [
                     { title: "Centro de Monitoreo", url: "/dashboard/admin/monitoreo" },
                     { title: "Tesorería Central", url: "/dashboard/admin/tesoreria" },
+                    { title: "Sucursales", url: "/dashboard/admin/sucursales" },
                     { title: "Socios e Inversores", url: "/dashboard/admin/inversionistas" },
                     { title: "Empleados", url: "/dashboard/admin/empleados" },
                     { title: "Configuración", url: "/dashboard/admin/configuracion" },
-                    { title: "WhatsApp Business", url: "/dashboard/whatsapp" }
+                    { title: "WhatsApp Business", url: "/dashboard/whatsapp" },
+                    { title: "App Cobradores", url: "/cobrador" }
                 ]
             }
         ]
