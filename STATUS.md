@@ -84,7 +84,7 @@
 | Action files | 47 |
 | Migrations | 32 |
 | Test scripts | 5 |
-| Doc files | 9 |
+| Doc files | 13 |
 
 ---
 
