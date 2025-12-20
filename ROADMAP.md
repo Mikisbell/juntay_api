@@ -8,13 +8,13 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 
 ## 🚀 Prioridad ALTA (Q1 2025)
 
-### 1. Recordatorios Automáticos WhatsApp
+### 1. Recordatorios Automáticos WhatsApp ✅ COMPLETADO
 
 - [x] Cron job para detectar vencimientos próximos
-- [ ] Mensaje 3 días antes del vencimiento
-- [ ] Mensaje el día del vencimiento
-- [ ] Mensaje 1 día después (mora)
-- [ ] Configuración de horarios de envío
+- [x] Mensaje 3 días antes del vencimiento
+- [x] Mensaje el día del vencimiento
+- [x] Mensaje 1 día después (mora)
+- [x] Configuración de horarios de envío
 - [x] Historial de mensajes enviados
 
 ### 2. Dashboard Gerencial
