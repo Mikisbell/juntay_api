@@ -325,6 +325,98 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000  # URL de redirección para magic lin
 
 ---
 
+### 🔌 Server Actions (Backend)
+
+Todos los server actions están en `src/lib/actions/`. Documentación completa:
+
+#### Core Financiero
+| Archivo | Funciones | Propósito |
+|---------|-----------|-----------|
+| `caja-actions.ts` | 5 | Apertura, cierre, movimientos de caja |
+| `tesoreria-actions.ts` | 20 | Gestión multi-cuenta, capital, inversionistas |
+| `financial-actions.ts` | 1 | Cálculos financieros generales |
+| `intereses-actions.ts` | 5 | Cálculo y aplicación de intereses |
+| `pagos-actions.ts` | 8 | Registro de cobros |
+| `pagos-digitales-actions.ts` | 5 | Yape, Plin, transferencias |
+| `pagos-rpc-actions.ts` | 1 | RPC de pagos |
+| `monitor-cajas-actions.ts` | 2 | Monitoreo de cajas activas |
+
+#### Créditos y Garantías
+| Archivo | Funciones | Propósito |
+|---------|-----------|-----------|
+| `creditos-actions.ts` | 9 | CRUD de préstamos |
+| `contratos-actions.ts` | 2 | Generación de contratos |
+| `contratos-list-actions.ts` | 1 | Listado de contratos |
+| `renovaciones-actions.ts` | 3 | Renovación de créditos |
+| `garantias-mejoradas-actions.ts` | 9 | Gestión avanzada de garantías |
+| `inventario-actions.ts` | 4 | Control de inventario |
+| `remates-actions.ts` | 4 | Gestión de remates |
+| `remates-module-actions.ts` | 5 | Módulo completo de remates |
+
+#### Cobranza
+| Archivo | Funciones | Propósito |
+|---------|-----------|-----------|
+| `vencimientos-actions.ts` | 5 | Detección de vencimientos |
+| `alertas-cobranza-actions.ts` | 1 | Alertas de mora |
+| `cobrador-movil-actions.ts` | 4 | App cobrador móvil |
+| `kpis-cobranza-actions.ts` | 3 | KPIs de cobranza |
+| `kpis-riesgo-actions.ts` | 2 | KPIs de riesgo |
+| `ubicacion-actions.ts` | 4 | GPS de cobradores |
+
+#### Integración Bancaria
+| Archivo | Funciones | Propósito |
+|---------|-----------|-----------|
+| `integracion-bancaria-actions.ts` | 7 | Importar/exportar estados de cuenta |
+| `conciliacion-actions.ts` | 5 | Conciliación automática |
+
+#### Clientes y Scoring
+| Archivo | Funciones | Propósito |
+|---------|-----------|-----------|
+| `clientes-actions.ts` | 11 | CRUD de clientes |
+| `scoring-cliente-actions.ts` | 3 | Cálculo de TrustScore |
+
+#### WhatsApp y Notificaciones
+| Archivo | Funciones | Propósito |
+|---------|-----------|-----------|
+| `whatsapp-actions.ts` | 5 | Envío de mensajes |
+| `waha-actions.ts` | 4 | Integración WAHA |
+| `recibo-whatsapp-actions.ts` | 1 | Envío de recibos |
+| `recibos-historial-actions.ts` | 3 | Historial de recibos |
+| `recordatorios-config-actions.ts` | 4 | Configuración de recordatorios |
+
+#### Dashboard y Reportes
+| Archivo | Funciones | Propósito |
+|---------|-----------|-----------|
+| `dashboard-actions.ts` | 2 | Dashboard principal |
+| `dashboard-gerencial-actions.ts` | 3 | Dashboard gerencial |
+| `reportes-actions.ts` | 2 | Generación de reportes |
+| `reportes-export-actions.ts` | 4 | Exportación PDF/Excel |
+| `excel-export-actions.ts` | 1 | Exportación a Excel |
+
+#### Multi-sucursal
+| Archivo | Funciones | Propósito |
+|---------|-----------|-----------|
+| `sucursales-actions.ts` | 8 | CRUD de sucursales |
+| `empleados-actions.ts` | 6 | Gestión de empleados |
+| `auth-empleados-actions.ts` | 3 | Auth de empleados |
+
+#### AI y Visión
+| Archivo | Funciones | Propósito |
+|---------|-----------|-----------|
+| `vision-actions.ts` | 1 | Análisis de imágenes con AI |
+| `categorias-sugeridas-actions.ts` | 3 | Sugerencias de categorías |
+| `oro-actions.ts` | 2 | Cotización de oro |
+
+#### Utilidades
+| Archivo | Funciones | Propósito |
+|---------|-----------|-----------|
+| `eventos-actions.ts` | 6 | Sistema de eventos |
+| `auditoria-actions.ts` | 2 | Logs de auditoría |
+| `seed-actions.ts` | 1 | Datos de prueba |
+| `render-status.ts` | 1 | Estado de Render.com |
+
+---
+
 ## 6. Decisiones Técnicas
 
 ### ADR-001: Arquitectura Local-First

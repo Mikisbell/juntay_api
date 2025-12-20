@@ -6,55 +6,55 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ OK | 34 |
-| ⚠️ Warnings | 28 |
+| ✅ OK | 61 |
+| ⚠️ Warnings | 1 |
 | ❌ Errors | 0 |
 
 ## Details
 
-- ⚠️ **Actions/alertas-cobranza-actions.ts**: 1 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/auditoria-actions.ts**: 2 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/auth-empleados-actions.ts**: 3 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
+- ✅ **Actions/alertas-cobranza-actions.ts**: 1 functions, documented
+- ✅ **Actions/auditoria-actions.ts**: 2 functions, documented
+- ✅ **Actions/auth-empleados-actions.ts**: 3 functions, documented
 - ✅ **Actions/caja-actions.ts**: 5 functions, documented
-- ⚠️ **Actions/categorias-sugeridas-actions.ts**: 3 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
+- ✅ **Actions/categorias-sugeridas-actions.ts**: 3 functions, documented
 - ✅ **Actions/clientes-actions.ts**: 11 functions, documented
-- ⚠️ **Actions/cobrador-movil-actions.ts**: 4 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/conciliacion-actions.ts**: 5 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
+- ✅ **Actions/cobrador-movil-actions.ts**: 4 functions, documented
+- ✅ **Actions/conciliacion-actions.ts**: 5 functions, documented
 - ✅ **Actions/contratos-actions.ts**: 2 functions, documented
-- ⚠️ **Actions/contratos-list-actions.ts**: 1 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
+- ✅ **Actions/contratos-list-actions.ts**: 1 functions, documented
 - ✅ **Actions/creditos-actions.ts**: 9 functions, documented
 - ✅ **Actions/dashboard-actions.ts**: 2 functions, documented
 - ✅ **Actions/dashboard-gerencial-actions.ts**: 3 functions, documented
 - ✅ **Actions/empleados-actions.ts**: 6 functions, documented
 - ✅ **Actions/eventos-actions.ts**: 6 functions, documented
-- ⚠️ **Actions/excel-export-actions.ts**: 1 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/financial-actions.ts**: 1 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/garantias-mejoradas-actions.ts**: 9 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/integracion-bancaria-actions.ts**: 7 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/intereses-actions.ts**: 5 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/inventario-actions.ts**: 4 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/kpis-cobranza-actions.ts**: 3 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/kpis-riesgo-actions.ts**: 2 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/monitor-cajas-actions.ts**: 2 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
+- ✅ **Actions/excel-export-actions.ts**: 1 functions, documented
+- ✅ **Actions/financial-actions.ts**: 1 functions, documented
+- ✅ **Actions/garantias-mejoradas-actions.ts**: 9 functions, documented
+- ✅ **Actions/integracion-bancaria-actions.ts**: 7 functions, documented
+- ✅ **Actions/intereses-actions.ts**: 5 functions, documented
+- ✅ **Actions/inventario-actions.ts**: 4 functions, documented
+- ✅ **Actions/kpis-cobranza-actions.ts**: 3 functions, documented
+- ✅ **Actions/kpis-riesgo-actions.ts**: 2 functions, documented
+- ✅ **Actions/monitor-cajas-actions.ts**: 2 functions, documented
 - ✅ **Actions/oro-actions.ts**: 2 functions, documented
 - ✅ **Actions/pagos-actions.ts**: 8 functions, documented
-- ⚠️ **Actions/pagos-digitales-actions.ts**: 5 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/pagos-rpc-actions.ts**: 1 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
+- ✅ **Actions/pagos-digitales-actions.ts**: 5 functions, documented
+- ✅ **Actions/pagos-rpc-actions.ts**: 1 functions, documented
 - ⚠️ **Actions/pagos-wrapper.ts**: 0 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/recibo-whatsapp-actions.ts**: 1 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/recibos-historial-actions.ts**: 3 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/recordatorios-config-actions.ts**: 4 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
+- ✅ **Actions/recibo-whatsapp-actions.ts**: 1 functions, documented
+- ✅ **Actions/recibos-historial-actions.ts**: 3 functions, documented
+- ✅ **Actions/recordatorios-config-actions.ts**: 4 functions, documented
 - ✅ **Actions/remates-actions.ts**: 4 functions, documented
-- ⚠️ **Actions/remates-module-actions.ts**: 5 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/render-status.ts**: 1 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
+- ✅ **Actions/remates-module-actions.ts**: 5 functions, documented
+- ✅ **Actions/render-status.ts**: 1 functions, documented
 - ✅ **Actions/renovaciones-actions.ts**: 3 functions, documented
 - ✅ **Actions/reportes-actions.ts**: 2 functions, documented
 - ✅ **Actions/reportes-export-actions.ts**: 4 functions, documented
-- ⚠️ **Actions/scoring-cliente-actions.ts**: 3 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/seed-actions.ts**: 1 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
+- ✅ **Actions/scoring-cliente-actions.ts**: 3 functions, documented
+- ✅ **Actions/seed-actions.ts**: 1 functions, documented
 - ✅ **Actions/sucursales-actions.ts**: 8 functions, documented
-- ⚠️ **Actions/tesoreria-actions.ts**: 20 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
-- ⚠️ **Actions/ubicacion-actions.ts**: 4 functions, NOT DOCUMENTED in ROADMAP or BLUEPRINT
+- ✅ **Actions/tesoreria-actions.ts**: 20 functions, documented
+- ✅ **Actions/ubicacion-actions.ts**: 4 functions, documented
 - ✅ **Actions/vencimientos-actions.ts**: 5 functions, documented
 - ✅ **Actions/vision-actions.ts**: 1 functions, documented
 - ✅ **Actions/waha-actions.ts**: 4 functions, documented
