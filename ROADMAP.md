@@ -51,11 +51,11 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [ ] Historial de tasaciones
 - [ ] Pre-valoración automática por categoría
 
-### 6. Integración Yape/Plin
+### 6. Integración Yape/Plin ✅ COMPLETADO
 
-- [ ] Generar QR de cobro
-- [ ] Confirmar pagos automáticamente
-- [ ] Conciliación con movimientos de caja
+- [x] Generar QR de cobro
+- [x] Confirmar pagos manualmente
+- [x] Conciliación con movimientos de caja
 
 ---
 
