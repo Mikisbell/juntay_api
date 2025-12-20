@@ -69,12 +69,12 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [x] Geolocalización de visitas
 - [x] Tomar fotos de garantías
 
-### 8. Sistema Multi-sucursal
+### 8. Sistema Multi-sucursal ✅ COMPLETADO
 
-- [ ] Cada sucursal con su caja
-- [ ] Consolidación de reportes
-- [ ] Transferencia de garantías entre sucursales
-- [ ] Permisos por sucursal
+- [x] Cada sucursal con su caja
+- [x] Consolidación de reportes
+- [x] Transferencia de garantías entre sucursales
+- [x] Permisos por sucursal
 
 ### 9. Módulo de Remates
 
