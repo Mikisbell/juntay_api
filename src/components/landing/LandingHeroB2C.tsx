@@ -1,110 +1,162 @@
-import Link from "next/link";
+"use client";
+
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, ShieldCheck, Banknote, Sparkles } from "lucide-react";
+import { MessageCircle, Shield, UserX, Clock, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+
+// Colores de marca JUNTAY (del logo)
+// Navy: #1E3A5F / Gold: #D4AF37
 
 export function LandingHeroB2C() {
-    return (
-        <div className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 bg-slate-950 overflow-hidden">
+    const whatsappLink = "https://wa.me/51995060806?text=Hola%20JUNTAY,%20necesito%20un%20pr%C3%A9stamo.%20Tengo%20para%20empe%C3%B1ar:%20";
 
-            {/* Background Elements */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-amber-500/10 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/20 rounded-full blur-[100px]" />
+    return (
+        <section className="relative pt-24 pb-20 overflow-hidden">
+            {/* Background Gradient Mesh - Navy/Gold tones */}
+            <div className="absolute inset-0 -z-10">
+                <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#1E3A5F]/10 rounded-full blur-[120px]" />
+                <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#D4AF37]/15 rounded-full blur-[100px]" />
+                <div className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-amber-100 rounded-full blur-[80px] opacity-40" />
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div className="grid lg:grid-cols-2 gap-16 lg:gap-8 items-center">
+            <div className="max-w-7xl mx-auto px-4">
+                <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
-                    {/* Left Content */}
-                    <div className="order-2 lg:order-1 space-y-8 text-center lg:text-left">
-
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-amber-400 text-sm font-bold tracking-wide backdrop-blur-md animate-fade-in-up">
-                            <Sparkles className="w-4 h-4" />
-                            <span>DINERO AL INSTANTE, SIN TRÁMITES</span>
+                    {/* Left: Content */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="order-2 lg:order-1"
+                    >
+                        {/* Badges */}
+                        <div className="flex flex-wrap gap-2 mb-8">
+                            <motion.span
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.2 }}
+                                className="inline-flex items-center gap-2 bg-[#1E3A5F]/10 text-[#1E3A5F] px-3 py-1.5 rounded-full text-xs font-bold"
+                            >
+                                <Shield className="w-3 h-3" />
+                                Regulados SBS
+                            </motion.span>
+                            <motion.span
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.3 }}
+                                className="inline-flex items-center gap-2 bg-[#D4AF37]/20 text-[#8B6914] px-3 py-1.5 rounded-full text-xs font-bold"
+                            >
+                                <UserX className="w-3 h-3" />
+                                Sin Infocorp
+                            </motion.span>
+                            <motion.span
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.4 }}
+                                className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full text-xs font-bold"
+                            >
+                                <Clock className="w-3 h-3" />
+                                5 minutos
+                            </motion.span>
                         </div>
 
-                        <h1 className="text-5xl md:text-7xl font-black text-white tracking-tight leading-[1] drop-shadow-2xl">
-                            Tu Oro vale <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 drop-shadow-sm">MÁS AQUÍ</span>
+                        {/* Headline */}
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 leading-[1.1] mb-6 tracking-tight">
+                            Préstamo al instante
+                            <span className="block text-[#1E3A5F]">
+                                con tu garantía
+                            </span>
                         </h1>
 
-                        <p className="text-xl text-slate-300 max-w-lg mx-auto lg:mx-0 font-medium leading-relaxed border-l-2 border-amber-500/50 pl-6">
-                            Empeña tus joyas y electrodomésticos con <span className="text-white font-bold">seguridad blindada</span> y la tasación más alta de Huancayo.
+                        {/* Subheadline */}
+                        <p className="text-lg sm:text-xl text-gray-600 mb-8 leading-relaxed max-w-lg">
+                            Empeña tus <strong className="text-gray-900">joyas, celulares, laptops o vehículos</strong> y llévate efectivo hoy mismo.
                         </p>
 
-                        <div className="flex flex-col gap-6 max-w-md mx-auto lg:mx-0 pt-4">
-                            <a
-                                href="https://wa.me/51995060806?text=Hola%20Juntay,%20tengo%20un%20articulo%20para%20empeñar,%20quisiera%20saber%20cuanto%20me%20prestan."
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <Button className="w-full h-20 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white text-2xl font-black rounded-2xl shadow-[0_0_40px_rgba(16,185,129,0.3)] border-t border-white/20 flex items-center justify-center gap-4 transition-all hover:-translate-y-1 hover:shadow-[0_0_60px_rgba(16,185,129,0.5)] group">
-                                    <MessageCircle className="w-8 h-8 group-hover:rotate-12 transition-transform duration-300" />
-                                    Cotizar por WhatsApp
-                                </Button>
-                            </a>
-                            <p className="text-sm text-slate-400 font-medium flex items-center justify-center lg:justify-start gap-2 opacity-80">
-                                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                Respuesta inmediata (Tiempo promedio: 2 min)
+                        <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-xl p-4 mb-8">
+                            <p className="text-[#8B6914] font-medium text-sm">
+                                ✨ <strong>No revisamos centrales de riesgo.</strong> Todos son bienvenidos.
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-0 pt-8 border-t border-white/10 mt-8">
-                            <div className="flex flex-col items-center lg:items-start pr-4">
-                                <span className="text-3xl font-black text-white">100%</span>
-                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Garantizado</span>
-                            </div>
-                            <div className="flex flex-col items-center lg:items-start border-l border-white/10 px-4">
-                                <span className="text-3xl font-black text-white">0%</span>
-                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Comisiones</span>
-                            </div>
-                            <div className="flex flex-col items-center lg:items-start border-l border-white/10 pl-4">
-                                <span className="text-3xl font-black text-white">24h</span>
-                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Vigilancia</span>
-                            </div>
+                        {/* CTAs */}
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <motion.a
+                                href="#simulador"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                <Button className="w-full sm:w-auto h-14 px-8 bg-[#1E3A5F] hover:bg-[#152C4A] text-white text-lg font-bold rounded-xl shadow-lg shadow-[#1E3A5F]/25">
+                                    Simular mi Préstamo
+                                    <ArrowRight className="w-5 h-5 ml-2" />
+                                </Button>
+                            </motion.a>
+                            <motion.a
+                                href={whatsappLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                <Button variant="outline" className="w-full sm:w-auto h-14 px-8 border-2 border-[#1E3A5F] text-[#1E3A5F] text-lg font-bold rounded-xl hover:bg-[#1E3A5F]/5">
+                                    <MessageCircle className="w-5 h-5 mr-2 text-[#D4AF37]" />
+                                    WhatsApp
+                                </Button>
+                            </motion.a>
                         </div>
-                    </div>
 
-                    {/* Right Image */}
-                    <div className="order-1 lg:order-2 relative">
-                        <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/20 to-transparent rounded-3xl blur-2xl transform rotate-6 scale-95" />
+                        {/* Micro-copy */}
+                        <p className="text-sm text-gray-500 mt-6">
+                            📍 Jiron Cahuide 298, El Tambo, Huancayo
+                        </p>
+                    </motion.div>
 
-                        <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/10 transform transition-transform duration-500 group hover:scale-[1.02]">
-                            <div className="absolute inset-0 bg-slate-950/20 z-10 group-hover:bg-transparent transition-colors duration-500" />
+                    {/* Right: Image */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.7, delay: 0.3 }}
+                        className="order-1 lg:order-2 relative"
+                    >
+                        <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-gray-300/50 border border-white/50">
                             <Image
-                                src="/landing/hero.png" // Generated Image
-                                alt="Casa de Empeño Juntay Huancayo Interior Premium"
+                                src="/landing/hero-cash.png"
+                                alt="Cliente recibiendo dinero en JUNTAY"
                                 width={800}
-                                height={800}
-                                className="w-full h-auto object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700 ease-out"
+                                height={600}
+                                className="w-full h-auto object-cover"
                                 priority
                             />
 
-                            {/* Premium Glass Card Overlay */}
-                            <div className="absolute bottom-6 left-6 right-6 bg-slate-900/90 backdrop-blur-xl p-6 rounded-2xl border border-white/10 shadow-xl z-20">
+                            {/* Floating Card */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.8 }}
+                                className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-sm rounded-2xl p-5 shadow-xl border border-gray-100"
+                            >
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
-                                        <ShieldCheck className="w-6 h-6" />
+                                    <div className="w-12 h-12 bg-[#D4AF37]/20 rounded-xl flex items-center justify-center">
+                                        <span className="text-2xl">💰</span>
                                     </div>
                                     <div>
-                                        <p className="font-bold text-lg text-white">Bóveda de Seguridad</p>
-                                        <p className="text-sm text-slate-400">Tus bienes protegidos 24/7 en local propio.</p>
+                                        <p className="font-bold text-gray-900">María de El Tambo</p>
+                                        <p className="text-sm text-gray-500">Recibió S/ 2,500 en 8 minutos</p>
+                                    </div>
+                                    <div className="ml-auto text-[#D4AF37] text-sm font-bold">
+                                        Hoy
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
                         </div>
 
-                        {/* Floating Badge Gold */}
-                        <div className="absolute -top-10 -right-6 lg:-right-12 bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-600 text-slate-900 font-black text-center p-6 rounded-full shadow-[0_10px_40px_rgba(251,191,36,0.5)] w-36 h-36 flex flex-col justify-center transform rotate-12 z-30 border-4 border-slate-900/50">
-                            <span className="text-xs font-bold tracking-widest opacity-80">RECIBE</span>
-                            <span className="text-4xl leading-none tracking-tighter">CASH</span>
-                            <span className="text-xs font-bold tracking-widest opacity-80 mt-1">AL TOQUE</span>
-                        </div>
-                    </div>
+                        {/* Decorative blob */}
+                        <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#1E3A5F] rounded-full blur-3xl opacity-10 -z-10" />
+                    </motion.div>
 
                 </div>
             </div>
-        </div>
+        </section>
     );
 }

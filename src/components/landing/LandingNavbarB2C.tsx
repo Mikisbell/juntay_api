@@ -1,60 +1,104 @@
+"use client";
+
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Phone, MapPin } from "lucide-react";
+import Image from "next/image";
+import { Phone, Menu, X } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function LandingNavbarB2C() {
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
     return (
-        <nav className="fixed top-0 w-full z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-black/20 transition-all duration-300">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-20">
-                    {/* Logo */}
-                    <div className="flex flex-col justify-center">
-                        <Link href="/" className="flex items-center gap-2 group">
-                            <span className="text-3xl font-black italic tracking-tighter text-white group-hover:text-amber-400 transition-colors duration-300">
-                                JUNTAY
+        <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
+            <div className="max-w-7xl mx-auto px-4">
+                <div className="flex justify-between items-center h-16">
+                    {/* Logo + Tagline */}
+                    <Link href="/" className="flex items-center gap-3">
+                        <Image
+                            src="/landing/logo.png"
+                            alt="JUNTAY"
+                            width={100}
+                            height={32}
+                            className="h-8 w-auto"
+                        />
+                        <div className="hidden sm:block border-l border-gray-300 pl-3">
+                            <span className="text-xs font-medium text-[#D4AF37] uppercase tracking-wider">
+                                Casa de Empeño
                             </span>
-                        </Link>
-                        <span className="text-[10px] font-bold text-amber-500 uppercase tracking-[0.2em] -mt-1 ml-1 text-shadow-sm">Casa de Empeño</span>
-                    </div>
-
-                    {/* Links desktop */}
-                    <div className="hidden md:flex items-center space-x-8">
-                        <div className="flex items-center gap-3 text-slate-300/80">
-                            <div className="p-1.5 rounded-full bg-white/5 border border-white/10">
-                                <MapPin className="w-4 h-4 text-amber-400" />
-                            </div>
-                            <div className="flex flex-col leading-none">
-                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Ubicación</span>
-                                <span className="text-sm font-medium text-slate-200">Jiron Cahuide 298, El Tambo</span>
-                            </div>
                         </div>
+                    </Link>
 
-                        <a
-                            href="https://wa.me/51995060806?text=Hola%20Juntay,%20quiero%20cotizar%20un%20articulo."
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <Button className="bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 font-black text-base rounded-full px-8 py-6 shadow-[0_0_20px_rgba(251,191,36,0.3)] hover:shadow-[0_0_30px_rgba(251,191,36,0.5)] border border-yellow-200/50 flex items-center gap-2 transition-all hover:scale-105 active:scale-95">
-                                <Phone className="w-5 h-5" />
-                                995 060 806
-                            </Button>
+                    {/* Desktop Nav */}
+                    <div className="hidden md:flex items-center gap-8">
+                        <a href="#simulador" className="text-sm font-medium text-gray-600 hover:text-[#1E3A5F] transition-colors">
+                            Simulador
+                        </a>
+                        <a href="#process" className="text-sm font-medium text-gray-600 hover:text-[#1E3A5F] transition-colors">
+                            ¿Cómo funciona?
+                        </a>
+                        <a href="#assets" className="text-sm font-medium text-gray-600 hover:text-[#1E3A5F] transition-colors">
+                            Qué aceptamos
                         </a>
                     </div>
 
-                    {/* Mobile CTA (Solo icono) */}
-                    <div className="md:hidden">
+                    {/* CTA */}
+                    <div className="flex items-center gap-4">
                         <a
-                            href="https://wa.me/51995060806?text=Hola%20Juntay,%20quiero%20cotizar%20un%20articulo."
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            href="https://wa.me/51995060806?text=Hola%20JUNTAY,%20necesito%20un%20pr%C3%A9stamo%20r%C3%A1pido"
+                            className="flex items-center gap-2 bg-[#1E3A5F] hover:bg-[#152C4A] text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all shadow-lg shadow-[#1E3A5F]/20 hover:scale-105"
                         >
-                            <Button size="icon" className="bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 rounded-full h-12 w-12 shadow-[0_0_15px_rgba(251,191,36,0.4)] border border-yellow-200/50">
-                                <Phone className="w-6 h-6" />
-                            </Button>
+                            <Phone className="w-4 h-4" />
+                            <span className="hidden sm:inline">995 060 806</span>
+                            <span className="sm:hidden">Llamar</span>
                         </a>
+
+                        {/* Mobile menu button */}
+                        <button
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            className="md:hidden p-2 text-gray-600"
+                        >
+                            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                        </button>
                     </div>
                 </div>
             </div>
+
+            {/* Mobile Menu */}
+            <AnimatePresence>
+                {mobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="md:hidden bg-white border-t border-gray-100"
+                    >
+                        <div className="px-4 py-4 space-y-3">
+                            <a
+                                href="#simulador"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="block py-2 text-gray-700 font-medium"
+                            >
+                                Simulador
+                            </a>
+                            <a
+                                href="#process"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="block py-2 text-gray-700 font-medium"
+                            >
+                                ¿Cómo funciona?
+                            </a>
+                            <a
+                                href="#assets"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="block py-2 text-gray-700 font-medium"
+                            >
+                                Qué aceptamos
+                            </a>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </nav>
     );
 }

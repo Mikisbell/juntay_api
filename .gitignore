@@ -62,3 +62,8 @@ Thumbs.db
 *.log
 .temp/
 .cache/
+
+# Landing Page Project (build artifacts only, source is tracked)
+juntay-landing/node_modules/
+juntay-landing/.next/
+juntay-landing/.vercel/
