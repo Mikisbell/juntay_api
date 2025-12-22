@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Calculator, Gem, Smartphone, Laptop, Car, Wrench } from "lucide-react";
+import { MessageCircle, Calculator, Gem, Smartphone, Laptop, Car, Wrench, Clock, Building2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 const garantias = [
@@ -31,7 +31,7 @@ export function LandingSimulatorB2C() {
     const whatsappLink = `https://wa.me/51995060806?text=${encodeURIComponent(whatsappMessage)}`;
 
     return (
-        <section className="py-20 bg-[#1E3A5F] relative overflow-hidden" id="simulador">
+        <section className="py-20 bg-gradient-to-br from-[#1E3A5F] via-[#1E3A5F] to-[#152C4A] relative overflow-hidden" id="simulador">
             {/* Background pattern */}
             <div className="absolute inset-0 opacity-10">
                 <div className="absolute top-10 left-10 w-40 h-40 border border-[#D4AF37] rounded-full" />
@@ -50,13 +50,13 @@ export function LandingSimulatorB2C() {
                 >
                     <div className="inline-flex items-center gap-2 bg-[#D4AF37] text-[#1E3A5F] px-4 py-2 rounded-full text-sm font-bold mb-4">
                         <Calculator className="w-4 h-4" />
-                        SIMULADOR EXCLUSIVO
+                        CALCULA EN SEGUNDOS
                     </div>
                     <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
                         ¿Cuánto te podemos prestar?
                     </h2>
                     <p className="text-gray-300 text-lg">
-                        Calcula tu préstamo en segundos. Sin compromiso.
+                        Elige tu artículo y descubre cuánto puedes llevarte HOY
                     </p>
                 </motion.div>
 
@@ -120,17 +120,38 @@ export function LandingSimulatorB2C() {
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="bg-[#D4AF37]/10 rounded-2xl p-6 mb-8 text-center border-2 border-[#D4AF37]/30"
+                            className="bg-gradient-to-r from-[#D4AF37]/20 to-[#D4AF37]/10 rounded-2xl p-6 mb-8 border-2 border-[#D4AF37]/30"
                         >
-                            <p className="text-sm text-[#8B6914] font-medium mb-2">
-                                Préstamo estimado para tu {garantiaSeleccionada?.name}:
-                            </p>
-                            <p className="text-5xl font-black text-[#1E3A5F]">
-                                S/ {montoEstimado.toLocaleString()}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-2">
-                                *Monto referencial. El valor final depende de la evaluación presencial.
-                            </p>
+                            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                                {/* Main Result */}
+                                <div className="text-center md:text-left">
+                                    <p className="text-sm text-[#8B6914] font-medium mb-2">
+                                        Tu préstamo estimado:
+                                    </p>
+                                    <p className="text-5xl font-black text-[#1E3A5F]">
+                                        S/ {montoEstimado.toLocaleString()}
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-2">
+                                        *Monto referencial. Valor final según evaluación presencial.
+                                    </p>
+                                </div>
+
+                                {/* Bank Comparison */}
+                                <div className="bg-white rounded-xl p-4 border border-gray-100">
+                                    <p className="text-xs text-gray-500 mb-2 font-medium">COMPARACIÓN</p>
+                                    <div className="flex items-center gap-3 text-sm">
+                                        <div className="flex items-center gap-2 text-red-500">
+                                            <Building2 className="w-4 h-4" />
+                                            <span>Banco: 7-15 días</span>
+                                        </div>
+                                        <span className="text-gray-300">vs</span>
+                                        <div className="flex items-center gap-2 text-[#1E3A5F] font-bold">
+                                            <Clock className="w-4 h-4" />
+                                            <span>JUNTAY: 5 min</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </motion.div>
                     )}
 
@@ -154,6 +175,11 @@ export function LandingSimulatorB2C() {
                             {montoEstimado ? "Confirmar por WhatsApp" : "Selecciona opciones arriba"}
                         </Button>
                     </motion.a>
+
+                    {/* Trust micro-copy */}
+                    <p className="text-center text-sm text-gray-500 mt-4">
+                        🔒 Sin compromiso • Respuesta en minutos • 100% confidencial
+                    </p>
 
                 </motion.div>
 

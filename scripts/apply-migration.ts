@@ -15,7 +15,7 @@ async function applyMigration() {
         await client.connect();
         console.log('Connected to database.');
 
-        const sqlPath = path.join(process.cwd(), 'supabase/migrations/20251126000007_get_contratos_vencimientos.sql');
+        const sqlPath = path.join(process.cwd(), 'supabase/migrations/20260105000002_force_rls_empresas.sql');
         const sql = fs.readFileSync(sqlPath, 'utf8');
 
         console.log('Executing SQL...');

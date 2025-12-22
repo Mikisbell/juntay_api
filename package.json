@@ -10,6 +10,8 @@
         "audit:db": "npx tsx scripts/run_audit_node.js",
         "db:verify": "npx tsx scripts/verify-database.ts",
         "docs:audit": "npx tsx scripts/audit-docs.ts",
+        "security:verify-isolation": "npx tsx scripts/verify_tenant_isolation.ts",
+        "ops:onboard": "npx tsx scripts/onboard_tenant.ts",
         "ops:squash": "bash ./scripts/ops_squash_migrations.sh",
         "dev:next": "next dev",
         "build": "next build",
@@ -77,6 +79,7 @@
         "zustand": "^5.0.8"
     },
     "devDependencies": {
+        "@notionhq/notion-mcp-server": "^1.9.1",
         "@tanstack/react-query-devtools": "^5.91.0",
         "@testing-library/react": "^16.3.1",
         "@types/lodash-es": "^4.17.12",

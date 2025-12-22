@@ -67,3 +67,5 @@ Thumbs.db
 juntay-landing/node_modules/
 juntay-landing/.next/
 juntay-landing/.vercel/
+scripts/github-mcp-wrapper.sh
+.antigravity/

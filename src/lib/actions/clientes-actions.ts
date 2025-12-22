@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 
 export interface ClienteCompleto {
     id: string
-    persona_id: string
+    party_id: string  // Antes: persona_id
     empresa_id: string | null
     score_crediticio: number
     activo: boolean
@@ -16,6 +16,8 @@ export interface ClienteCompleto {
     apellido_paterno: string
     apellido_materno: string
     nombre_completo: string
+    razon_social: string | null  // Para personas jurídicas
+    party_type: 'NATURAL' | 'JURIDICA'
     email: string | null
     telefono_principal: string | null
     telefono_secundario: string | null
@@ -37,7 +39,7 @@ export async function buscarClientePorDNI(dni: string) {
 
     const { data, error } = await supabase
         .from('clientes_completo')
-        .select('id, persona_id, empresa_id, score_crediticio, activo, created_at, tipo_documento, numero_documento, nombres, apellido_paterno, apellido_materno, nombre_completo, email, telefono_principal, telefono_secundario, direccion')
+        .select('id, party_id, empresa_id, score_crediticio, activo, created_at, tipo_documento, numero_documento, nombres, apellido_paterno, apellido_materno, nombre_completo, razon_social, party_type, email, telefono_principal, telefono_secundario, direccion')
         .eq('numero_documento', dni)
         .single()
 
@@ -62,7 +64,7 @@ export async function getClienteById(id: string) {
 
     const { data, error } = await supabase
         .from('clientes_completo')
-        .select('id, persona_id, empresa_id, score_crediticio, activo, created_at, tipo_documento, numero_documento, nombres, apellido_paterno, apellido_materno, nombre_completo, email, telefono_principal, telefono_secundario, direccion')
+        .select('id, party_id, empresa_id, score_crediticio, activo, created_at, tipo_documento, numero_documento, nombres, apellido_paterno, apellido_materno, nombre_completo, razon_social, party_type, email, telefono_principal, telefono_secundario, direccion')
         .eq('id', id)
         .single()
 
@@ -92,19 +94,20 @@ export async function crearCliente(datos: {
 }) {
     const supabase = await createClient()
 
-    // 1. Crear o obtener persona
-    const { data: personaId, error: personaError } = await supabase.rpc('get_or_create_persona', {
-        p_tipo_documento: datos.tipo_documento,
-        p_numero_documento: datos.numero_documento,
+    // 1. Crear o obtener party (persona natural)
+    const { data: partyId, error: partyError } = await supabase.rpc('get_or_create_party', {
+        p_party_type: 'NATURAL',
+        p_tax_id_type: datos.tipo_documento,
+        p_tax_id: datos.numero_documento,
         p_nombres: datos.nombres,
         p_apellido_paterno: datos.apellido_paterno,
         p_apellido_materno: datos.apellido_materno,
-        p_telefono: datos.telefono || null,
         p_email: datos.email || null,
+        p_telefono: datos.telefono || null,
         p_direccion: datos.direccion || null
     })
 
-    if (personaError) throw personaError
+    if (partyError) throw partyError
 
     // 1.5. Verificar si el CLIENTE ya existe (aunque la persona exista, el registro de cliente podría existir o no)
     const { data: clienteExistente } = await supabase
@@ -128,7 +131,7 @@ export async function crearCliente(datos: {
     const { data: cliente, error: clienteError } = await supabase
         .from('clientes')
         .insert({
-            persona_id: personaId,
+            party_id: partyId,
             // CRÍTICO: Estos campos son NOT NULL en la tabla clientes
             tipo_documento: datos.tipo_documento,
             numero_documento: datos.numero_documento,
