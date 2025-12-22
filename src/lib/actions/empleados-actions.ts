@@ -6,7 +6,7 @@ export type EstadoEmpleado = 'ACTIVO' | 'LICENCIA' | 'SUSPENDIDO' | 'BAJA'
 
 export interface EmpleadoCompleto {
     id: string
-    persona_id: string
+    party_id: string  // Antes: persona_id
     user_id: string | null
     cargo: string
     sucursal_id: string | null
@@ -73,23 +73,44 @@ export async function actualizarEmpleado(
 ) {
     const supabase = await createClient()
 
-    // 1. Actualizar Persona (Datos personales)
-    const { error: errorPersona } = await supabase
-        .from('personas')
+    // 1. Actualizar Party (Datos personales)
+    // Primero obtenemos el party_id del empleado
+    const { data: empleado } = await supabase
+        .from('empleados')
+        .select('party_id')
+        .eq('id', empleadoId)
+        .single()
+
+    const partyId = empleado?.party_id || personaId
+
+    // Actualizar parties base
+    const { error: errorParty } = await supabase
+        .from('parties')
+        .update({
+            email: datos.email,
+            telefono_principal: datos.telefono,
+            telefono_secundario: datos.telefono_secundario,
+            direccion: datos.direccion
+        })
+        .eq('id', partyId)
+
+    if (errorParty) {
+        console.error('Error actualizando party:', errorParty)
+        throw errorParty
+    }
+
+    // Actualizar personas_naturales
+    const { error: errorNatural } = await supabase
+        .from('personas_naturales')
         .update({
             nombres: datos.nombres,
             apellido_paterno: datos.apellido_paterno,
-            apellido_materno: datos.apellido_materno,
-            telefono_principal: datos.telefono,
-            telefono_secundario: datos.telefono_secundario,
-            email: datos.email,
-            direccion: datos.direccion
+            apellido_materno: datos.apellido_materno
         })
-        .eq('id', personaId)
-
-    if (errorPersona) {
-        console.error('Error actualizando persona:', errorPersona)
-        throw errorPersona
+        .eq('party_id', partyId)
+    if (errorNatural) {
+        console.error('Error actualizando persona natural:', errorNatural)
+        throw errorNatural
     }
 
     // 2. Actualizar Empleado (Cargo, Estado, Emergencia)
@@ -156,25 +177,26 @@ export async function crearEmpleado(datos: {
 }) {
     const supabase = await createClient()
 
-    // 1. Crear o obtener persona
-    const { data: personaId, error: personaError } = await supabase.rpc('get_or_create_persona', {
-        p_tipo_documento: datos.tipo_documento,
-        p_numero_documento: datos.numero_documento,
+    // 1. Crear o obtener party (persona natural)
+    const { data: partyId, error: partyError } = await supabase.rpc('get_or_create_party', {
+        p_party_type: 'NATURAL',
+        p_tax_id_type: datos.tipo_documento,
+        p_tax_id: datos.numero_documento,
         p_nombres: datos.nombres,
         p_apellido_paterno: datos.apellido_paterno,
         p_apellido_materno: datos.apellido_materno,
-        p_telefono: datos.telefono || null,
         p_email: datos.email || null,
+        p_telefono: datos.telefono || null,
         p_direccion: datos.direccion || null
     })
 
-    if (personaError) throw personaError
+    if (partyError) throw partyError
 
     // 2. Crear empleado
     const { data: empleado, error: empleadoError } = await supabase
         .from('empleados')
         .insert({
-            persona_id: personaId,
+            party_id: partyId,
             cargo: datos.cargo,
             activo: true,
             fecha_ingreso: new Date().toISOString().split('T')[0]
