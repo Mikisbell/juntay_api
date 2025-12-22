@@ -33,13 +33,12 @@ export default function LandingPage() {
 
                 {/* CTA Buttons */}
                 <div className="mt-10 flex flex-col sm:flex-row gap-4 w-full justify-center">
-                    <button className="group relative px-8 py-4 bg-gold-500 rounded-full font-bold text-black hover:bg-gold-400 transition-all shadow-[0_0_20px_-5px_rgba(204,172,66,0.5)] hover:shadow-[0_0_30px_-5px_rgba(204,172,66,0.6)]">
-                        <span className="relative z-10">Comenzar Prueba Gratis</span>
-                    </button>
-
-                    <button className="px-8 py-4 rounded-full font-medium text-white border border-white/20 hover:bg-white/5 transition-all backdrop-blur-sm">
-                        Ver Demo en Vivo
-                    </button>
+                    <Link href="/start">
+                        <button className="bg-gradient-to-r from-gold-500 to-gold-600 text-slate-950 font-bold px-8 py-3 rounded-full shadow-lg shadow-gold-500/20 hover:scale-105 transition-transform flex items-center mx-auto">
+                            START FREE
+                            <span className="ml-2">→</span>
+                        </button>
+                    </Link>
                 </div>
 
                 {/* Mockup / Visual */}
