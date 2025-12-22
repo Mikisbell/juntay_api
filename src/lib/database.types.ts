@@ -134,6 +134,7 @@ export type Database = {
           boveda_origen_id: string | null
           cuenta_origen_id: string | null
           diferencia_cierre: number | null
+          empresa_id: string | null
           estado: string
           fecha_apertura: string | null
           fecha_cierre: string | null
@@ -143,6 +144,7 @@ export type Database = {
           saldo_actual: number | null
           saldo_final_cierre: number | null
           saldo_inicial: number | null
+          sucursal_id: string | null
           usuario_id: string
         }
         Insert: {
@@ -151,6 +153,7 @@ export type Database = {
           boveda_origen_id?: string | null
           cuenta_origen_id?: string | null
           diferencia_cierre?: number | null
+          empresa_id?: string | null
           estado?: string
           fecha_apertura?: string | null
           fecha_cierre?: string | null
@@ -160,6 +163,7 @@ export type Database = {
           saldo_actual?: number | null
           saldo_final_cierre?: number | null
           saldo_inicial?: number | null
+          sucursal_id?: string | null
           usuario_id: string
         }
         Update: {
@@ -168,6 +172,7 @@ export type Database = {
           boveda_origen_id?: string | null
           cuenta_origen_id?: string | null
           diferencia_cierre?: number | null
+          empresa_id?: string | null
           estado?: string
           fecha_apertura?: string | null
           fecha_cierre?: string | null
@@ -177,6 +182,7 @@ export type Database = {
           saldo_actual?: number | null
           saldo_final_cierre?: number | null
           saldo_inicial?: number | null
+          sucursal_id?: string | null
           usuario_id?: string
         }
         Relationships: [
@@ -188,6 +194,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "cajas_operativas_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cajas_operativas_sucursal_id_fkey"
+            columns: ["sucursal_id"]
+            isOneToOne: false
+            referencedRelation: "sucursales"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "cajas_operativas_usuario_id_fkey"
             columns: ["usuario_id"]
             isOneToOne: false
@@ -195,6 +215,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      categoria_sugerida: {
+        Row: {
+          created_at: string | null
+          id: number
+          promovido_a: string | null
+          promovido_en: string | null
+          texto_ingresado: string
+          texto_normalizado: string
+          tipo: string
+          ultimo_uso: string | null
+          veces_usado: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          promovido_a?: string | null
+          promovido_en?: string | null
+          texto_ingresado: string
+          texto_normalizado: string
+          tipo: string
+          ultimo_uso?: string | null
+          veces_usado?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          promovido_a?: string | null
+          promovido_en?: string | null
+          texto_ingresado?: string
+          texto_normalizado?: string
+          tipo?: string
+          ultimo_uso?: string | null
+          veces_usado?: number | null
+        }
+        Relationships: []
       }
       categorias_garantia: {
         Row: {
@@ -230,11 +286,16 @@ export type Database = {
           id: string
           nombres: string | null
           numero_documento: string
+          parentesco_otro: string | null
+          parentesco_referencia: string | null
+          party_id: string | null
           persona_id: string | null
           provincia: string | null
           score_crediticio: number | null
           telefono_principal: string | null
+          telefono_secundario: string | null
           tipo_documento: string
+          tipo_parentesco_id: number | null
           ubigeo_cod: string | null
         }
         Insert: {
@@ -252,11 +313,16 @@ export type Database = {
           id?: string
           nombres?: string | null
           numero_documento: string
+          parentesco_otro?: string | null
+          parentesco_referencia?: string | null
+          party_id?: string | null
           persona_id?: string | null
           provincia?: string | null
           score_crediticio?: number | null
           telefono_principal?: string | null
+          telefono_secundario?: string | null
           tipo_documento: string
+          tipo_parentesco_id?: number | null
           ubigeo_cod?: string | null
         }
         Update: {
@@ -274,11 +340,16 @@ export type Database = {
           id?: string
           nombres?: string | null
           numero_documento?: string
+          parentesco_otro?: string | null
+          parentesco_referencia?: string | null
+          party_id?: string | null
           persona_id?: string | null
           provincia?: string | null
           score_crediticio?: number | null
           telefono_principal?: string | null
+          telefono_secundario?: string | null
           tipo_documento?: string
+          tipo_parentesco_id?: number | null
           ubigeo_cod?: string | null
         }
         Relationships: [
@@ -287,6 +358,20 @@ export type Database = {
             columns: ["empresa_id"]
             isOneToOne: false
             referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clientes_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "parties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clientes_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "parties_completo"
             referencedColumns: ["id"]
           },
           {
@@ -302,6 +387,7 @@ export type Database = {
         Row: {
           created_at: string | null
           created_by: string | null
+          empresa_id: string | null
           estado: Database["public"]["Enums"]["estado_contrato_fondeo"] | null
           fecha_inicio: string
           fecha_vencimiento: string | null
@@ -321,6 +407,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           created_by?: string | null
+          empresa_id?: string | null
           estado?: Database["public"]["Enums"]["estado_contrato_fondeo"] | null
           fecha_inicio?: string
           fecha_vencimiento?: string | null
@@ -340,6 +427,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           created_by?: string | null
+          empresa_id?: string | null
           estado?: Database["public"]["Enums"]["estado_contrato_fondeo"] | null
           fecha_inicio?: string
           fecha_vencimiento?: string | null
@@ -357,6 +445,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "contratos_fondeo_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "contratos_fondeo_inversionista_id_fkey"
             columns: ["inversionista_id"]
@@ -391,6 +486,7 @@ export type Database = {
           observaciones: string | null
           periodo_dias: number
           saldo_pendiente: number
+          sucursal_id: string | null
           tasa_interes: number
           updated_at: string | null
         }
@@ -418,6 +514,7 @@ export type Database = {
           observaciones?: string | null
           periodo_dias: number
           saldo_pendiente: number
+          sucursal_id?: string | null
           tasa_interes: number
           updated_at?: string | null
         }
@@ -445,6 +542,7 @@ export type Database = {
           observaciones?: string | null
           periodo_dias?: number
           saldo_pendiente?: number
+          sucursal_id?: string | null
           tasa_interes?: number
           updated_at?: string | null
         }
@@ -477,6 +575,13 @@ export type Database = {
             referencedRelation: "empresas"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "creditos_sucursal_id_fkey"
+            columns: ["sucursal_id"]
+            isOneToOne: false
+            referencedRelation: "sucursales"
+            referencedColumns: ["id"]
+          },
         ]
       }
       cuentas_financieras: {
@@ -484,6 +589,7 @@ export type Database = {
           activo: boolean | null
           banco_asociado: Database["public"]["Enums"]["banco_peru"] | null
           created_at: string | null
+          empresa_id: string | null
           es_principal: boolean | null
           id: string
           moneda: string
@@ -498,6 +604,7 @@ export type Database = {
           activo?: boolean | null
           banco_asociado?: Database["public"]["Enums"]["banco_peru"] | null
           created_at?: string | null
+          empresa_id?: string | null
           es_principal?: boolean | null
           id?: string
           moneda?: string
@@ -512,6 +619,7 @@ export type Database = {
           activo?: boolean | null
           banco_asociado?: Database["public"]["Enums"]["banco_peru"] | null
           created_at?: string | null
+          empresa_id?: string | null
           es_principal?: boolean | null
           id?: string
           moneda?: string
@@ -522,7 +630,15 @@ export type Database = {
           titular_cuenta?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "cuentas_financieras_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       departamentos: {
         Row: {
@@ -576,11 +692,17 @@ export type Database = {
           activo: boolean | null
           cargo: string
           created_at: string | null
+          estado: string | null
           fecha_ingreso: string | null
           fecha_salida: string | null
           id: string
+          motivo_estado: string | null
+          nombre_contacto_emergencia: string | null
+          parentesco_emergencia: string | null
+          party_id: string | null
           persona_id: string
           sucursal_id: string | null
+          telefono_emergencia: string | null
           updated_at: string | null
           user_id: string | null
         }
@@ -588,11 +710,17 @@ export type Database = {
           activo?: boolean | null
           cargo: string
           created_at?: string | null
+          estado?: string | null
           fecha_ingreso?: string | null
           fecha_salida?: string | null
           id?: string
+          motivo_estado?: string | null
+          nombre_contacto_emergencia?: string | null
+          parentesco_emergencia?: string | null
+          party_id?: string | null
           persona_id: string
           sucursal_id?: string | null
+          telefono_emergencia?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
@@ -600,15 +728,35 @@ export type Database = {
           activo?: boolean | null
           cargo?: string
           created_at?: string | null
+          estado?: string | null
           fecha_ingreso?: string | null
           fecha_salida?: string | null
           id?: string
+          motivo_estado?: string | null
+          nombre_contacto_emergencia?: string | null
+          parentesco_emergencia?: string | null
+          party_id?: string | null
           persona_id?: string
           sucursal_id?: string | null
+          telefono_emergencia?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "empleados_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "parties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "empleados_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "parties_completo"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "empleados_persona_id_fkey"
             columns: ["persona_id"]
@@ -693,6 +841,61 @@ export type Database = {
         }
         Relationships: []
       }
+      fotos_garantia: {
+        Row: {
+          created_at: string | null
+          descripcion: string | null
+          es_principal: boolean | null
+          garantia_id: string
+          id: string
+          tipo: string | null
+          uploaded_by: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          descripcion?: string | null
+          es_principal?: boolean | null
+          garantia_id: string
+          id?: string
+          tipo?: string | null
+          uploaded_by?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          descripcion?: string | null
+          es_principal?: boolean | null
+          garantia_id?: string
+          id?: string
+          tipo?: string | null
+          uploaded_by?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fotos_garantia_garantia_id_fkey"
+            columns: ["garantia_id"]
+            isOneToOne: false
+            referencedRelation: "garantias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fotos_garantia_garantia_id_fkey"
+            columns: ["garantia_id"]
+            isOneToOne: false
+            referencedRelation: "inventario"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fotos_garantia_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       garantias: {
         Row: {
           _deleted: boolean
@@ -705,6 +908,7 @@ export type Database = {
           created_at: string | null
           credito_id: string | null
           descripcion: string
+          empresa_id: string | null
           estado: string | null
           estado_bien: string | null
           fecha_venta: string | null
@@ -714,6 +918,7 @@ export type Database = {
           kilometraje: number | null
           marca: string | null
           modelo: string | null
+          para_remate: boolean | null
           partida_registral: string | null
           peso: number | null
           placa: string | null
@@ -725,6 +930,7 @@ export type Database = {
           updated_at: string | null
           valor_prestamo_sugerido: number | null
           valor_tasacion: number
+          valor_tasado: number | null
         }
         Insert: {
           _deleted?: boolean
@@ -737,6 +943,7 @@ export type Database = {
           created_at?: string | null
           credito_id?: string | null
           descripcion: string
+          empresa_id?: string | null
           estado?: string | null
           estado_bien?: string | null
           fecha_venta?: string | null
@@ -746,6 +953,7 @@ export type Database = {
           kilometraje?: number | null
           marca?: string | null
           modelo?: string | null
+          para_remate?: boolean | null
           partida_registral?: string | null
           peso?: number | null
           placa?: string | null
@@ -757,6 +965,7 @@ export type Database = {
           updated_at?: string | null
           valor_prestamo_sugerido?: number | null
           valor_tasacion: number
+          valor_tasado?: number | null
         }
         Update: {
           _deleted?: boolean
@@ -769,6 +978,7 @@ export type Database = {
           created_at?: string | null
           credito_id?: string | null
           descripcion?: string
+          empresa_id?: string | null
           estado?: string | null
           estado_bien?: string | null
           fecha_venta?: string | null
@@ -778,6 +988,7 @@ export type Database = {
           kilometraje?: number | null
           marca?: string | null
           modelo?: string | null
+          para_remate?: boolean | null
           partida_registral?: string | null
           peso?: number | null
           placa?: string | null
@@ -789,6 +1000,7 @@ export type Database = {
           updated_at?: string | null
           valor_prestamo_sugerido?: number | null
           valor_tasacion?: number
+          valor_tasado?: number | null
         }
         Relationships: [
           {
@@ -826,40 +1038,74 @@ export type Database = {
             referencedRelation: "vista_creditos_intereses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "garantias_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
         ]
       }
       inversionistas: {
         Row: {
           activo: boolean | null
           created_at: string | null
+          empresa_id: string | null
           fecha_ingreso: string | null
           id: string
           metadata: Json | null
           participacion_porcentaje: number | null
+          party_id: string | null
           persona_id: string
           tipo_relacion: Database["public"]["Enums"]["tipo_inversionista"]
         }
         Insert: {
           activo?: boolean | null
           created_at?: string | null
+          empresa_id?: string | null
           fecha_ingreso?: string | null
           id?: string
           metadata?: Json | null
           participacion_porcentaje?: number | null
+          party_id?: string | null
           persona_id: string
           tipo_relacion: Database["public"]["Enums"]["tipo_inversionista"]
         }
         Update: {
           activo?: boolean | null
           created_at?: string | null
+          empresa_id?: string | null
           fecha_ingreso?: string | null
           id?: string
           metadata?: Json | null
           participacion_porcentaje?: number | null
+          party_id?: string | null
           persona_id?: string
           tipo_relacion?: Database["public"]["Enums"]["tipo_inversionista"]
         }
         Relationships: [
+          {
+            foreignKeyName: "inversionistas_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inversionistas_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "parties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inversionistas_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "parties_completo"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "inversionistas_persona_id_fkey"
             columns: ["persona_id"]
@@ -879,6 +1125,7 @@ export type Database = {
           caja_id: string | null
           caja_operativa_id: string
           descripcion: string | null
+          empresa_id: string | null
           es_reversion: boolean | null
           fecha: string | null
           id: string
@@ -903,6 +1150,7 @@ export type Database = {
           caja_id?: string | null
           caja_operativa_id: string
           descripcion?: string | null
+          empresa_id?: string | null
           es_reversion?: boolean | null
           fecha?: string | null
           id?: string
@@ -927,6 +1175,7 @@ export type Database = {
           caja_id?: string | null
           caja_operativa_id?: string
           descripcion?: string | null
+          empresa_id?: string | null
           es_reversion?: boolean | null
           fecha?: string | null
           id?: string
@@ -955,6 +1204,13 @@ export type Database = {
             columns: ["caja_operativa_id"]
             isOneToOne: false
             referencedRelation: "cajas_operativas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimientos_caja_operativa_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
             referencedColumns: ["id"]
           },
           {
@@ -1164,16 +1420,18 @@ export type Database = {
           desglose_capital: number | null
           desglose_interes: number | null
           desglose_mora: number | null
+          empresa_id: string | null
           fecha_pago: string | null
           id: string
           medio_pago: string | null
           metadata: Json | null
           metodo_pago: string | null
-          monto: number | null
           monto_total: number
           motivo_anulacion: string | null
           observaciones: string | null
+          sucursal_id: string | null
           tipo: string | null
+          transaccion_bancaria_id: string | null
           usuario_id: string | null
         }
         Insert: {
@@ -1188,16 +1446,18 @@ export type Database = {
           desglose_capital?: number | null
           desglose_interes?: number | null
           desglose_mora?: number | null
+          empresa_id?: string | null
           fecha_pago?: string | null
           id?: string
           medio_pago?: string | null
           metadata?: Json | null
           metodo_pago?: string | null
-          monto?: number | null
           monto_total: number
           motivo_anulacion?: string | null
           observaciones?: string | null
+          sucursal_id?: string | null
           tipo?: string | null
+          transaccion_bancaria_id?: string | null
           usuario_id?: string | null
         }
         Update: {
@@ -1212,16 +1472,18 @@ export type Database = {
           desglose_capital?: number | null
           desglose_interes?: number | null
           desglose_mora?: number | null
+          empresa_id?: string | null
           fecha_pago?: string | null
           id?: string
           medio_pago?: string | null
           metadata?: Json | null
           metodo_pago?: string | null
-          monto?: number | null
           monto_total?: number
           motivo_anulacion?: string | null
           observaciones?: string | null
+          sucursal_id?: string | null
           tipo?: string | null
+          transaccion_bancaria_id?: string | null
           usuario_id?: string | null
         }
         Relationships: [
@@ -1246,7 +1508,73 @@ export type Database = {
             referencedRelation: "vista_creditos_intereses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "pagos_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pagos_sucursal_id_fkey"
+            columns: ["sucursal_id"]
+            isOneToOne: false
+            referencedRelation: "sucursales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pagos_transaccion_bancaria_id_fkey"
+            columns: ["transaccion_bancaria_id"]
+            isOneToOne: false
+            referencedRelation: "transacciones_bancarias"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      parties: {
+        Row: {
+          _deleted: boolean | null
+          _modified: string | null
+          created_at: string | null
+          direccion: string | null
+          email: string | null
+          id: string
+          party_type: string
+          tax_id: string
+          tax_id_type: string
+          telefono_principal: string | null
+          telefono_secundario: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          _deleted?: boolean | null
+          _modified?: string | null
+          created_at?: string | null
+          direccion?: string | null
+          email?: string | null
+          id?: string
+          party_type: string
+          tax_id: string
+          tax_id_type: string
+          telefono_principal?: string | null
+          telefono_secundario?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          _deleted?: boolean | null
+          _modified?: string | null
+          created_at?: string | null
+          direccion?: string | null
+          email?: string | null
+          id?: string
+          party_type?: string
+          tax_id?: string
+          tax_id_type?: string
+          telefono_principal?: string | null
+          telefono_secundario?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       personas: {
         Row: {
@@ -1258,6 +1586,7 @@ export type Database = {
           id: string
           nombres: string
           numero_documento: string
+          parentesco_referencia: string | null
           telefono_principal: string | null
           telefono_secundario: string | null
           tipo_documento: string
@@ -1272,6 +1601,7 @@ export type Database = {
           id?: string
           nombres: string
           numero_documento: string
+          parentesco_referencia?: string | null
           telefono_principal?: string | null
           telefono_secundario?: string | null
           tipo_documento?: string
@@ -1286,12 +1616,111 @@ export type Database = {
           id?: string
           nombres?: string
           numero_documento?: string
+          parentesco_referencia?: string | null
           telefono_principal?: string | null
           telefono_secundario?: string | null
           tipo_documento?: string
           updated_at?: string | null
         }
         Relationships: []
+      }
+      personas_juridicas: {
+        Row: {
+          fecha_constitucion: string | null
+          nombre_comercial: string | null
+          party_id: string
+          razon_social: string
+          representante_legal_id: string | null
+          tipo_sociedad: string | null
+        }
+        Insert: {
+          fecha_constitucion?: string | null
+          nombre_comercial?: string | null
+          party_id: string
+          razon_social: string
+          representante_legal_id?: string | null
+          tipo_sociedad?: string | null
+        }
+        Update: {
+          fecha_constitucion?: string | null
+          nombre_comercial?: string | null
+          party_id?: string
+          razon_social?: string
+          representante_legal_id?: string | null
+          tipo_sociedad?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personas_juridicas_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: true
+            referencedRelation: "parties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "personas_juridicas_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: true
+            referencedRelation: "parties_completo"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "personas_juridicas_representante_legal_id_fkey"
+            columns: ["representante_legal_id"]
+            isOneToOne: false
+            referencedRelation: "parties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "personas_juridicas_representante_legal_id_fkey"
+            columns: ["representante_legal_id"]
+            isOneToOne: false
+            referencedRelation: "parties_completo"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      personas_naturales: {
+        Row: {
+          apellido_materno: string | null
+          apellido_paterno: string
+          fecha_nacimiento: string | null
+          nombres: string
+          party_id: string
+          sexo: string | null
+        }
+        Insert: {
+          apellido_materno?: string | null
+          apellido_paterno: string
+          fecha_nacimiento?: string | null
+          nombres: string
+          party_id: string
+          sexo?: string | null
+        }
+        Update: {
+          apellido_materno?: string | null
+          apellido_paterno?: string
+          fecha_nacimiento?: string | null
+          nombres?: string
+          party_id?: string
+          sexo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personas_naturales_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: true
+            referencedRelation: "parties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "personas_naturales_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: true
+            referencedRelation: "parties_completo"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       provincias: {
         Row: {
@@ -1348,6 +1777,53 @@ export type Database = {
           nombre?: string
         }
         Relationships: []
+      }
+      sucursales: {
+        Row: {
+          activa: boolean | null
+          codigo: string
+          created_at: string | null
+          direccion: string | null
+          empresa_id: string | null
+          es_principal: boolean | null
+          id: string
+          nombre: string
+          telefono: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          activa?: boolean | null
+          codigo: string
+          created_at?: string | null
+          direccion?: string | null
+          empresa_id?: string | null
+          es_principal?: boolean | null
+          id?: string
+          nombre: string
+          telefono?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          activa?: boolean | null
+          codigo?: string
+          created_at?: string | null
+          direccion?: string | null
+          empresa_id?: string | null
+          es_principal?: boolean | null
+          id?: string
+          nombre?: string
+          telefono?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sucursales_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sugerencias_catalogos: {
         Row: {
@@ -1479,12 +1955,111 @@ export type Database = {
           },
         ]
       }
+      tipos_parentesco: {
+        Row: {
+          activo: boolean | null
+          created_at: string | null
+          id: number
+          nombre: string
+          orden: number | null
+        }
+        Insert: {
+          activo?: boolean | null
+          created_at?: string | null
+          id?: number
+          nombre: string
+          orden?: number | null
+        }
+        Update: {
+          activo?: boolean | null
+          created_at?: string | null
+          id?: number
+          nombre?: string
+          orden?: number | null
+        }
+        Relationships: []
+      }
+      transacciones_bancarias: {
+        Row: {
+          banco: string
+          cliente_nombre: string | null
+          created_at: string | null
+          credito_relacionado_id: string | null
+          descripcion: string | null
+          estado: string | null
+          fecha: string
+          id: string
+          metadata: Json | null
+          monto: number
+          pago_relacionado_id: string | null
+          referencia: string | null
+        }
+        Insert: {
+          banco: string
+          cliente_nombre?: string | null
+          created_at?: string | null
+          credito_relacionado_id?: string | null
+          descripcion?: string | null
+          estado?: string | null
+          fecha: string
+          id?: string
+          metadata?: Json | null
+          monto: number
+          pago_relacionado_id?: string | null
+          referencia?: string | null
+        }
+        Update: {
+          banco?: string
+          cliente_nombre?: string | null
+          created_at?: string | null
+          credito_relacionado_id?: string | null
+          descripcion?: string | null
+          estado?: string | null
+          fecha?: string
+          id?: string
+          metadata?: Json | null
+          monto?: number
+          pago_relacionado_id?: string | null
+          referencia?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transacciones_bancarias_credito_relacionado_id_fkey"
+            columns: ["credito_relacionado_id"]
+            isOneToOne: false
+            referencedRelation: "creditos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_bancarias_credito_relacionado_id_fkey"
+            columns: ["credito_relacionado_id"]
+            isOneToOne: false
+            referencedRelation: "vista_creditos_intereses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_bancarias_pago_relacionado_id_fkey"
+            columns: ["pago_relacionado_id"]
+            isOneToOne: false
+            referencedRelation: "pagos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_bancarias_pago_relacionado_id_fkey"
+            columns: ["pago_relacionado_id"]
+            isOneToOne: false
+            referencedRelation: "pagos_efectivos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transacciones_capital: {
         Row: {
           banco_origen: Database["public"]["Enums"]["banco_peru"] | null
           created_by: string | null
           descripcion: string | null
           destino_cuenta_id: string | null
+          empresa_id: string | null
           evidencia_ref: string | null
           fecha_operacion: string | null
           id: string
@@ -1501,6 +2076,7 @@ export type Database = {
           created_by?: string | null
           descripcion?: string | null
           destino_cuenta_id?: string | null
+          empresa_id?: string | null
           evidencia_ref?: string | null
           fecha_operacion?: string | null
           id?: string
@@ -1517,6 +2093,7 @@ export type Database = {
           created_by?: string | null
           descripcion?: string | null
           destino_cuenta_id?: string | null
+          empresa_id?: string | null
           evidencia_ref?: string | null
           fecha_operacion?: string | null
           id?: string
@@ -1537,6 +2114,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "transacciones_capital_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "transacciones_capital_inversionista_id_fkey"
             columns: ["inversionista_id"]
             isOneToOne: false
@@ -1548,6 +2132,94 @@ export type Database = {
             columns: ["origen_cuenta_id"]
             isOneToOne: false
             referencedRelation: "cuentas_financieras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transferencias_garantias: {
+        Row: {
+          articulo_id: string
+          created_at: string | null
+          id: string
+          motivo: string | null
+          sucursal_destino_id: string | null
+          sucursal_origen_id: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          articulo_id: string
+          created_at?: string | null
+          id?: string
+          motivo?: string | null
+          sucursal_destino_id?: string | null
+          sucursal_origen_id?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          articulo_id?: string
+          created_at?: string | null
+          id?: string
+          motivo?: string | null
+          sucursal_destino_id?: string | null
+          sucursal_origen_id?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transferencias_garantias_sucursal_destino_id_fkey"
+            columns: ["sucursal_destino_id"]
+            isOneToOne: false
+            referencedRelation: "sucursales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transferencias_garantias_sucursal_origen_id_fkey"
+            columns: ["sucursal_origen_id"]
+            isOneToOne: false
+            referencedRelation: "sucursales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transferencias_garantias_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ubicaciones_cobradores: {
+        Row: {
+          cobrador_id: string
+          id: string
+          timestamp: string | null
+          ubicacion: Json
+        }
+        Insert: {
+          cobrador_id: string
+          id?: string
+          timestamp?: string | null
+          ubicacion: Json
+        }
+        Update: {
+          cobrador_id?: string
+          id?: string
+          timestamp?: string | null
+          ubicacion?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ubicaciones_cobradores_cobrador_id_fkey"
+            columns: ["cobrador_id"]
+            isOneToOne: true
+            referencedRelation: "empleados"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ubicaciones_cobradores_cobrador_id_fkey"
+            columns: ["cobrador_id"]
+            isOneToOne: true
+            referencedRelation: "empleados_completo"
             referencedColumns: ["id"]
           },
         ]
@@ -1612,6 +2284,74 @@ export type Database = {
           },
         ]
       }
+      ventas_remates: {
+        Row: {
+          articulo_id: string
+          comprador: string | null
+          comprador_telefono: string | null
+          created_at: string | null
+          id: string
+          metodo_pago: string | null
+          precio_venta: number
+          utilidad: number | null
+          valor_original: number | null
+          vendedor_id: string | null
+        }
+        Insert: {
+          articulo_id: string
+          comprador?: string | null
+          comprador_telefono?: string | null
+          created_at?: string | null
+          id?: string
+          metodo_pago?: string | null
+          precio_venta: number
+          utilidad?: number | null
+          valor_original?: number | null
+          vendedor_id?: string | null
+        }
+        Update: {
+          articulo_id?: string
+          comprador?: string | null
+          comprador_telefono?: string | null
+          created_at?: string | null
+          id?: string
+          metodo_pago?: string | null
+          precio_venta?: number
+          utilidad?: number | null
+          valor_original?: number | null
+          vendedor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ventas_remates_articulo_id_fkey"
+            columns: ["articulo_id"]
+            isOneToOne: false
+            referencedRelation: "garantias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ventas_remates_articulo_id_fkey"
+            columns: ["articulo_id"]
+            isOneToOne: false
+            referencedRelation: "inventario"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ventas_remates_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "empleados"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ventas_remates_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "empleados_completo"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       verificacion_whatsapp: {
         Row: {
           codigo: string
@@ -1642,8 +2382,106 @@ export type Database = {
         }
         Relationships: []
       }
+      visitas: {
+        Row: {
+          cobrador_id: string
+          created_at: string | null
+          credito_id: string
+          fotos: string[] | null
+          id: string
+          monto_cobrado: number | null
+          notas: string | null
+          resultado: string
+          ubicacion: Json | null
+        }
+        Insert: {
+          cobrador_id: string
+          created_at?: string | null
+          credito_id: string
+          fotos?: string[] | null
+          id?: string
+          monto_cobrado?: number | null
+          notas?: string | null
+          resultado: string
+          ubicacion?: Json | null
+        }
+        Update: {
+          cobrador_id?: string
+          created_at?: string | null
+          credito_id?: string
+          fotos?: string[] | null
+          id?: string
+          monto_cobrado?: number | null
+          notas?: string | null
+          resultado?: string
+          ubicacion?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visitas_cobrador_id_fkey"
+            columns: ["cobrador_id"]
+            isOneToOne: false
+            referencedRelation: "empleados"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visitas_cobrador_id_fkey"
+            columns: ["cobrador_id"]
+            isOneToOne: false
+            referencedRelation: "empleados_completo"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visitas_credito_id_fkey"
+            columns: ["credito_id"]
+            isOneToOne: false
+            referencedRelation: "creditos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visitas_credito_id_fkey"
+            columns: ["credito_id"]
+            isOneToOne: false
+            referencedRelation: "vista_creditos_intereses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
+      categorias_pendientes_promocion: {
+        Row: {
+          created_at: string | null
+          id: number | null
+          prioridad: string | null
+          prioridad_orden: number | null
+          texto_ingresado: string | null
+          tipo: string | null
+          ultimo_uso: string | null
+          veces_usado: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number | null
+          prioridad?: never
+          prioridad_orden?: never
+          texto_ingresado?: string | null
+          tipo?: string | null
+          ultimo_uso?: string | null
+          veces_usado?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number | null
+          prioridad?: never
+          prioridad_orden?: never
+          texto_ingresado?: string | null
+          tipo?: string | null
+          ultimo_uso?: string | null
+          veces_usado?: number | null
+        }
+        Relationships: []
+      }
       clientes_completo: {
         Row: {
           activo: boolean | null
@@ -1657,10 +2495,11 @@ export type Database = {
           nombre_completo: string | null
           nombres: string | null
           numero_documento: string | null
-          persona_id: string | null
+          party_id: string | null
+          party_type: string | null
+          razon_social: string | null
           score_crediticio: number | null
           telefono_principal: string | null
-          telefono_secundario: string | null
           tipo_documento: string | null
         }
         Relationships: [
@@ -1672,10 +2511,17 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "clientes_persona_id_fkey"
-            columns: ["persona_id"]
+            foreignKeyName: "clientes_party_id_fkey"
+            columns: ["party_id"]
             isOneToOne: false
-            referencedRelation: "personas"
+            referencedRelation: "parties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clientes_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "parties_completo"
             referencedColumns: ["id"]
           },
         ]
@@ -1687,26 +2533,95 @@ export type Database = {
           apellido_paterno: string | null
           cargo: string | null
           created_at: string | null
-          direccion: string | null
           email: string | null
+          empresa_id: string | null
           fecha_ingreso: string | null
           fecha_salida: string | null
           id: string | null
           nombre_completo: string | null
           nombres: string | null
           numero_documento: string | null
-          persona_id: string | null
+          party_id: string | null
           sucursal_id: string | null
+          sucursal_nombre: string | null
           telefono_principal: string | null
           tipo_documento: string | null
           user_id: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "empleados_persona_id_fkey"
-            columns: ["persona_id"]
-            isOneToOne: true
-            referencedRelation: "personas"
+            foreignKeyName: "empleados_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "parties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "empleados_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "parties_completo"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sucursales_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventario: {
+        Row: {
+          categoria_id: string | null
+          categoria_nombre: string | null
+          cliente_id: string | null
+          created_at: string | null
+          credito_id: string | null
+          descripcion: string | null
+          estado: string | null
+          estado_bien: string | null
+          fotos: string[] | null
+          id: string | null
+          para_remate: boolean | null
+          subcategoria: string | null
+          valor_tasado: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garantias_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias_garantia"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garantias_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garantias_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes_completo"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garantias_credito_id_fkey"
+            columns: ["credito_id"]
+            isOneToOne: false
+            referencedRelation: "creditos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garantias_credito_id_fkey"
+            columns: ["credito_id"]
+            isOneToOne: false
+            referencedRelation: "vista_creditos_intereses"
             referencedColumns: ["id"]
           },
         ]
@@ -1917,6 +2832,65 @@ export type Database = {
             columns: ["credito_id"]
             isOneToOne: false
             referencedRelation: "vista_creditos_intereses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parentesco_opciones: {
+        Row: {
+          id: number | null
+          nombre: string | null
+          orden: number | null
+        }
+        Insert: {
+          id?: number | null
+          nombre?: string | null
+          orden?: number | null
+        }
+        Update: {
+          id?: number | null
+          nombre?: string | null
+          orden?: number | null
+        }
+        Relationships: []
+      }
+      parties_completo: {
+        Row: {
+          apellido_materno: string | null
+          apellido_paterno: string | null
+          created_at: string | null
+          direccion: string | null
+          email: string | null
+          fecha_constitucion: string | null
+          fecha_nacimiento: string | null
+          id: string | null
+          nombre_comercial: string | null
+          nombre_completo: string | null
+          nombres: string | null
+          party_type: string | null
+          razon_social: string | null
+          representante_legal_id: string | null
+          sexo: string | null
+          tax_id: string | null
+          tax_id_type: string | null
+          telefono_principal: string | null
+          telefono_secundario: string | null
+          tipo_sociedad: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personas_juridicas_representante_legal_id_fkey"
+            columns: ["representante_legal_id"]
+            isOneToOne: false
+            referencedRelation: "parties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "personas_juridicas_representante_legal_id_fkey"
+            columns: ["representante_legal_id"]
+            isOneToOne: false
+            referencedRelation: "parties_completo"
             referencedColumns: ["id"]
           },
         ]
@@ -2138,6 +3112,8 @@ export type Database = {
           telefono: string
         }[]
       }
+      get_dashboard_complete: { Args: { p_usuario_id: string }; Returns: Json }
+      get_empleado_empresa: { Args: { p_sucursal_id: string }; Returns: string }
       get_historial_notificaciones: {
         Args: { p_credito_id: string }
         Returns: Json
@@ -2151,6 +3127,21 @@ export type Database = {
           monto_total: number
           tipo_movimiento: string
         }[]
+      }
+      get_or_create_party: {
+        Args: {
+          p_apellido_materno?: string
+          p_apellido_paterno?: string
+          p_direccion?: string
+          p_email?: string
+          p_nombres?: string
+          p_party_type: string
+          p_razon_social?: string
+          p_tax_id: string
+          p_tax_id_type: string
+          p_telefono?: string
+        }
+        Returns: string
       }
       get_or_create_persona: {
         Args: {
@@ -2180,6 +3171,7 @@ export type Database = {
           telefono: string
         }[]
       }
+      get_user_empresa: { Args: never; Returns: string }
       get_user_role: { Args: never; Returns: string }
       get_vencimientos_agrupados: {
         Args: never
@@ -2202,6 +3194,10 @@ export type Database = {
           total_rendimientos_pagados: number
         }[]
       }
+      promover_categoria_sugerida: {
+        Args: { p_id: number; p_promovido_a: string }
+        Returns: boolean
+      }
       proyectar_interes: {
         Args: { p_credito_id: string; p_dias_adicionales: number }
         Returns: {
@@ -2217,6 +3213,10 @@ export type Database = {
       puede_enviar_notificacion: {
         Args: { p_credito_id: string; p_horas_minimas?: number }
         Returns: Json
+      }
+      registrar_categoria_otro: {
+        Args: { p_texto: string; p_tipo: string }
+        Returns: undefined
       }
       registrar_evento: {
         Args: {
