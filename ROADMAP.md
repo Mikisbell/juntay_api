@@ -151,7 +151,7 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
   - [x] Identidad "Gold Vault" (Dark Mode + Gold)
   - [x] Componentes Glassmorphism
   - [x] Conversión optimizada (WhatsApp CTA)
-- [ ] Script de creación de nuevo tenant
+- [x] Script de creación de nuevo tenant
 
 
 ### 2. Onboarding Automatizado [ ]

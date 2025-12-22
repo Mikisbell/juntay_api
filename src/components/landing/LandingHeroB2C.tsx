@@ -2,14 +2,40 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Shield, UserX, Clock, ArrowRight } from "lucide-react";
+import { MessageCircle, Shield, UserX, Clock, ArrowRight, Users } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 // Colores de marca JUNTAY (del logo)
 // Navy: #1E3A5F / Gold: #D4AF37
 
+const socialProofMessages = [
+    { name: "María", location: "El Tambo", amount: "S/ 2,500", item: "joyas" },
+    { name: "Carlos", location: "Huancayo", amount: "S/ 1,800", item: "laptop" },
+    { name: "Rosa", location: "El Tambo", amount: "S/ 3,200", item: "celular" },
+    { name: "Luis", location: "Chilca", amount: "S/ 950", item: "herramientas" },
+    { name: "Ana", location: "El Tambo", amount: "S/ 4,100", item: "oro" },
+];
+
 export function LandingHeroB2C() {
     const whatsappLink = "https://wa.me/51995060806?text=Hola%20JUNTAY,%20necesito%20un%20pr%C3%A9stamo.%20Tengo%20para%20empe%C3%B1ar:%20";
+
+    const [currentProof, setCurrentProof] = useState(0);
+    const [showProof, setShowProof] = useState(false);
+
+    // Rotar social proof cada 5 segundos
+    useEffect(() => {
+        const timer = setTimeout(() => setShowProof(true), 3000);
+        const interval = setInterval(() => {
+            setCurrentProof((prev) => (prev + 1) % socialProofMessages.length);
+        }, 5000);
+        return () => {
+            clearTimeout(timer);
+            clearInterval(interval);
+        };
+    }, []);
+
+    const proof = socialProofMessages[currentProof];
 
     return (
         <section className="relative pt-24 pb-20 overflow-hidden">
@@ -19,6 +45,31 @@ export function LandingHeroB2C() {
                 <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#D4AF37]/15 rounded-full blur-[100px]" />
                 <div className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-amber-100 rounded-full blur-[80px] opacity-40" />
             </div>
+
+            {/* Live Social Proof Popup */}
+            {showProof && (
+                <motion.div
+                    initial={{ opacity: 0, x: -100 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -100 }}
+                    className="fixed bottom-24 left-4 z-40 bg-white rounded-xl shadow-2xl border border-gray-100 p-4 max-w-xs"
+                >
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-[#D4AF37]/20 rounded-full flex items-center justify-center">
+                            <span className="text-lg">💰</span>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-900">
+                                <strong>{proof.name}</strong> de {proof.location}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                                Recibió <span className="font-bold text-[#1E3A5F]">{proof.amount}</span> por sus {proof.item}
+                            </p>
+                        </div>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-2">Hace unos minutos</p>
+                </motion.div>
+            )}
 
             <div className="max-w-7xl mx-auto px-4">
                 <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -30,8 +81,22 @@ export function LandingHeroB2C() {
                         transition={{ duration: 0.6 }}
                         className="order-2 lg:order-1"
                     >
+                        {/* Live Counter Badge */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="inline-flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-full text-sm font-bold mb-6 border border-red-100"
+                        >
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                            </span>
+                            <Users className="w-4 h-4" />
+                            12 personas cotizando ahora
+                        </motion.div>
+
                         {/* Badges */}
-                        <div className="flex flex-wrap gap-2 mb-8">
+                        <div className="flex flex-wrap gap-2 mb-6">
                             <motion.span
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
@@ -61,22 +126,23 @@ export function LandingHeroB2C() {
                             </motion.span>
                         </div>
 
-                        {/* Headline */}
+                        {/* Headline - Emotional Copy */}
                         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 leading-[1.1] mb-6 tracking-tight">
-                            Préstamo al instante
+                            Tu emergencia
                             <span className="block text-[#1E3A5F]">
-                                con tu garantía
+                                no puede esperar
                             </span>
                         </h1>
 
                         {/* Subheadline */}
-                        <p className="text-lg sm:text-xl text-gray-600 mb-8 leading-relaxed max-w-lg">
-                            Empeña tus <strong className="text-gray-900">joyas, celulares, laptops o vehículos</strong> y llévate efectivo hoy mismo.
+                        <p className="text-lg sm:text-xl text-gray-600 mb-6 leading-relaxed max-w-lg">
+                            Empeña tus <strong className="text-gray-900">joyas, celulares o laptops</strong> y sal con efectivo en la mano. Hoy mismo.
                         </p>
 
+                        {/* Urgency Box */}
                         <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-xl p-4 mb-8">
                             <p className="text-[#8B6914] font-medium text-sm">
-                                ✨ <strong>No revisamos centrales de riesgo.</strong> Todos son bienvenidos.
+                                ⚡ <strong>Oferta del día:</strong> 0% comisión de apertura hasta las 7pm
                             </p>
                         </div>
 
@@ -106,10 +172,12 @@ export function LandingHeroB2C() {
                             </motion.a>
                         </div>
 
-                        {/* Micro-copy */}
-                        <p className="text-sm text-gray-500 mt-6">
-                            📍 Jiron Cahuide 298, El Tambo, Huancayo
-                        </p>
+                        {/* Trust micro-copy */}
+                        <div className="flex items-center gap-4 mt-6 text-sm text-gray-500">
+                            <span>📍 El Tambo, Huancayo</span>
+                            <span className="text-gray-300">|</span>
+                            <span className="text-[#D4AF37] font-medium">★ 523 clientes satisfechos</span>
+                        </div>
                     </motion.div>
 
                     {/* Right: Image */}
@@ -138,14 +206,14 @@ export function LandingHeroB2C() {
                             >
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 bg-[#D4AF37]/20 rounded-xl flex items-center justify-center">
-                                        <span className="text-2xl">💰</span>
+                                        <span className="text-2xl">✅</span>
                                     </div>
                                     <div>
-                                        <p className="font-bold text-gray-900">María de El Tambo</p>
-                                        <p className="text-sm text-gray-500">Recibió S/ 2,500 en 8 minutos</p>
+                                        <p className="font-bold text-gray-900">Préstamo aprobado</p>
+                                        <p className="text-sm text-gray-500">Desembolso en 5 minutos</p>
                                     </div>
-                                    <div className="ml-auto text-[#D4AF37] text-sm font-bold">
-                                        Hoy
+                                    <div className="ml-auto text-[#1E3A5F] text-lg font-black">
+                                        S/ 2,500
                                     </div>
                                 </div>
                             </motion.div>

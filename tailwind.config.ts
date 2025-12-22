@@ -60,6 +60,19 @@ const config: Config = {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				gold: {
+					50: '#FBF9F0',
+					100: '#F5F0DB',
+					200: '#EBE0B3',
+					300: '#E0CE8A',
+					400: '#D6BD66',
+					500: '#CCAC42', // Base Gold
+					600: '#A38A35',
+					700: '#7A6728',
+					800: '#52451B',
+					900: '#29220D',
+					DEFAULT: '#CCAC42'
 				}
 			},
 			borderRadius: {
