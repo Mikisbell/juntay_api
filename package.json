@@ -3,7 +3,8 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-        "dev": "next dev",
+        "dev": "next dev --turbo",
+        "dev:legacy": "next dev",
         "test": "vitest",
         "test:e2e": "playwright test",
         "verify": "npx tsx verify-system-integrity.ts",

@@ -5,9 +5,60 @@ import { Toaster } from "@/components/ui/toaster"
 import { PrintProvider } from "@/components/printing/PrintProvider"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { useState, useEffect } from 'react'
-import { RxDBProvider } from '@/components/providers/RxDBProvider'
+import { useState, useEffect, Suspense, lazy } from 'react'
 import { ConnectionStatus } from '@/components/ui/ConnectionStatus'
+
+// 🚀 PERFORMANCE: Lazy load RxDB para evitar cargar 3000+ módulos en arranque inicial
+// RxDB solo se carga cuando:
+// 1. El usuario está offline
+// 2. El usuario accede a features que requieren offline-first (POS)
+const LazyRxDBProvider = lazy(() =>
+    import('@/components/providers/RxDBProvider').then(mod => ({ default: mod.RxDBProvider }))
+)
+
+// Feature flag para habilitar/deshabilitar RxDB en desarrollo
+const ENABLE_RXDB = process.env.NEXT_PUBLIC_ENABLE_RXDB !== 'false'
+
+// Wrapper que carga RxDB solo cuando es necesario
+function ConditionalRxDBProvider({ children }: { children: React.ReactNode }) {
+    const [shouldLoadRxDB, setShouldLoadRxDB] = useState(false)
+
+    useEffect(() => {
+        // Solo cargar RxDB si:
+        // 1. Está habilitado via env
+        // 2. Estamos en una ruta que lo necesita (POS, pagos offline)
+        if (ENABLE_RXDB) {
+            const offlineRoutes = ['/dashboard/caja', '/dashboard/pagos', '/dashboard/pos']
+            const isOfflineRoute = offlineRoutes.some(route =>
+                window.location.pathname.startsWith(route)
+            )
+
+            // Cargar si estamos offline O en una ruta que lo necesita
+            if (!navigator.onLine || isOfflineRoute) {
+                setShouldLoadRxDB(true)
+            }
+
+            // También cargar si el usuario se desconecta
+            const handleOffline = () => setShouldLoadRxDB(true)
+            window.addEventListener('offline', handleOffline)
+
+            return () => window.removeEventListener('offline', handleOffline)
+        }
+    }, [])
+
+    if (!shouldLoadRxDB) {
+        // Sin RxDB - modo normal online
+        return <>{children}</>
+    }
+
+    return (
+        <Suspense fallback={<>{children}</>}>
+            <LazyRxDBProvider>
+                {children}
+            </LazyRxDBProvider>
+        </Suspense>
+    )
+}
 
 export function Providers({ children }: { children: React.ReactNode }) {
     // Create QueryClient inside component to ensure one instance per request
@@ -62,7 +113,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
     return (
         <QueryClientProvider client={queryClient}>
-            <RxDBProvider>
+            <ConditionalRxDBProvider>
                 <PrintProvider>
                     <TooltipProvider>
                         {children}
@@ -77,8 +128,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                 {process.env.NODE_ENV === 'development' && (
                     <ReactQueryDevtools initialIsOpen={false} />
                 )}
-            </RxDBProvider>
+            </ConditionalRxDBProvider>
         </QueryClientProvider>
     )
 }
-
