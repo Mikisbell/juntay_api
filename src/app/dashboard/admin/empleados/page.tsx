@@ -52,7 +52,7 @@ export default function EmpleadosPage() {
     const [dialogOpen, setDialogOpen] = useState(false)
     const [isEditing, setIsEditing] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
-    const [editingPersonaId, setEditingPersonaId] = useState<string | null>(null)
+    const [editingPartyId, setEditingPartyId] = useState<string | null>(null)
     const [formTab, setFormTab] = useState('personal')
 
     const [formData, setFormData] = useState({
@@ -172,7 +172,7 @@ export default function EmpleadosPage() {
         })
         setIsEditing(false)
         setEditingId(null)
-        setEditingPersonaId(null)
+        setEditingPartyId(null)
         setFormTab('personal')
     }
 
@@ -196,7 +196,7 @@ export default function EmpleadosPage() {
         })
         setIsEditing(true)
         setEditingId(emp.id)
-        setEditingPersonaId(emp.persona_id)
+        setEditingPartyId(emp.party_id)
         setDialogOpen(true)
     }
 
@@ -204,8 +204,8 @@ export default function EmpleadosPage() {
         e.preventDefault()
 
         try {
-            if (isEditing && editingId && editingPersonaId) {
-                await actualizarEmpleado(editingId, editingPersonaId, formData)
+            if (isEditing && editingId && editingPartyId) {
+                await actualizarEmpleado(editingId, editingPartyId, formData)
                 toast.success('Empleado actualizado exitosamente')
             } else {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any

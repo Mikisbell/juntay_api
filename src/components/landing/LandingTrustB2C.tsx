@@ -99,7 +99,7 @@ export function LandingTrustB2C() {
                                 </span>
                             </div>
 
-                            <p className="text-gray-700 mb-4 leading-relaxed">"{t.text}"</p>
+                            <p className="text-gray-700 mb-4 leading-relaxed">&quot;{t.text}&quot;</p>
 
                             <div className="flex items-center justify-between border-t border-gray-100 pt-4">
                                 <div>

@@ -1,5 +1,5 @@
 import { Instrument_Sans } from "next/font/google"; // Use modern font if possible, or fallback
-import "@/src/app/globals.css";
+import "@/app/globals.css";
 
 const font = Instrument_Sans({ subsets: ["latin"] });
 

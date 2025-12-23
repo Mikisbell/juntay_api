@@ -799,7 +799,7 @@ export async function getClienteExtended(clienteId: string) {
     return {
         // Datos personales
         id: cliente.id,
-        persona_id: cliente.persona_id,
+        party_id: cliente.party_id ?? cliente.persona_id,
         nombres: cliente.nombres,
         apellido_paterno: cliente.apellido_paterno,
         apellido_materno: cliente.apellido_materno,

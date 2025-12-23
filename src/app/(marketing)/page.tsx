@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function LandingPage() {
     return (
         <div className="relative overflow-hidden">

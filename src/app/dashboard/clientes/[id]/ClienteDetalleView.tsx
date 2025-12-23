@@ -52,7 +52,7 @@ import { cn } from "@/lib/utils"
 // Tipos extendidos para el nuevo perfil
 interface ClienteExtended {
     id: string
-    persona_id: string
+    party_id: string
     nombres: string
     apellido_paterno: string
     apellido_materno: string
@@ -153,7 +153,7 @@ export function ClienteDetalleView({ cliente, creditos = [], pagos = [] }: Clien
     const handleGuardarEdicion = async () => {
         setIsSaving(true)
         try {
-            const result = await actualizarCliente(cliente.id, cliente.persona_id, editForm)
+            const result = await actualizarCliente(cliente.id, cliente.party_id, editForm)
             if (result.success) {
                 toast.success("Cliente actualizado correctamente")
                 setIsEditDialogOpen(false)

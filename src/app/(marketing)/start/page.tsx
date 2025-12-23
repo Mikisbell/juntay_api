@@ -38,8 +38,8 @@ export default function OnboardingPage() {
             } else {
                 setError(result.error || 'Something went wrong.')
             }
-        } catch (err: any) {
-            setError(err.message)
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Unknown error')
         } finally {
             setLoading(false)
         }

@@ -15,7 +15,7 @@ export interface OnboardingResult {
     message?: string
     companyId?: string
     adminId?: string
-    error?: any
+    error?: string | null
 }
 
 /**
@@ -89,8 +89,9 @@ export async function onboardNewTenant(data: OnboardingInput): Promise<Onboardin
             // Handle "User already registered" case
             if (authError.message.includes('already registered') || authError.message.includes('already signed up')) {
                 console.log('[Onboarding] User exists, trying to find ID...')
-                const { data: users } = await supabaseAdmin.auth.admin.listUsers() // Warning: pagination needed in prod
-                const existing = users.users.find(u => u.email === data.adminEmail)
+                const { data: usersData } = await supabaseAdmin.auth.admin.listUsers() // Warning: pagination needed in prod
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const existing = (usersData?.users as Array<{ id: string; email?: string }>)?.find(u => u.email === data.adminEmail)
                 if (!existing) throw new Error('User exists but could not be found to link.')
                 userId = existing.id
             } else {
@@ -145,16 +146,17 @@ export async function onboardNewTenant(data: OnboardingInput): Promise<Onboardin
             message: 'Tenant created successfully'
         }
 
-    } catch (error: any) {
-        console.error('[Onboarding] Failed:', error)
+    } catch (error: unknown) {
+        const errMsg = error instanceof Error ? error.message : 'Unknown error'
+        console.error('[Onboarding] Failed:', errMsg)
         return {
             success: false,
-            error: error.message
+            error: errMsg
         }
     }
 }
 
-async function seedDefaultData(supabase: any, empresaId: string) {
+async function seedDefaultData(supabase: ReturnType<typeof createAdminClient>, empresaId: string) {
     console.log(`[Onboarding] Seeding data for ${empresaId}...`)
 
     // A. Default Categories
