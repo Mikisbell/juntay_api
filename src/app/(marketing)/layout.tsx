@@ -1,5 +1,7 @@
-import { Instrument_Sans } from "next/font/google"; // Use modern font if possible, or fallback
+import { Instrument_Sans } from "next/font/google";
 import "@/app/globals.css";
+import { LandingNavbarB2C } from "@/components/landing/LandingNavbarB2C";
+import { LandingFooterB2C } from "@/components/landing/LandingFooterB2C";
 
 const font = Instrument_Sans({ subsets: ["latin"] });
 
@@ -15,29 +17,13 @@ export default function MarketingLayout({
 }) {
     return (
         <div className={`min-h-screen bg-black text-white ${font.className}`}>
-            {/* Navbar placeholder */}
-            <nav className="fixed top-0 w-full z-50 border-b border-white/10 bg-black/50 backdrop-blur-md">
-                <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-                    <div className="text-xl font-bold text-gold-500 tracking-tighter">
-                        JUNTAY
-                    </div>
-                    <div className="flex gap-4">
-                        <button className="text-sm font-medium text-white/80 hover:text-white">Login</button>
-                        <button className="bg-gold-500 text-black px-4 py-2 rounded-full text-sm font-bold hover:bg-gold-400 transition-colors">
-                            Empezar Gratis
-                        </button>
-                    </div>
-                </div>
-            </nav>
+            <LandingNavbarB2C />
 
-            <main className="pt-16">
+            <main className="pt-0">
                 {children}
             </main>
 
-            {/* Footer minimal */}
-            <footer className="border-t border-white/10 py-8 text-center text-white/40 text-sm">
-                © 2026 Juntay Inc. Security First.
-            </footer>
+            <LandingFooterB2C />
         </div>
     );
 }

@@ -21,6 +21,8 @@ export function LandingNavbarB2C() {
                             width={100}
                             height={32}
                             className="h-8 w-auto"
+                            priority
+                            style={{ width: "auto" }}
                         />
                         <div className="hidden sm:block border-l border-gray-300 pl-3">
                             <span className="text-xs font-medium text-[#D4AF37] uppercase tracking-wider">
@@ -43,7 +45,14 @@ export function LandingNavbarB2C() {
                     </div>
 
                     {/* CTA */}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
+                        {/* B2B Onboarding CTA */}
+                        <Link href="/start">
+                            <button className="hidden lg:flex bg-[#D4AF37] hover:bg-[#B5952F] text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all shadow-lg shadow-[#D4AF37]/20">
+                                Empezar Gratis
+                            </button>
+                        </Link>
+
                         <a
                             href="https://wa.me/51995060806?text=Hola%20JUNTAY,%20necesito%20un%20pr%C3%A9stamo%20r%C3%A1pido"
                             className="flex items-center gap-2 bg-[#1E3A5F] hover:bg-[#152C4A] text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all shadow-lg shadow-[#1E3A5F]/20 hover:scale-105"

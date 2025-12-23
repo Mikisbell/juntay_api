@@ -211,7 +211,14 @@ export async function initDatabase(): Promise<JuntayDatabase> {
                     },
                     clientes: {
                         schema: clientesSchema,
-                        migrationStrategies: {}
+                        migrationStrategies: {
+                            // 1: Add party_id (copy from persona_id)
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            1: (oldDoc: any) => {
+                                oldDoc.party_id = oldDoc.persona_id
+                                return oldDoc
+                            }
+                        }
                     },
                     garantias: {
                         schema: garantiasSchema,

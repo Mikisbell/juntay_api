@@ -14,15 +14,16 @@ export function FloatingWhatsApp() {
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 1, type: "spring", stiffness: 200 }}
-            className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-[#1E3A5F] hover:bg-[#152C4A] text-white pl-5 pr-6 py-4 rounded-full shadow-2xl shadow-[#1E3A5F]/40 transition-all hover:scale-105 group"
+
+            className="fixed bottom-6 right-6 z-50 flex items-center justify-center bg-[#1E3A5F] hover:bg-[#152C4A] text-white w-12 h-12 rounded-full shadow-lg shadow-[#1E3A5F]/30 transition-all hover:scale-110 group"
+            title="¿Tienes dudas? Contáctanos"
         >
             <motion.div
                 animate={{ rotate: [0, 15, -15, 0] }}
                 transition={{ repeat: Infinity, duration: 2, repeatDelay: 3 }}
             >
-                <MessageCircle className="w-7 h-7" />
+                <MessageCircle className="w-6 h-6" />
             </motion.div>
-            <span className="font-bold text-lg hidden sm:inline">¿Tienes dudas?</span>
 
             {/* Pulse effect */}
             <span className="absolute inset-0 rounded-full bg-[#D4AF37] animate-ping opacity-20" />

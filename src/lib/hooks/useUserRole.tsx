@@ -31,24 +31,43 @@ export function useUserRole(): UserRoleData {
                     return
                 }
 
-                // Get user role from empleados table
-                const { data: empleado } = await supabase
-                    .from('empleados')
+                // First check usuarios table for system admin role
+                const { data: usuario } = await supabase
+                    .from('usuarios')
                     .select('rol')
-                    .eq('usuario_id', user.id)
+                    .eq('id', user.id)
                     .single()
 
                 let role: UserRole = 'cajero' // default
 
-                const empleadoData = empleado as { rol: string } | null
-                if (empleadoData?.rol) {
-                    const rolLower = empleadoData.rol.toLowerCase()
-                    if (rolLower.includes('admin') || rolLower.includes('sistema')) {
-                        role = 'admin'
-                    } else if (rolLower.includes('gerente') || rolLower.includes('supervisor')) {
-                        role = 'gerente'
-                    } else {
-                        role = 'cajero'
+                const usuarioData = usuario as { rol: string } | null
+                if (usuarioData?.rol?.toLowerCase() === 'admin') {
+                    // System admin - has full access
+                    role = 'admin'
+                } else {
+                    // Check empleados table for employee role
+                    const { data: empleado } = await supabase
+                        .from('empleados')
+                        .select('cargo')
+                        .eq('user_id', user.id)
+                        .single()
+
+                    const empleadoData = empleado as { cargo: string } | null
+                    if (empleadoData?.cargo) {
+                        const cargoLower = empleadoData.cargo.toLowerCase()
+                        if (cargoLower.includes('admin') || cargoLower.includes('sistema')) {
+                            role = 'admin'
+                        } else if (cargoLower.includes('gerente') || cargoLower.includes('supervisor')) {
+                            role = 'gerente'
+                        } else {
+                            role = 'cajero'
+                        }
+                    } else if (usuarioData?.rol) {
+                        // Fallback to usuarios.rol if empleado not found
+                        const rolLower = usuarioData.rol.toLowerCase()
+                        if (rolLower.includes('gerente')) {
+                            role = 'gerente'
+                        }
                     }
                 }
 

@@ -27,6 +27,7 @@ export interface ClienteDocument {
     score_crediticio: number | null
     activo: boolean
     persona_id: string | null
+    party_id: string | null
     empresa_id: string | null
     created_at: string | null
     // Campos RxDB para sincronización
@@ -35,7 +36,7 @@ export interface ClienteDocument {
 }
 
 export const clientesSchema: RxJsonSchema<ClienteDocument> = {
-    version: 0,
+    version: 1,
     primaryKey: 'id',
     type: 'object',
     properties: {
@@ -105,6 +106,10 @@ export const clientesSchema: RxJsonSchema<ClienteDocument> = {
             type: 'boolean'
         },
         persona_id: {
+            type: ['string', 'null'],
+            maxLength: 36
+        },
+        party_id: {
             type: ['string', 'null'],
             maxLength: 36
         },

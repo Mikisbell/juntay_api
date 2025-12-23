@@ -11,6 +11,11 @@
 - Archivo `STATUS.md` auto-generado
 - Helper `src/lib/auth/empresa-context.ts` para contexto multi-tenant centralizado
 - Estrategia "SaaS-Ready Single-Tenant" en ROADMAP (Fase 0)
+- Script `scripts/test-onboarding.ts` para verificar flujo E2E de onboarding
+
+### Fixed
+- **Onboarding Actions**: Corregidos 6 bugs de schema en `onboarding-actions.ts`:
+  - Categorías globales (no per-tenant), RUC único, columnas correctas
 
 ## [2025.12.20] - Producción Multi-Tentant Core
 ### Security & Architecture

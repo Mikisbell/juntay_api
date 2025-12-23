@@ -154,10 +154,10 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [x] Script de creación de nuevo tenant
 
 
-### 2. Onboarding Automatizado [ ]
-- [ ] Wizard de configuración inicial
-- [ ] Crear empresa + sucursal + admin en 5 min
-- [ ] Importar catálogo de categorías
+### 2. Onboarding Automatizado [/] EN PROGRESO
+- [x] Wizard de configuración inicial (`/start` page)
+- [x] Crear empresa + sucursal + admin en 5 min ✅ FIXED
+- [ ] Importar catálogo de categorías (N/A: global lookup)
 - [ ] Configurar tasas de interés por defecto
 
 ### 3. Landing Page + Demo [ ]

@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+
 import { Star, Quote, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 

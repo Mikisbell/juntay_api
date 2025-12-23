@@ -34,7 +34,7 @@ export async function onboardNewTenant(data: OnboardingInput): Promise<Onboardin
             .insert({
                 nombre_comercial: data.companyName,
                 razon_social: `${data.companyName}`, // Default to same name
-                ruc: data.ruc || null,
+                ruc: data.ruc || `${Date.now() % 100000000000}`.padStart(11, '0'), // Unique 11-digit placeholder
                 activo: true,
                 direccion: 'Dirección por defecto',
                 email: data.adminEmail,
@@ -53,11 +53,11 @@ export async function onboardNewTenant(data: OnboardingInput): Promise<Onboardin
             .insert({
                 empresa_id: company.id,
                 nombre: 'Sede Principal',
-                codigo: 'MAIN-001',
+                codigo: `M${company.id.substring(0, 9)}`, // Max 10 chars for varchar(10)
                 direccion: 'Dirección Principal',
                 telefono: '',
                 es_principal: true,
-                activo: true
+                activa: true // Column is 'activa' not 'activo'
             })
             .select()
             .single()
@@ -130,7 +130,8 @@ export async function onboardNewTenant(data: OnboardingInput): Promise<Onboardin
                     rol: 'admin',
                     nombres: 'Admin',
                     apellido_paterno: data.companyName,
-                    estado: 'activo'
+                    apellido_materno: '',
+                    activo: true // Column is 'activo' not 'estado'
                 })
             if (inError) throw new Error(`Error inserting user: ${inError.message}`)
         }
@@ -156,51 +157,17 @@ export async function onboardNewTenant(data: OnboardingInput): Promise<Onboardin
     }
 }
 
-async function seedDefaultData(supabase: ReturnType<typeof createAdminClient>, empresaId: string) {
-    console.log(`[Onboarding] Seeding data for ${empresaId}...`)
+async function seedDefaultData(_supabase: ReturnType<typeof createAdminClient>, empresaId: string) {
+    console.log(`[Onboarding] Seeding default data for empresa ${empresaId}...`)
 
-    // A. Default Categories
-    const categories = ['Joyas de Oro', 'Electrodomésticos', 'Vehículos', 'Herramientas', 'Otros']
+    // Note: categorias_garantia is a GLOBAL lookup table (Oro, Plata, Electrónicos, etc.)
+    // It does NOT have empresa_id, so no per-tenant seeding needed.
+    // All tenants share the same categories.
 
-    // Check if table exists (it should). "categorias_productos"
-    // Using for...of for sequential insert or map for parallel
-    for (const cat of categories) {
-        // We might want code slugs
-        await supabase.from('categorias_productos').insert({
-            empresa_id: empresaId,
-            nombre: cat,
-            descripcion: `Categoría por defecto: ${cat}`,
-            activo: true
-        })
-    }
-    console.log('[Onboarding] Categories seeded.')
+    // TODO: If tenant-specific configurations are needed in the future, add here.
+    // Options: 
+    // - configuracion_empresa: store empresa settings (tasas, días gracia, etc.)
+    // - productos_empresa: tenant-specific product categories
 
-    // B. Default Interest Config
-    // Table: configuracion_intereses (assuming name provided in roadmap/plan)
-    // Actually, checking schema. The table might be named differently or not exist yet if it was part of "Configurar tasas".
-    // Let's assume 'configuracion' or check if there is a 'tasas' table. 
-    // Based on previous logs, I didn't see a specific 'tasas' table audit. 
-    // I will try to insert into 'configuracion_intereses' if it exists, otherwise skip or log warning.
-    // Wait, the roadmap said "Configurar tasas de interés por defecto". 
-    // I will use a safe try/catch here or check existing tables. 
-    // Based on `audit-docs` output: `categorias-sugeridas-actions.ts`, `intereses-actions.ts`.
-    // Let's check `intereses-actions.ts` to see the table name.
-
-    // For now I'll write the code assuming 'configuracion_intereses' but wrap in try-catch.
-    /* 
-    // TODO: Verify table name for interest config. 'configuracion_intereses' not found in recent scan.
-    try {
-        await supabase.from('configuracion_intereses').insert({
-            empresa_id: empresaId,
-            nombre: 'Tasa Estándar',
-            tasa_mensual: 5.0, // 5%
-            tasa_diaria: 0.166,
-            dias_gracia: 0,
-            activo: true
-        })
-        console.log('[Onboarding] Interest rates seeded.')
-    } catch (e) {
-        console.warn('[Onboarding] Could not seed interest rates (table might be missing or different).')
-    }
-    */
+    console.log('[Onboarding] Default data seeded. (No tenant-specific categories needed)')
 }
