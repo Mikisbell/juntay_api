@@ -4,6 +4,35 @@ import { createClient } from '@/lib/supabase/server'
 import { EstadoCredito, Credito, ResumenEstados } from '../types/credito'
 
 /**
+ * Obtiene la tasa de interés por defecto de la empresa del usuario actual.
+ * Retorna 20.00 si no hay empresa o no hay valor configurado.
+ */
+export async function obtenerTasaInteresDefault(): Promise<number> {
+    const supabase = await createClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return 20.00
+
+    // Get empresa_id from usuarios table
+    const { data: usuario } = await supabase
+        .from('usuarios')
+        .select('empresa_id')
+        .eq('id', user.id)
+        .single()
+
+    if (!usuario?.empresa_id) return 20.00
+
+    // Get tasa_interes_default from empresas
+    const { data: empresa } = await supabase
+        .from('empresas')
+        .select('tasa_interes_default')
+        .eq('id', usuario.empresa_id)
+        .single()
+
+    return empresa?.tasa_interes_default ?? 20.00
+}
+
+/**
  * Obtiene todos los créditos filtrados por estado
  */
 export async function obtenerCreditosPorEstado(estado: EstadoCredito): Promise<Credito[]> {

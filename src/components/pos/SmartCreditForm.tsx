@@ -25,6 +25,7 @@ import { es } from "date-fns/locale"
 import { toast } from "sonner"
 import { useQuery } from '@tanstack/react-query'
 import { obtenerEstadoCaja } from '@/lib/actions/caja-actions'
+import { obtenerTasaInteresDefault } from '@/lib/actions/creditos-actions'
 import { v4 as uuidv4 } from 'uuid'
 import { crearCreditoExpress } from '@/lib/actions/creditos-actions'
 import { useRxDB, useCrearCreditoLocal } from '@/lib/rxdb/hooks'
@@ -86,6 +87,13 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
         staleTime: 0
     })
 
+    // 1b. Tasa de interés por defecto de la empresa
+    const { data: tasaDefault } = useQuery({
+        queryKey: ['empresa', 'tasa-default'],
+        queryFn: () => obtenerTasaInteresDefault(),
+        staleTime: 1000 * 60 * 5 // 5 minutes cache
+    })
+
     const cajaAbierta = caja?.estado === 'abierta'
 
     // RxDB para operación offline-first
@@ -128,8 +136,16 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
     // 4. Estado Financiero
     const [valorMercado, setValorMercado] = useState<number>(0)
     const [montoPrestamo, setMontoPrestamo] = useState<number>(0)
-    const [tasaInteres, setTasaInteres] = useState<number>(20) // Tasa mensual configurable
+    const [tasaInteres, setTasaInteres] = useState<number>(20) // Tasa mensual configurable (se actualiza desde empresa)
     const [fechaInicio, setFechaInicio] = useState<Date>(new Date()) // Fecha inicio configurable
+
+    // Actualizar tasa de interés cuando se carga el default de la empresa
+    useEffect(() => {
+        if (tasaDefault && tasaDefault !== tasaInteres) {
+            setTasaInteres(tasaDefault)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tasaDefault]) // Solo ejecutar cuando cambia tasaDefault, no tasaInteres
     const [observaciones, setObservaciones] = useState("")
     const [fotos, setFotos] = useState<string[]>([])
 
