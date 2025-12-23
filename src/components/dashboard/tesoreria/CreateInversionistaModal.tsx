@@ -49,8 +49,6 @@ export function CreateInversionistaModal({ inversionistaToEdit, onOpenChange }: 
 
     // Tab 1: Identificación
     const [selectedPerson, setSelectedPerson] = useState<{ id: string, nombres: string } | null>(null)
-    const [searchDNI, setSearchDNI] = useState('')
-    const [searchLoading, setSearchLoading] = useState(false)
     const [datosEntidad, setDatosEntidad] = useState<DatosEntidad | null>(null)
 
     // Tab 2: Datos Financieros
@@ -103,29 +101,7 @@ export function CreateInversionistaModal({ inversionistaToEdit, onOpenChange }: 
         if (onOpenChange) onOpenChange(val)
     }
 
-    // Buscar DNI via API
-    const handleBuscarDNI = async () => {
-        if (!searchDNI || searchDNI.length !== 8) {
-            toast.error('Ingresa un DNI válido de 8 dígitos')
-            return
-        }
 
-        setSearchLoading(true)
-        try {
-            const result = await consultarEntidad('DNI', searchDNI)
-            if (result) {
-                setDatosEntidad(result)
-                setTitularCuenta(result.nombre_completo || '')
-                toast.success('Datos encontrados')
-            } else {
-                toast.error('No se encontraron datos para este DNI')
-            }
-        } catch {
-            toast.error('Error al consultar DNI')
-        } finally {
-            setSearchLoading(false)
-        }
-    }
 
     const aplicarDuracion = (meses: number) => {
         const fechaBase = fechaIngreso ? new Date(fechaIngreso) : new Date()
@@ -223,7 +199,7 @@ export function CreateInversionistaModal({ inversionistaToEdit, onOpenChange }: 
 
     const resetForm = () => {
         setSelectedPerson(null)
-        setSearchDNI('')
+
         setDatosEntidad(null)
         setTipoRelacion('SOCIO')
         setMontoInversion('')
@@ -319,68 +295,26 @@ export function CreateInversionistaModal({ inversionistaToEdit, onOpenChange }: 
                                     </div>
                                 ) : (
                                     <div className="space-y-4">
-                                        {/* Opción 1: Buscar existente */}
-                                        <div className="border rounded-md p-3 bg-slate-50">
-                                            <p className="text-sm font-medium mb-2 flex items-center gap-1.5">
-                                                <Search className="w-4 h-4" />
-                                                Buscar Persona Existente
+                                        <div className="border rounded-md p-4 bg-slate-50">
+                                            <p className="text-sm font-medium mb-3 text-slate-700 flex items-center gap-2">
+                                                <Search className="w-4 h-4 text-primary" />
+                                                Buscar Inversionista
                                             </p>
-                                            <PersonSearch onSelect={handlePersonSelect} />
-                                        </div>
-
-                                        {/* Separador */}
-                                        <div className="relative">
-                                            <div className="absolute inset-0 flex items-center">
-                                                <span className="w-full border-t" />
+                                            <PersonSearch
+                                                onSelect={handlePersonSelect}
+                                                placeholder="Nombre o DNI (para buscar en RENIEC)..."
+                                                allowCreateFromAPI={true}
+                                            />
+                                            <div className="mt-3 p-3 bg-blue-50 border border-blue-100 rounded-md">
+                                                <p className="text-xs text-blue-700 flex items-start gap-2">
+                                                    <span className="text-lg leading-none">💡</span>
+                                                    <span>
+                                                        Puedes buscar por <strong>Nombre</strong> o <strong>DNI</strong>.
+                                                        Si el DNI no existe en el sistema, aparecerá una opción para
+                                                        buscarlo automáticamente en <strong>RENIEC</strong> y registrarlo.
+                                                    </span>
+                                                </p>
                                             </div>
-                                            <div className="relative flex justify-center text-xs uppercase">
-                                                <span className="bg-white px-2 text-muted-foreground">o buscar por DNI</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Opción 2: Buscar DNI via API */}
-                                        <div className="border rounded-md p-3 bg-blue-50 border-blue-200">
-                                            <p className="text-sm font-medium mb-2 flex items-center gap-1.5 text-blue-800">
-                                                <Search className="w-4 h-4" />
-                                                Consultar DNI (RENIEC)
-                                            </p>
-                                            <div className="flex gap-2">
-                                                <Input
-                                                    placeholder="Ingresa DNI (8 dígitos)"
-                                                    value={searchDNI}
-                                                    onChange={(e) => setSearchDNI(e.target.value.replace(/\D/g, '').slice(0, 8))}
-                                                    maxLength={8}
-                                                    className="flex-1"
-                                                />
-                                                <Button
-                                                    type="button"
-                                                    onClick={handleBuscarDNI}
-                                                    disabled={searchLoading || searchDNI.length !== 8}
-                                                >
-                                                    {searchLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Buscar'}
-                                                </Button>
-                                            </div>
-
-                                            {datosEntidad && (
-                                                <div className="mt-3 p-3 bg-white rounded border border-blue-200">
-                                                    <p className="font-semibold text-blue-900">{datosEntidad.nombre_completo}</p>
-                                                    <p className="text-xs text-blue-700">DNI: {datosEntidad.numero_documento}</p>
-                                                    <Button
-                                                        type="button"
-                                                        size="sm"
-                                                        className="mt-2 bg-blue-600 hover:bg-blue-700"
-                                                        onClick={() => {
-                                                            // Aquí deberíamos crear el cliente primero
-                                                            // Por ahora solo setear el nombre para mostrar
-                                                            toast.info('Funcionalidad en desarrollo: Primero debe existir en el sistema', {
-                                                                description: 'Busca la persona en el campo superior o regístrala primero en Clientes.'
-                                                            })
-                                                        }}
-                                                    >
-                                                        Usar estos datos
-                                                    </Button>
-                                                </div>
-                                            )}
                                         </div>
                                     </div>
                                 )}

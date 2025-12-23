@@ -63,8 +63,38 @@ export async function getEmpresaActual(): Promise<EmpresaContext> {
         .eq('id', user.id)
         .single()
 
-    if (error || !usuario) {
-        console.warn('[getEmpresaActual] Usuario sin registro en tabla usuarios:', user.id)
+    if (error || !usuario || !usuario.empresa_id) {
+        console.warn('[getEmpresaActual] Usuario sin empresa asignada o error. Intentando fallback...', { error, userId: user.id })
+
+        // FALLBACK DE EMERGENCIA: Obtener la primera empresa disponible
+        // Esto permite que el sistema funcione si el onboarding falló o en desarrollo
+        const { data: primeraEmpresa } = await supabase
+            .from('empresas')
+            .select('id, nombre, ruc')
+            .limit(1)
+            .single()
+
+        if (primeraEmpresa) {
+            console.log('[getEmpresaActual] Usando empresa fallback:', primeraEmpresa.nombre)
+
+            // Buscar sucursal principal de esta empresa fallback
+            const { data: sucursal } = await supabase
+                .from('sucursales')
+                .select('id')
+                .eq('empresa_id', primeraEmpresa.id)
+                .eq('es_principal', true)
+                .single()
+
+            return {
+                empresaId: primeraEmpresa.id,
+                empresaNombre: primeraEmpresa.nombre,
+                empresaRuc: primeraEmpresa.ruc,
+                sucursalPrincipalId: sucursal?.id || null,
+                usuarioId: user.id,
+                usuarioEmail: user.email || null
+            }
+        }
+
         return {
             empresaId: null,
             empresaNombre: null,
