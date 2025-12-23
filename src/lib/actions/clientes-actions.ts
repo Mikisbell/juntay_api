@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { getEmpresaActual } from '@/lib/auth/empresa-context'
 
 export interface ClienteCompleto {
     id: string
@@ -128,10 +129,18 @@ export async function crearCliente(datos: {
     }
 
     // 2. Crear cliente referenciando la persona
+    // CRÍTICO: Obtener empresa_id del usuario actual para cumplir con RLS
+    const { empresaId } = await getEmpresaActual()
+
+    if (!empresaId) {
+        throw new Error('No se pudo determinar la empresa del usuario. Verifica que tu usuario esté correctamente configurado.')
+    }
+
     const { data: cliente, error: clienteError } = await supabase
         .from('clientes')
         .insert({
             party_id: partyId,
+            empresa_id: empresaId, // CRÍTICO: Requerido por RLS
             // CRÍTICO: Estos campos son NOT NULL en la tabla clientes
             tipo_documento: datos.tipo_documento,
             numero_documento: datos.numero_documento,
