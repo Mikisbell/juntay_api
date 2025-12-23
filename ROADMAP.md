@@ -158,7 +158,7 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [x] Wizard de configuración inicial (`/start` page)
 - [x] Crear empresa + sucursal + admin en 5 min ✅ FIXED
 - [ ] Importar catálogo de categorías (N/A: global lookup)
-- [ ] Configurar tasas de interés por defecto
+- [x] Configurar tasas de interés por defecto (20% default)
 
 ### 3. Landing Page + Demo [ ]
 - [ ] Landing page de producto
