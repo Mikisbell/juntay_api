@@ -392,8 +392,8 @@ export type Database = {
           fecha_inicio: string
           fecha_vencimiento: string | null
           frecuencia_pago:
-            | Database["public"]["Enums"]["frecuencia_pago_fondeo"]
-            | null
+          | Database["public"]["Enums"]["frecuencia_pago_fondeo"]
+          | null
           id: string
           inversionista_id: string
           metadata: Json | null
@@ -412,8 +412,8 @@ export type Database = {
           fecha_inicio?: string
           fecha_vencimiento?: string | null
           frecuencia_pago?:
-            | Database["public"]["Enums"]["frecuencia_pago_fondeo"]
-            | null
+          | Database["public"]["Enums"]["frecuencia_pago_fondeo"]
+          | null
           id?: string
           inversionista_id: string
           metadata?: Json | null
@@ -432,8 +432,8 @@ export type Database = {
           fecha_inicio?: string
           fecha_vencimiento?: string | null
           frecuencia_pago?:
-            | Database["public"]["Enums"]["frecuencia_pago_fondeo"]
-            | null
+          | Database["public"]["Enums"]["frecuencia_pago_fondeo"]
+          | null
           id?: string
           inversionista_id?: string
           metadata?: Json | null
@@ -2930,11 +2930,11 @@ export type Database = {
           rendimiento_pendiente_pago: number | null
           tasa_retorno: number | null
           tipo_contrato:
-            | Database["public"]["Enums"]["tipo_contrato_fondeo"]
-            | null
+          | Database["public"]["Enums"]["tipo_contrato_fondeo"]
+          | null
           tipo_relacion:
-            | Database["public"]["Enums"]["tipo_inversionista"]
-            | null
+          | Database["public"]["Enums"]["tipo_inversionista"]
+          | null
         }
         Relationships: [
           {
@@ -3229,29 +3229,29 @@ export type Database = {
         Returns: number
       }
       registrar_pago_oficial:
-        | {
-            Args: {
-              p_caja_id: string
-              p_credito_id: string
-              p_metadata?: Json
-              p_metodo_pago: string
-              p_monto_pago: number
-              p_tipo_operacion: string
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              p_caja_id: string
-              p_credito_id: string
-              p_metadata?: Json
-              p_metodo_pago: string
-              p_monto_pago: number
-              p_tipo_operacion: string
-              p_usuario_id?: string
-            }
-            Returns: Json
-          }
+      | {
+        Args: {
+          p_caja_id: string
+          p_credito_id: string
+          p_metadata?: Json
+          p_metodo_pago: string
+          p_monto_pago: number
+          p_tipo_operacion: string
+        }
+        Returns: Json
+      }
+      | {
+        Args: {
+          p_caja_id: string
+          p_credito_id: string
+          p_metadata?: Json
+          p_metodo_pago: string
+          p_monto_pago: number
+          p_tipo_operacion: string
+          p_usuario_id?: string
+        }
+        Returns: Json
+      }
       reversar_movimiento: {
         Args: {
           p_motivo: string
@@ -3267,45 +3267,45 @@ export type Database = {
     }
     Enums: {
       banco_peru:
-        | "BCP"
-        | "BBVA"
-        | "INTERBANK"
-        | "SCOTIABANK"
-        | "BANCO_NACION"
-        | "CAJA_AREQUIPA"
-        | "CAJA_PIURA"
-        | "CAJA_CUSCO"
-        | "CAJA_HUANCAYO"
-        | "MIBANCO"
-        | "PICHINCHA"
-        | "BANBIF"
-        | "OTRO"
+      | "BCP"
+      | "BBVA"
+      | "INTERBANK"
+      | "SCOTIABANK"
+      | "BANCO_NACION"
+      | "CAJA_AREQUIPA"
+      | "CAJA_PIURA"
+      | "CAJA_CUSCO"
+      | "CAJA_HUANCAYO"
+      | "MIBANCO"
+      | "PICHINCHA"
+      | "BANBIF"
+      | "OTRO"
       estado_contrato_fondeo: "ACTIVO" | "PAUSADO" | "LIQUIDADO" | "CANCELADO"
       frecuencia_pago_fondeo:
-        | "SEMANAL"
-        | "QUINCENAL"
-        | "MENSUAL"
-        | "TRIMESTRAL"
-        | "AL_VENCIMIENTO"
+      | "SEMANAL"
+      | "QUINCENAL"
+      | "MENSUAL"
+      | "TRIMESTRAL"
+      | "AL_VENCIMIENTO"
       metodo_pago_peru:
-        | "EFECTIVO"
-        | "YAPE"
-        | "PLIN"
-        | "TRANSFERENCIA"
-        | "CCI"
-        | "CHEQUE"
-        | "DEPOSITO_VENTANILLA"
-        | "AGENTE"
+      | "EFECTIVO"
+      | "YAPE"
+      | "PLIN"
+      | "TRANSFERENCIA"
+      | "CCI"
+      | "CHEQUE"
+      | "DEPOSITO_VENTANILLA"
+      | "AGENTE"
       tipo_contrato_fondeo: "DEUDA_FIJA" | "PARTICIPACION_EQUITY"
       tipo_cuenta_financiera: "EFECTIVO" | "BANCO" | "DIGITAL" | "PASARELA"
       tipo_inversionista: "SOCIO" | "PRESTAMISTA"
       tipo_transaccion_capital:
-        | "APORTE"
-        | "RETIRO"
-        | "PAGO_INTERES"
-        | "TRANSFERENCIA_FONDEO"
-        | "APERTURA_CAJA"
-        | "CIERRE_CAJA"
+      | "APORTE"
+      | "RETIRO"
+      | "PAGO_INTERES"
+      | "TRANSFERENCIA_FONDEO"
+      | "APERTURA_CAJA"
+      | "CIERRE_CAJA"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3319,116 +3319,116 @@ type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof DatabaseWithoutInternals },
+  | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+  | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+  ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+    DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+  : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+    DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
-    ? R
-    : never
+  ? R
+  : never
   : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
-    : never
+    DefaultSchema["Views"])
+  ? (DefaultSchema["Tables"] &
+    DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+      Row: infer R
+    }
+  ? R
+  : never
+  : never
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
+  | keyof DefaultSchema["Tables"]
+  | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+  ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+  : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
-    }
-    ? I
-    : never
+    Insert: infer I
+  }
+  ? I
+  : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
-    : never
+  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+    Insert: infer I
+  }
+  ? I
+  : never
+  : never
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
+  | keyof DefaultSchema["Tables"]
+  | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+  ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+  : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
-    ? U
-    : never
+    Update: infer U
+  }
+  ? U
+  : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
-    : never
+  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+    Update: infer U
+  }
+  ? U
+  : never
+  : never
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
+  | keyof DefaultSchema["Enums"]
+  | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+  ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+  : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
+  ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+  : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof DatabaseWithoutInternals },
+  | keyof DefaultSchema["CompositeTypes"]
+  | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+  ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+  : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
+  ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  : never
 
 export const Constants = {
   graphql_public: {
