@@ -5,7 +5,16 @@ import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
-export default function NuevoClientePage() {
+type Props = {
+    searchParams: { [key: string]: string | string[] | undefined }
+}
+
+export default function NuevoClientePage({ searchParams }: Props) {
+    const dni = typeof searchParams.dni === 'string' ? searchParams.dni : undefined
+    const tipo = typeof searchParams.tipo === 'string' && ['DNI', 'RUC', 'CE'].includes(searchParams.tipo)
+        ? searchParams.tipo as 'DNI' | 'RUC' | 'CE'
+        : undefined
+
     return (
         <div className="p-6 space-y-6">
             {/* Header con navegación */}
@@ -22,7 +31,10 @@ export default function NuevoClientePage() {
             </div>
 
             {/* Formulario Unificado Smart POS */}
-            <SmartCreditForm />
+            <SmartCreditForm
+                initialDNI={dni}
+                initialTipoDoc={tipo}
+            />
         </div>
     )
 }

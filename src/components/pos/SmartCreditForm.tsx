@@ -47,6 +47,8 @@ interface SmartCreditFormProps {
         id: string
         nombre: string
     }
+    initialDNI?: string
+    initialTipoDoc?: 'DNI' | 'RUC' | 'CE'
 }
 
 const ESTADOS_BIEN = [
@@ -59,7 +61,7 @@ const ESTADOS_BIEN = [
 
 const STORAGE_KEY = "smart_pos_backup_v1"
 
-export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
+export function SmartCreditForm({ initialCliente, initialDNI, initialTipoDoc }: SmartCreditFormProps) {
     // 1. Estado de Caja
     const { data: caja, isLoading: isLoadingCaja } = useQuery({
         queryKey: ['caja', 'estado'],
@@ -421,6 +423,8 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
                                         embedded={true}
                                         onClienteRegistrado={handleClienteRegistrado}
                                         disablePersistence={true}
+                                        initialDNI={initialDNI}
+                                        initialTipoDoc={initialTipoDoc}
                                     />
                                 </CardContent>
                             )}
