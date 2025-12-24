@@ -59,12 +59,16 @@ export function StepIdentificacion({ data, onChange }: StepIdentificacionProps) 
 
             if (personasExistentes.length > 0) {
                 const persona = personasExistentes[0]
+                // buscarPersonas returns: { id, nombre_completo, numero_documento }
+                const nombreParts = persona.nombre_completo.split(' ')
+                const nombres = nombreParts.slice(0, -2).join(' ') || nombreParts[0] || ''
+                const apellidos = nombreParts.slice(-2).join(' ') || ''
                 onChange({
                     ...data,
                     persona: {
                         id: persona.id,
-                        nombres: persona.nombres,
-                        apellidos: `${persona.apellido_paterno} ${persona.apellido_materno || ''}`.trim(),
+                        nombres: nombres,
+                        apellidos: apellidos,
                         dni: persona.numero_documento,
                         esNueva: false
                     }

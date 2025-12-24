@@ -126,14 +126,18 @@ export function MensajeWhatsappModal({ open, onOpenChange, cliente }: MensajeWha
                         <Label>Mensaje</Label>
                         <Textarea
                             value={mensaje}
-                            onChange={(e) => setMensaje(e.target.value)}
+                            onChange={(e) => setMensaje(e.target.value.slice(0, 1000))}
                             placeholder="Escribe tu mensaje aquí..."
                             rows={5}
                             className="resize-none"
+                            maxLength={1000}
                         />
-                        <p className="text-xs text-muted-foreground">
-                            El mensaje se firmará automáticamente como &quot;— JUNTAY Financiera&quot;
-                        </p>
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>El mensaje se firmará automáticamente como &quot;— JUNTAY Financiera&quot;</span>
+                            <span className={mensaje.length > 900 ? "text-amber-600 font-medium" : ""}>
+                                {mensaje.length}/1000
+                            </span>
+                        </div>
                     </div>
                 </div>
 

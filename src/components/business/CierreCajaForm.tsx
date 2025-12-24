@@ -57,10 +57,12 @@ export function CierreCajaForm() {
 
         setLoading(true)
         try {
-            const resp = await cerrarCajaAction(totalFisico, observaciones)
+            const formData = new FormData()
+            formData.append('montoFinal', totalFisico.toString())
+            formData.append('observaciones', observaciones)
+            const resp = await cerrarCajaAction(formData)
             if (resp.success) {
-                setResultado(resp.data)
-                // FORCE REFRESH: Invalidate query to update the main layout immediately
+                // Navigate back to dashboard
                 await queryClient.invalidateQueries({ queryKey: ['caja'] })
             } else {
                 alert("Error: " + resp.error)

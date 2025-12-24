@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Loader2, UserPlus, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { buscarClientePorDNI, crearClienteDesdeEntidad, type PerfilCliente } from '@/lib/actions/clientes-actions'
-import type { DatosEntidad } from '@/lib/apis/consultasperu'
+import { consultarDNI, type DatosEntidad } from '@/lib/apis/consultasperu'
 
 interface Props {
     onClienteSeleccionado: (cliente: PerfilCliente) => void
@@ -39,8 +39,14 @@ export function BusquedaClienteRapida({ onClienteSeleccionado, autoFocus = true 
         lastInputTime.current = now
 
         // Si la entrada es muy rápida (< 50ms entre teclas), es un lector de barras
-        if (timeSinceLastKey < 50 && dni.length >= 7) {
-            console.log('Código de barras detectado')
+        // Auto-disparar búsqueda cuando se detecta escaneo completo
+        if (timeSinceLastKey < 50 && dni.length >= 7 && e.key !== 'Enter') {
+            // Esperar a que se complete el escaneo antes de buscar
+            setTimeout(() => {
+                if (inputRef.current?.value.length === 8) {
+                    handleBuscar(inputRef.current.value)
+                }
+            }, 100)
         }
 
         // Enter para buscar
@@ -81,8 +87,17 @@ export function BusquedaClienteRapida({ onClienteSeleccionado, autoFocus = true 
                 setPerfil(resultado.perfil)
                 onClienteSeleccionado(resultado.perfil)
             } else {
-                // Cliente NO existe - user needs to register manually
-                setError('Cliente no encontrado. Use el botón de registro para crear el cliente.')
+                // Cliente NO existe en BD - buscar en RENIEC
+                try {
+                    const datosReniec = await consultarDNI(dniToSearch)
+                    if (datosReniec) {
+                        setDatosRENIEC(datosReniec)
+                    } else {
+                        setError('DNI no encontrado en RENIEC. Verifique el número.')
+                    }
+                } catch {
+                    setError('Error al consultar RENIEC. Intente nuevamente.')
+                }
             }
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
@@ -110,18 +125,6 @@ export function BusquedaClienteRapida({ onClienteSeleccionado, autoFocus = true 
         } finally {
             setLoading(false)
         }
-    }
-
-    const _getEstadoBadge = (estado: string) => {
-        const config: Record<string, { label: string; className: string }> = {
-            NUEVO: { label: 'Cliente Nuevo', className: 'bg-blue-100 text-blue-800' },
-            BUEN_CLIENTE: { label: 'Buen Cliente', className: 'bg-emerald-100 text-emerald-800' },
-            REGULAR: { label: 'Regular', className: 'bg-slate-100 text-slate-800' },
-            CON_DEUDA: { label: 'Con Deuda', className: 'bg-orange-100 text-orange-800' },
-            MOROSO: { label: 'Moroso', className: 'bg-red-100 text-red-800' },
-        }
-        const { label, className } = config[estado] || config.REGULAR
-        return <Badge className={className}>{label}</Badge>
     }
 
     return (

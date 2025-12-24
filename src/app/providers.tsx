@@ -1,11 +1,13 @@
 'use client'
 
 import { QueryClient, QueryClientProvider, onlineManager, focusManager } from '@tanstack/react-query'
+import { ThemeProvider } from 'next-themes'
 import { Toaster } from "@/components/ui/toaster"
 import { PrintProvider } from "@/components/printing/PrintProvider"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { useState, useEffect, Suspense, lazy } from 'react'
 import { ConnectionStatus } from '@/components/ui/ConnectionStatus'
+import ConsoleFix from '@/components/ui/console-fix'
 
 // 🚀 PERFORMANCE: Lazy load RxDB para evitar cargar 3000+ módulos en arranque inicial
 const LazyRxDBProvider = lazy(() =>
@@ -120,26 +122,29 @@ export function Providers({ children }: { children: React.ReactNode }) {
     }, [])
 
     return (
-        <QueryClientProvider client={queryClient}>
-            <ConditionalRxDBProvider>
-                <PrintProvider>
-                    <TooltipProvider>
-                        {children}
-                        {/* Indicador de conexión flotante - solo en dashboard */}
-                        <div className="fixed bottom-4 right-4 z-50">
-                            <ConnectionStatus />
-                        </div>
-                    </TooltipProvider>
-                </PrintProvider>
-                <Toaster />
-                {/* DevTools only in development - after mount to prevent hydration mismatch */}
-                {mounted && process.env.NODE_ENV === 'development' && (
-                    <Suspense fallback={null}>
-                        <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
-                    </Suspense>
-                )}
-            </ConditionalRxDBProvider>
-        </QueryClientProvider>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+            <QueryClientProvider client={queryClient}>
+                <ConsoleFix />
+                <ConditionalRxDBProvider>
+                    <PrintProvider>
+                        <TooltipProvider>
+                            {children}
+                            {/* Indicador de conexión flotante - solo en dashboard */}
+                            <div className="fixed bottom-4 right-4 z-50">
+                                <ConnectionStatus />
+                            </div>
+                        </TooltipProvider>
+                    </PrintProvider>
+                    <Toaster />
+                    {/* DevTools only in development - after mount to prevent hydration mismatch */}
+                    {mounted && process.env.NODE_ENV === 'development' && (
+                        <Suspense fallback={null}>
+                            <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
+                        </Suspense>
+                    )}
+                </ConditionalRxDBProvider>
+            </QueryClientProvider>
+        </ThemeProvider>
     )
 }
 

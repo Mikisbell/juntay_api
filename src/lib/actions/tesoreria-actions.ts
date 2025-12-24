@@ -979,8 +979,9 @@ export async function registrarPagoCuota(formData: FormData) {
     if (errorUpdateSaldo) return { error: 'Error actualizando saldo de cuenta' }
 
     // 3.2 Registrar Transacción (EGRESO)
-    // @ts-expect-error - Acceso anidado seguro
-    const nombreInv = `${cuota.contrato?.inversionista?.persona?.nombres || ''} ${cuota.contrato?.inversionista?.persona?.apellido_paterno || ''}`.trim()
+    // Safe access to nested join results with type casting
+    const contratoData = cuota.contrato as { inversionista?: { persona?: { nombres?: string; apellido_paterno?: string } } } | null
+    const nombreInv = `${contratoData?.inversionista?.persona?.nombres || ''} ${contratoData?.inversionista?.persona?.apellido_paterno || ''}`.trim()
     const descripcion = `Pago Cuota #${cuota.numero_cuota} - ${nombreInv}`
 
     const { error: errorTransaccion } = await supabase

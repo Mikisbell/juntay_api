@@ -123,7 +123,10 @@ export function CierreCajaSheet({ saldoEsperado, cajaId: _cajaId }: Props) {
     const handleCerrar = async () => {
         setLoading(true)
         try {
-            const resp = await cerrarCajaAction(montoFinal, observaciones || undefined)
+            const formData = new FormData()
+            formData.append('montoFinal', montoFinal.toString())
+            if (observaciones) formData.append('observaciones', observaciones)
+            const resp = await cerrarCajaAction(formData)
 
             if (resp.success) {
                 toast.success('Caja cerrada correctamente')

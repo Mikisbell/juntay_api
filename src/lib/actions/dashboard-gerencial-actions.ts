@@ -187,3 +187,163 @@ export async function obtenerTop10Clientes(): Promise<TopCliente[]> {
 
     return clientes
 }
+
+// ============ KPIs CONSOLIDADOS ============
+
+export interface KPIsGerenciales {
+    carteraTotal: number
+    carteraAlDia: number
+    carteraPorVencer: number
+    carteraEnMora: number
+    tasaMora: number // Porcentaje
+    ingresosMes: number
+    egresosMes: number
+    flujonetoMes: number
+    clientesActivos: number
+    creditosVigentes: number
+}
+
+/**
+ * Obtiene KPIs consolidados para el dashboard gerencial
+ */
+export async function obtenerKPIsGerenciales(): Promise<KPIsGerenciales> {
+    const supabase = await createClient()
+
+    // Inicio del mes actual
+    const hoy = new Date()
+    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0]
+
+    // 1. Cartera total (saldo pendiente de créditos no cancelados)
+    const { data: creditos } = await supabase
+        .from('creditos')
+        .select('saldo_pendiente, estado_detallado')
+        .not('estado_detallado', 'in', '("cancelado","anulado","ejecutado")')
+
+    const carteraTotal = (creditos || []).reduce((sum, c) => sum + (c.saldo_pendiente || 0), 0)
+    const creditosVigentes = creditos?.length || 0
+
+    // 2. Cartera al día vs por vencer vs en mora
+    const alDia = (creditos || []).filter(c =>
+        ['vigente', 'al_dia'].includes(c.estado_detallado || '')
+    )
+    const porVencer = (creditos || []).filter(c =>
+        ['por_vencer'].includes(c.estado_detallado || '')
+    )
+    const enMora = (creditos || []).filter(c =>
+        ['vencido', 'en_mora', 'en_gracia', 'pre_remate', 'en_remate'].includes(c.estado_detallado || '')
+    )
+
+    const carteraAlDia = alDia.reduce((sum, c) => sum + (c.saldo_pendiente || 0), 0)
+    const carteraPorVencer = porVencer.reduce((sum, c) => sum + (c.saldo_pendiente || 0), 0)
+    const carteraEnMora = enMora.reduce((sum, c) => sum + (c.saldo_pendiente || 0), 0)
+    const tasaMora = carteraTotal > 0 ? (carteraEnMora / carteraTotal) * 100 : 0
+
+    // 3. Ingresos del mes (pagos)
+    const { data: pagosMes } = await supabase
+        .from('pagos')
+        .select('monto')
+        .gte('created_at', `${inicioMes}T00:00:00`)
+
+    const ingresosMes = (pagosMes || []).reduce((sum, p) => sum + (p.monto || 0), 0)
+
+    // 4. Egresos del mes (desembolsos)
+    const { data: desembolsosMes } = await supabase
+        .from('creditos')
+        .select('monto')
+        .gte('fecha_desembolso', `${inicioMes}T00:00:00`)
+
+    const egresosMes = (desembolsosMes || []).reduce((sum, c) => sum + (c.monto || 0), 0)
+
+    // 5. Clientes activos (con créditos vigentes)
+    const { count: clientesActivos } = await supabase
+        .from('creditos')
+        .select('cliente_id', { count: 'exact', head: true })
+        .not('estado_detallado', 'in', '("cancelado","anulado","ejecutado")')
+
+    return {
+        carteraTotal,
+        carteraAlDia,
+        carteraPorVencer,
+        carteraEnMora,
+        tasaMora: Math.round(tasaMora * 10) / 10,
+        ingresosMes,
+        egresosMes,
+        flujonetoMes: ingresosMes - egresosMes,
+        clientesActivos: clientesActivos || 0,
+        creditosVigentes
+    }
+}
+
+export interface ComparativaMensual {
+    mesActual: { ingresos: number; egresos: number; neto: number; creditos: number }
+    mesAnterior: { ingresos: number; egresos: number; neto: number; creditos: number }
+    variacion: { ingresos: number; egresos: number; neto: number; creditos: number }
+}
+
+/**
+ * Compara métricas del mes actual vs el anterior
+ */
+export async function obtenerComparativaMensual(): Promise<ComparativaMensual> {
+    const supabase = await createClient()
+    const hoy = new Date()
+
+    const inicioMesActual = new Date(hoy.getFullYear(), hoy.getMonth(), 1)
+    const inicioMesAnterior = new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1)
+    const finMesAnterior = new Date(hoy.getFullYear(), hoy.getMonth(), 0)
+
+    // Mes actual
+    const { data: pagosActual } = await supabase
+        .from('pagos')
+        .select('monto')
+        .gte('created_at', inicioMesActual.toISOString())
+
+    const { data: creditosActual } = await supabase
+        .from('creditos')
+        .select('monto')
+        .gte('fecha_desembolso', inicioMesActual.toISOString())
+
+    const ingresosActual = (pagosActual || []).reduce((sum, p) => sum + (p.monto || 0), 0)
+    const egresosActual = (creditosActual || []).reduce((sum, c) => sum + (c.monto || 0), 0)
+
+    // Mes anterior
+    const { data: pagosAnterior } = await supabase
+        .from('pagos')
+        .select('monto')
+        .gte('created_at', inicioMesAnterior.toISOString())
+        .lte('created_at', finMesAnterior.toISOString())
+
+    const { data: creditosAnterior } = await supabase
+        .from('creditos')
+        .select('monto')
+        .gte('fecha_desembolso', inicioMesAnterior.toISOString())
+        .lte('fecha_desembolso', finMesAnterior.toISOString())
+
+    const ingresosAnterior = (pagosAnterior || []).reduce((sum, p) => sum + (p.monto || 0), 0)
+    const egresosAnterior = (creditosAnterior || []).reduce((sum, c) => sum + (c.monto || 0), 0)
+
+    // Calcular variaciones porcentuales
+    const calcVariacion = (actual: number, anterior: number) =>
+        anterior > 0 ? ((actual - anterior) / anterior) * 100 : 0
+
+    return {
+        mesActual: {
+            ingresos: ingresosActual,
+            egresos: egresosActual,
+            neto: ingresosActual - egresosActual,
+            creditos: creditosActual?.length || 0
+        },
+        mesAnterior: {
+            ingresos: ingresosAnterior,
+            egresos: egresosAnterior,
+            neto: ingresosAnterior - egresosAnterior,
+            creditos: creditosAnterior?.length || 0
+        },
+        variacion: {
+            ingresos: Math.round(calcVariacion(ingresosActual, ingresosAnterior) * 10) / 10,
+            egresos: Math.round(calcVariacion(egresosActual, egresosAnterior) * 10) / 10,
+            neto: Math.round(calcVariacion(ingresosActual - egresosActual, ingresosAnterior - egresosAnterior) * 10) / 10,
+            creditos: Math.round(calcVariacion(creditosActual?.length || 0, creditosAnterior?.length || 0) * 10) / 10
+        }
+    }
+}
+

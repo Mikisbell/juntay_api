@@ -10,7 +10,7 @@ import { Loader2, Calculator, AlertTriangle } from 'lucide-react'
 import { ContratoRenovable, renovarContrato } from '@/lib/actions/renovaciones-actions'
 import { useRouter } from 'next/navigation'
 import { SelectorModalidadInteres } from '@/components/pagos/SelectorModalidadInteres'
-import { ModalidadInteres, ResultadoInteres, calcularInteresFlexible, calcularDiasTranscurridos } from '@/lib/utils/interes-flexible'
+import { ModalidadInteres, ResultadoInteres, ResultadoInteresCompleto, calcularInteresFlexible, calcularDiasTranscurridos } from '@/lib/utils/interes-flexible'
 
 type Props = {
     contrato: ContratoRenovable | null
@@ -23,7 +23,7 @@ export function RenovacionModal({ contrato, open, onOpenChange }: Props) {
     const [opcion, setOpcion] = useState<'total' | 'intereses'>('intereses')
     const [loading, setLoading] = useState(false)
     const [modalidadInteres, setModalidadInteres] = useState<ModalidadInteres>('semanas')
-    const [interesCalculado, setInteresCalculado] = useState<ResultadoInteres | null>(null)
+    const [interesCalculado, setInteresCalculado] = useState<ResultadoInteresCompleto | null>(null)
 
     // Calcular días transcurridos (mover antes del early return)
     const diasTranscurridos = contrato?.dias_transcurridos ||
@@ -42,7 +42,7 @@ export function RenovacionModal({ contrato, open, onOpenChange }: Props) {
     if (!contrato) return null
 
     // Usar interés flexible si está disponible, sino el acumulado legacy
-    const montoIntereses = interesCalculado?.interes ?? interesFlexible.interes
+    const montoIntereses = interesCalculado?.interesTotal ?? interesFlexible.interes
     const montoTotal = contrato.saldo_pendiente + montoIntereses
     const montoPagar = opcion === 'total' ? montoTotal : montoIntereses
 

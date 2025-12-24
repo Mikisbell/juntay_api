@@ -38,6 +38,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { CentroComunicacionCliente } from "@/components/business/CentroComunicacionCliente"
+import { EstadoCuentaPDF } from "@/components/reportes/EstadoCuentaPDF"
 import {
     AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
     AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -332,6 +333,12 @@ export function ClienteDetalleView({ cliente, creditos = [], pagos = [] }: Clien
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
+                            <EstadoCuentaPDF
+                                clienteId={cliente.id}
+                                clienteNombre={fullName}
+                                variant="outline"
+                                size="sm"
+                            />
                             <Separator orientation="vertical" className="h-8 mx-1" />
                             <Link href={`/dashboard/mostrador/nuevo-empeno?clienteId=${cliente.id}`}>
                                 <Button className="gap-2 shadow-md">

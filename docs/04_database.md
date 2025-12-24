@@ -133,6 +133,18 @@ _deleted BOOLEAN DEFAULT FALSE  -- Para RxDB sync
 
 ---
 
+## Stored Procedures / Funciones Críticas
+
+Estas funciones encapsulan lógica de negocio compleja para garantizar integridad transaccional:
+
+| Función | Propósito | Tipo |
+|---------|-----------|------|
+| `crear_contrato_oficial` | Crea cliente + garantía + crédito + mov. caja en 1 transacción | `SECURITY DEFINER` |
+| `registrar_pago_oficial` | Registra pago en ledger y actualiza crédito | `SECURITY DEFINER` |
+| `cerrar_caja_oficial` | Cierre de caja con conteo de billetes y validación | `SECURITY DEFINER` |
+
+---
+
 ## Tipos de Datos Financieros
 
 **IMPORTANTE:** Todos los montos se almacenan como `DECIMAL(12,2)` y se calculan con Decimal.js.

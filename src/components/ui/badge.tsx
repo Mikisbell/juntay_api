@@ -15,6 +15,26 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
+        // Credit status variants
+        activo:
+          "bg-emerald-100 text-emerald-700 border-emerald-200",
+        vigente:
+          "bg-emerald-100 text-emerald-700 border-emerald-200",
+        vencido:
+          "bg-red-100 text-red-700 border-red-200",
+        pagado:
+          "bg-slate-100 text-slate-600 border-slate-200",
+        cancelado:
+          "bg-slate-100 text-slate-600 border-slate-200",
+        por_vencer:
+          "bg-amber-100 text-amber-700 border-amber-200",
+        en_mora:
+          "bg-red-500 text-white border-red-600",
+        // Caja status
+        abierta:
+          "bg-emerald-50 text-emerald-700 border-emerald-200",
+        cerrada:
+          "bg-slate-100 text-slate-500 border-slate-200",
       },
     },
     defaultVariants: {
@@ -25,7 +45,7 @@ const badgeVariants = cva(
 
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+  VariantProps<typeof badgeVariants> { }
 
 function Badge({ className, variant, ...props }: BadgeProps) {
   return (

@@ -14,7 +14,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import { obtenerEstadoCaja } from '@/lib/actions/caja-actions'
+import { obtenerEstadoCajaV2 } from '@/lib/actions/caja-actions'
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { DynamicBreadcrumb } from "@/components/layout/DynamicBreadcrumb"
@@ -33,7 +33,7 @@ export function DashboardHeader() {
     // Fetch real caja status
     const { data: caja } = useQuery({
         queryKey: ['caja', 'estado'],
-        queryFn: () => obtenerEstadoCaja(),
+        queryFn: () => obtenerEstadoCajaV2(),
         refetchInterval: 30000,
         staleTime: 0
     })
@@ -129,7 +129,7 @@ export function DashboardHeader() {
                                             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                                         </div>
                                         <span className="font-mono font-bold text-slate-700 text-sm">
-                                            S/ {caja.saldoActual.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                                            S/ {(caja.saldoActual ?? 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                                         </span>
                                     </>
                                 ) : (
@@ -251,7 +251,7 @@ export function DashboardHeader() {
                                         <div className="flex-1">
                                             <p className="text-xs text-emerald-600 font-medium">Mi Caja</p>
                                             <p className="text-sm font-bold text-emerald-700">
-                                                S/ {caja.saldoActual.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                                                S/ {(caja.saldoActual ?? 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                                             </p>
                                         </div>
                                     </div>

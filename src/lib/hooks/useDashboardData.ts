@@ -144,7 +144,7 @@ export function useDashboardData(): UseDashboardDataResult {
                 .from('movimientos_caja_operativa')
                 .select('tipo, monto')
                 .eq('caja_operativa_id', cajaTyped.id)
-                .gte('created_at', inicioHoy)
+                .gte('fecha', inicioHoy)
 
             const movArray = movimientos as Array<{ tipo: string; monto: number }> || []
             caja = {
@@ -167,16 +167,16 @@ export function useDashboardData(): UseDashboardDataResult {
 
         const { data: pagos7dias } = await supabase
             .from('pagos')
-            .select('monto, fecha_pago')
+            .select('monto_total, fecha_pago')
             .gte('fecha_pago', last7Days[0].date)
             .lte('fecha_pago', last7Days[6].date + 'T23:59:59')
-            .eq('estado', 'completado')
+            .eq('anulado', false)
 
         if (pagos7dias) {
-            pagos7dias.forEach((p: { monto: number; fecha_pago: string }) => {
+            pagos7dias.forEach((p: { monto_total: number; fecha_pago: string }) => {
                 const dateStr = p.fecha_pago.split('T')[0]
                 const dayEntry = last7Days.find(d => d.date === dateStr)
-                if (dayEntry) dayEntry.monto += Number(p.monto)
+                if (dayEntry) dayEntry.monto += Number(p.monto_total)
             })
         }
 

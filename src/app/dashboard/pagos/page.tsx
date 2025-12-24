@@ -2,7 +2,7 @@
 
 import { PagosPanelOffline } from '@/components/pagos/PagosPanelOffline'
 import { useQuery } from '@tanstack/react-query'
-import { obtenerEstadoCaja } from '@/lib/actions/caja-actions'
+import { obtenerEstadoCajaV2 } from '@/lib/actions/caja-actions'
 import { CardSkeleton } from '@/components/ui/skeletons'
 import { StatusAlert } from '@/components/layout/StatusAlert'
 import { STATUS_MESSAGES } from '@/lib/constants/messages'
@@ -15,7 +15,7 @@ export default function PagosPage() {
 
     const { data: estadoCaja, isLoading, error } = useQuery({
         queryKey: ['caja-estado'],
-        queryFn: () => obtenerEstadoCaja(),
+        queryFn: () => obtenerEstadoCajaV2(),
         staleTime: 2 * 60 * 1000,
         refetchInterval: 5 * 60 * 1000,
     })

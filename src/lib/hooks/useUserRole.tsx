@@ -45,12 +45,12 @@ export function useUserRole(): UserRoleData {
                     // System admin - has full access
                     role = 'admin'
                 } else {
-                    // Check empleados table for employee role
+                    // Check empleados table for employee role (RLS allows self-read via user_id)
                     const { data: empleado } = await supabase
                         .from('empleados')
                         .select('cargo')
                         .eq('user_id', user.id)
-                        .single()
+                        .maybeSingle()
 
                     const empleadoData = empleado as { cargo: string } | null
                     if (empleadoData?.cargo) {

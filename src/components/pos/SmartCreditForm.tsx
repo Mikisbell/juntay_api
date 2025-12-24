@@ -24,7 +24,7 @@ import { format, subDays } from "date-fns"
 import { es } from "date-fns/locale"
 import { toast } from "sonner"
 import { useQuery } from '@tanstack/react-query'
-import { obtenerEstadoCaja } from '@/lib/actions/caja-actions'
+import { obtenerEstadoCajaV2 } from '@/lib/actions/caja-actions'
 import { obtenerTasaInteresDefault } from '@/lib/actions/creditos-actions'
 import { v4 as uuidv4 } from 'uuid'
 import { crearCreditoExpress } from '@/lib/actions/creditos-actions'
@@ -83,7 +83,7 @@ export function SmartCreditForm({ initialCliente }: SmartCreditFormProps) {
     // 1. Estado de Caja
     const { data: caja, isLoading: isLoadingCaja } = useQuery({
         queryKey: ['caja', 'estado'],
-        queryFn: () => obtenerEstadoCaja(),
+        queryFn: () => obtenerEstadoCajaV2(),
         staleTime: 0
     })
 

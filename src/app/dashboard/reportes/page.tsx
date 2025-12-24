@@ -1,7 +1,9 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from 'next/link'
-import { TrendingUp, History, CalendarDays } from 'lucide-react'
+import { TrendingUp, History, CalendarDays, FileDown, AlertTriangle, Users } from 'lucide-react'
+import { CarteraReportPDF } from '@/components/reportes/CarteraReportPDF'
+import { MoraReportPDF } from '@/components/reportes/MoraReportPDF'
 
 const reports = [
     {
@@ -40,6 +42,61 @@ export default function ReportsPage() {
                 </p>
             </div>
 
+            {/* PDF Downloads Section */}
+            <Card className="border-2 border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
+                <CardHeader>
+                    <div className="flex items-center gap-2">
+                        <FileDown className="w-5 h-5 text-blue-500" />
+                        <CardTitle>Descargas PDF</CardTitle>
+                    </div>
+                    <CardDescription>
+                        Genera reportes profesionales en formato PDF listos para imprimir o compartir.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex flex-wrap gap-4">
+                        <div className="flex flex-col items-start gap-2 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                            <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+                                <TrendingUp className="w-4 h-4" />
+                                <span className="text-sm font-medium">Reporte de Cartera</span>
+                            </div>
+                            <p className="text-xs text-blue-600/70 dark:text-blue-400/70 mb-2">
+                                Listado completo de créditos con KPIs
+                            </p>
+                            <CarteraReportPDF />
+                        </div>
+
+                        <div className="flex flex-col items-start gap-2 p-4 rounded-lg bg-red-50 dark:bg-red-900/20">
+                            <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
+                                <AlertTriangle className="w-4 h-4" />
+                                <span className="text-sm font-medium">Reporte de Mora</span>
+                            </div>
+                            <p className="text-xs text-red-600/70 dark:text-red-400/70 mb-2">
+                                Créditos vencidos por prioridad
+                            </p>
+                            <MoraReportPDF />
+                        </div>
+
+                        <div className="flex flex-col items-start gap-2 p-4 rounded-lg bg-slate-100 dark:bg-slate-800">
+                            <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                                <Users className="w-4 h-4" />
+                                <span className="text-sm font-medium">Estado de Cuenta</span>
+                            </div>
+                            <p className="text-xs text-slate-600/70 dark:text-slate-400/70 mb-2">
+                                Disponible desde la ficha del cliente
+                            </p>
+                            <Link
+                                href="/dashboard/clientes"
+                                className="text-xs text-blue-600 hover:underline"
+                            >
+                                Ir a Clientes →
+                            </Link>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Report Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {reports.map((report) => (
                     <Link href={report.href} key={report.href}>

@@ -16,9 +16,42 @@
 - **Impersonation**: Funcionalidad "Modo Camaleón" que permite al Super Admin operar como cualquier empresa.
 - **Script**: `scripts/make-user-superadmin.ts` para autopromoción de privilegios.
 
+### Security - Q1 2026 RLS COMPLETADO
+- **RLS 100% Coverage**: 41/41 tablas públicas con RLS habilitado, 53 políticas definidas.
+- **Tenant Isolation Verified**: `verify_tenant_isolation.ts` pasó 4/4 tests:
+  - ✅ Self-Access (User A → Client A)
+  - ✅ Cross-Tenant READ blocked (User A ↛ Client B)
+  - ✅ Cross-Tenant WRITE blocked (RLS policy violation)
+  - ✅ User Profile Integrity (empresa_id correct)
+
 ### Fixed
+- **Dashboard Database Errors**:
+  - Restored `cajas_operativas` table (migration applied)
+  - Fixed `useDashboardData.ts`: `monto` → `monto_total`, `created_at` → `fecha`
+  - Rewrote `caja-actions.ts` to use existing `cajas_operativas` tables
+- **Empleados RLS (Professional Fix)**: New policy `tenant_empleados_with_self_read` allows:
+  - Self-read via `user_id = auth.uid()`
+  - Tenant isolation via `sucursal_id → empresa_id`
 - **Onboarding Actions**: Corregidos 6 bugs de schema en `onboarding-actions.ts`:
   - Categorías globales (no per-tenant), RUC único, columnas correctas
+
+## [2025.12.24] - Dashboard Premium y Fixes Críticos
+
+### Added
+- **Dashboard Gerencial Premium**:
+  - `AIInsightsCard`: Motor de insights en tiempo real.
+  - Granularidad en cartera: "Por Vencer" vs "Mora" vs "Al Día".
+  - Animaciones de entrada escalonada (Framer Motion).
+- **Database Functions**:
+  - `crear_contrato_oficial`: Función transaccional (`SECURITY DEFINER`) para contratos + garantías + ledger.
+
+### Fixed
+- **Database Drift Repair**:
+  - Solucionado conflicto de versiones en migraciones (`migration repair`).
+  - Estandarización de nombres de migración a timestamp `YYYYMMDDHHMMSS`.
+- **Data Integrity**:
+  - Agregadas columnas faltantes: `creditos.fecha_cancelacion`, `pagos.usuario_id`.
+  - Policies RLS actualizadas para `pagos`.
 
 ## [2025.12.20] - Producción Multi-Tentant Core
 ### Security & Architecture

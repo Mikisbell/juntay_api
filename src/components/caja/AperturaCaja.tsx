@@ -25,7 +25,9 @@ export function AperturaCaja() {
 
         try {
             const valor = parseFloat(monto) || 0
-            const res = await abrirCajaAction(valor)
+            const formData = new FormData()
+            formData.append('monto', valor.toString())
+            const res = await abrirCajaAction(formData)
 
             if (res.error) {
                 setError(res.error)

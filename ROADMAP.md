@@ -166,11 +166,11 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [x] Formulario de contacto/solicitud
 - [ ] Video explicativo
 
-### 4. Seguridad RLS [ ]
-- [ ] RLS en TODAS las tablas
-- [ ] Test: Empresa A no ve datos de B
-- [ ] Audit log de accesos
-- [ ] 2FA para admins
+### 4. Seguridad RLS [x] ✅ COMPLETADO
+- [x] RLS en TODAS las tablas (41/41 tablas, 53 políticas)
+- [x] Test: Empresa A no ve datos de B (`verify_tenant_isolation.ts` 4/4 ✅)
+- [x] Audit log de accesos (`audit_log` + `auditoria_transacciones`)
+- [ ] 2FA para admins *(Diferido a Q3 - Enterprise feature)*
 
 ---
 

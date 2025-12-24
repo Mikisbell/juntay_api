@@ -6,7 +6,7 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ OK | 63 |
+| ✅ OK | 66 |
 | ⚠️ Warnings | 0 |
 | ❌ Errors | 0 |
 
@@ -15,6 +15,7 @@
 - ✅ **Actions/alertas-cobranza-actions.ts**: 1 functions, documented
 - ✅ **Actions/auditoria-actions.ts**: 2 functions, documented
 - ✅ **Actions/auth-empleados-actions.ts**: 3 functions, documented
+- ✅ **Actions/caja-actions.ts**: 7 functions, documented
 - ✅ **Actions/categorias-sugeridas-actions.ts**: 3 functions, documented
 - ✅ **Actions/clientes-actions.ts**: 11 functions, documented
 - ✅ **Actions/cobrador-movil-actions.ts**: 4 functions, documented
@@ -23,7 +24,7 @@
 - ✅ **Actions/contratos-list-actions.ts**: 1 functions, documented
 - ✅ **Actions/creditos-actions.ts**: 10 functions, documented
 - ✅ **Actions/dashboard-actions.ts**: 2 functions, documented
-- ✅ **Actions/dashboard-gerencial-actions.ts**: 3 functions, documented
+- ✅ **Actions/dashboard-gerencial-actions.ts**: 5 functions, documented
 - ✅ **Actions/empleados-actions.ts**: 6 functions, documented
 - ✅ **Actions/eventos-actions.ts**: 6 functions, documented
 - ✅ **Actions/excel-export-actions.ts**: 1 functions, documented
@@ -34,6 +35,7 @@
 - ✅ **Actions/inventario-actions.ts**: 4 functions, documented
 - ✅ **Actions/kpis-cobranza-actions.ts**: 3 functions, documented
 - ✅ **Actions/kpis-riesgo-actions.ts**: 2 functions, documented
+- ✅ **Actions/landing-actions.ts**: 1 functions, documented
 - ✅ **Actions/onboarding-actions.ts**: 1 functions, documented
 - ✅ **Actions/oro-actions.ts**: 2 functions, documented
 - ✅ **Actions/pagos-actions.ts**: 8 functions, documented
@@ -50,6 +52,7 @@
 - ✅ **Actions/renovaciones-actions.ts**: 3 functions, documented
 - ✅ **Actions/reportes-actions.ts**: 2 functions, documented
 - ✅ **Actions/reportes-export-actions.ts**: 4 functions, documented
+- ✅ **Actions/reportes-pdf-actions.ts**: 3 functions, documented
 - ✅ **Actions/saas-actions.ts**: 3 functions, documented
 - ✅ **Actions/scoring-cliente-actions.ts**: 3 functions, documented
 - ✅ **Actions/seed-actions.ts**: 1 functions, documented
@@ -60,7 +63,7 @@
 - ✅ **Actions/vision-actions.ts**: 1 functions, documented
 - ✅ **Actions/waha-actions.ts**: 4 functions, documented
 - ✅ **Actions/whatsapp-actions.ts**: 5 functions, documented
-- ✅ **Migrations/Recent**: 25 migrations in last 7 days
+- ✅ **Migrations/Recent**: 32 migrations in last 7 days
 - ✅ **Tests/Integration Scripts**: 8 scripts in /scripts/
 - ✅ **Tests/Unit Tests**: 9 test files in /src/
 - ✅ **Docs/AGENT.md**: Exists
@@ -72,7 +75,7 @@
 - ✅ **Docs/docs/05_testing.md**: Exists
 - ✅ **Docs/docs/06_conventions.md**: Exists
 - ✅ **Docs/.agent/workflows**: Exists
-- ✅ **Consistency/ROADMAP**: 10 features marked complete
+- ✅ **Consistency/ROADMAP**: 11 features marked complete
 - ✅ **Consistency/BLUEPRINT**: 3 phases complete, 1 pending
 - ✅ **Consistency/BLUEPRINT Version**: Unknown, Unknown
 
@@ -82,8 +85,8 @@
 
 | Metric | Value |
 |--------|-------|
-| Action files | 48 |
-| Migrations | 49 |
+| Action files | 51 |
+| Migrations | 56 |
 | Test scripts | 8 |
 | Doc files | 15 |
 
