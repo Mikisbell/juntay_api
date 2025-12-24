@@ -135,6 +135,7 @@ export function AppSidebar() {
     const pathname = usePathname()
     const router = useRouter()
     const [user, setUser] = React.useState<{ email: string; nombre: string } | null>(null)
+    const [rol, setRol] = React.useState<string | null>(null)
 
     // Obtener usuario al montar
     React.useEffect(() => {
@@ -147,6 +148,8 @@ export function AppSidebar() {
                     .select('nombres, apellido_paterno, rol')
                     .eq('id', authUser.id)
                     .single()
+
+                setRol((userData as { rol: string } | null)?.rol || null)
 
                 setUser({
                     email: authUser.email || '',
@@ -278,6 +281,25 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent className="gap-4 px-3 py-4">
+                {/* SAAS SUPER ADMIN SECTION */}
+                {rol === 'SUPER_ADMIN' && (
+                    <SidebarGroup className="p-0">
+                        <SidebarGroupLabel className="px-3 text-[10px] font-bold uppercase tracking-widest text-indigo-500/80 mb-2">
+                            SaaS Master
+                        </SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu className="gap-1.5">
+                                {renderMenuItem({
+                                    title: "Panel SaaS",
+                                    url: "/dashboard/saas",
+                                    icon: Gem,
+                                    badge: "GLO"
+                                })}
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                )}
+
                 {SECTIONS.map((section) => (
                     <SidebarGroup key={section.id} className="p-0">
                         {section.label !== 'Principal' && (

@@ -10,7 +10,7 @@ export function LandingNavbarB2C() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     return (
-        <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
+        <nav className="fixed top-0 w-full z-50 bg-[#0B1120]/80 backdrop-blur-xl border-b border-white/10">
             <div className="max-w-7xl mx-auto px-4">
                 <div className="flex justify-between items-center h-16">
                     {/* Logo + Tagline */}
@@ -20,7 +20,7 @@ export function LandingNavbarB2C() {
                             alt="JUNTAY"
                             width={100}
                             height={32}
-                            className="h-8 w-auto"
+                            className="h-8 w-auto brightness-0 invert"
                             priority
                             style={{ width: "auto" }}
                         />
@@ -31,15 +31,14 @@ export function LandingNavbarB2C() {
                         </div>
                     </Link>
 
-                    {/* Desktop Nav */}
                     <div className="hidden md:flex items-center gap-8">
-                        <a href="#simulador" className="text-sm font-medium text-gray-600 hover:text-[#1E3A5F] transition-colors">
+                        <a href="#simulador" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
                             Simulador
                         </a>
-                        <a href="#process" className="text-sm font-medium text-gray-600 hover:text-[#1E3A5F] transition-colors">
+                        <a href="#process" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
                             ¿Cómo funciona?
                         </a>
-                        <a href="#assets" className="text-sm font-medium text-gray-600 hover:text-[#1E3A5F] transition-colors">
+                        <a href="#assets" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
                             Qué aceptamos
                         </a>
                     </div>
@@ -65,7 +64,7 @@ export function LandingNavbarB2C() {
                         {/* Mobile menu button */}
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden p-2 text-gray-600"
+                            className="md:hidden p-2 text-white"
                         >
                             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
@@ -80,27 +79,27 @@ export function LandingNavbarB2C() {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="md:hidden bg-white border-t border-gray-100"
+                        className="md:hidden bg-[#0B1120] border-t border-white/10"
                     >
                         <div className="px-4 py-4 space-y-3">
                             <a
                                 href="#simulador"
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="block py-2 text-gray-700 font-medium"
+                                className="block py-2 text-slate-300 hover:text-white font-medium"
                             >
                                 Simulador
                             </a>
                             <a
                                 href="#process"
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="block py-2 text-gray-700 font-medium"
+                                className="block py-2 text-slate-300 hover:text-white font-medium"
                             >
                                 ¿Cómo funciona?
                             </a>
                             <a
                                 href="#assets"
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="block py-2 text-gray-700 font-medium"
+                                className="block py-2 text-slate-300 hover:text-white font-medium"
                             >
                                 Qué aceptamos
                             </a>

@@ -65,12 +65,11 @@ export function LandingSimulatorB2C() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.2 }}
-                    className="bg-white rounded-3xl p-6 md:p-10 shadow-2xl"
+                    className="bg-white dark:bg-[#151f32] rounded-3xl p-6 md:p-10 shadow-2xl"
                 >
 
-                    {/* Paso 1: Tipo de Garantía */}
                     <div className="mb-8">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                             1. ¿Qué vas a empeñar?
                         </h3>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
@@ -81,8 +80,8 @@ export function LandingSimulatorB2C() {
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     className={`p-4 rounded-xl border-2 transition-all text-center ${garantia === g.id
-                                            ? "border-[#1E3A5F] bg-[#1E3A5F]/5 text-[#1E3A5F] shadow-lg"
-                                            : "border-gray-200 hover:border-[#1E3A5F]/50 text-gray-600"
+                                        ? "border-[#1E3A5F] bg-[#1E3A5F]/5 text-[#1E3A5F] dark:bg-blue-500/20 dark:text-blue-200 dark:border-blue-500/50 shadow-lg"
+                                        : "border-gray-200 dark:border-white/10 hover:border-[#1E3A5F]/50 text-gray-600 dark:text-gray-400"
                                         }`}
                                 >
                                     <g.icon className="w-6 h-6 mx-auto mb-2" />
@@ -94,7 +93,7 @@ export function LandingSimulatorB2C() {
 
                     {/* Paso 2: Valor Estimado */}
                     <div className="mb-8">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                             2. ¿Cuánto vale aproximadamente? (S/)
                         </h3>
                         <div className="flex flex-wrap gap-3">
@@ -105,8 +104,8 @@ export function LandingSimulatorB2C() {
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     className={`px-6 py-3 rounded-xl border-2 font-bold transition-all ${monto === m
-                                            ? "border-[#1E3A5F] bg-[#1E3A5F]/5 text-[#1E3A5F] shadow-lg"
-                                            : "border-gray-200 hover:border-[#1E3A5F]/50 text-gray-600"
+                                        ? "border-[#1E3A5F] bg-[#1E3A5F]/5 text-[#1E3A5F] dark:bg-blue-500/20 dark:text-blue-200 dark:border-blue-500/50 shadow-lg"
+                                        : "border-gray-200 dark:border-white/10 hover:border-[#1E3A5F]/50 text-gray-600 dark:text-gray-400"
                                         }`}
                                 >
                                     S/ {m.toLocaleString()}
@@ -125,10 +124,10 @@ export function LandingSimulatorB2C() {
                             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                                 {/* Main Result */}
                                 <div className="text-center md:text-left">
-                                    <p className="text-sm text-[#8B6914] font-medium mb-2">
+                                    <p className="text-sm text-[#8B6914] dark:text-amber-400 font-medium mb-2">
                                         Tu préstamo estimado:
                                     </p>
-                                    <p className="text-5xl font-black text-[#1E3A5F]">
+                                    <p className="text-5xl font-black text-[#1E3A5F] dark:text-white">
                                         S/ {montoEstimado.toLocaleString()}
                                     </p>
                                     <p className="text-xs text-gray-500 mt-2">
@@ -137,15 +136,15 @@ export function LandingSimulatorB2C() {
                                 </div>
 
                                 {/* Bank Comparison */}
-                                <div className="bg-white rounded-xl p-4 border border-gray-100">
-                                    <p className="text-xs text-gray-500 mb-2 font-medium">COMPARACIÓN</p>
+                                <div className="bg-white dark:bg-slate-900/50 rounded-xl p-4 border border-gray-100 dark:border-white/10">
+                                    <p className="text-xs text-gray-500 dark:text-slate-400 mb-2 font-medium">COMPARACIÓN</p>
                                     <div className="flex items-center gap-3 text-sm">
                                         <div className="flex items-center gap-2 text-red-500">
                                             <Building2 className="w-4 h-4" />
                                             <span>Banco: 7-15 días</span>
                                         </div>
-                                        <span className="text-gray-300">vs</span>
-                                        <div className="flex items-center gap-2 text-[#1E3A5F] font-bold">
+                                        <span className="text-gray-300 dark:text-slate-600">vs</span>
+                                        <div className="flex items-center gap-2 text-[#1E3A5F] dark:text-blue-300 font-bold">
                                             <Clock className="w-4 h-4" />
                                             <span>JUNTAY: 5 min</span>
                                         </div>
@@ -166,8 +165,8 @@ export function LandingSimulatorB2C() {
                     >
                         <Button
                             className={`w-full h-16 text-xl font-bold rounded-2xl shadow-lg transition-all ${garantia && monto
-                                    ? "bg-[#1E3A5F] hover:bg-[#152C4A] text-white shadow-[#1E3A5F]/25"
-                                    : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                ? "bg-[#1E3A5F] hover:bg-[#152C4A] text-white shadow-[#1E3A5F]/25"
+                                : "bg-gray-200 text-gray-500 cursor-not-allowed"
                                 }`}
                             disabled={!garantia || !monto}
                         >

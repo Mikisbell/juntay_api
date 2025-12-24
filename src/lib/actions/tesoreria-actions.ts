@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { requireEmpresaActual } from '@/lib/auth/empresa-context'
 
 // Service client para testing sin auth
 const _getServiceClient = () => {
@@ -309,6 +310,7 @@ export interface InversionistaDetalle {
     activo: boolean
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     metadata?: Record<string, any>
+    numero_documento?: string
     // Métricas Financieras (Calculadas)
     total_invertido?: number
     rendimiento_acumulado?: number
@@ -327,7 +329,7 @@ export async function obtenerInversionistas(): Promise<InversionistaDetalle[]> {
             fecha_ingreso,
             activo,
             metadata,
-            persona:personas(nombres, apellido_paterno, apellido_materno)
+            persona:personas(nombres, apellido_paterno, apellido_materno, numero_documento)
         `)
         .order('fecha_ingreso', { ascending: false })
 
@@ -336,40 +338,53 @@ export async function obtenerInversionistas(): Promise<InversionistaDetalle[]> {
         return []
     }
 
-    const inversionistasConMetricas = await Promise.all((data || []).map(async (inv) => {
-        // Obtener métricas financieras vía RPC para cada inversionista
-        const { data: resumen } = await supabase
-            .rpc('obtener_resumen_rendimientos', { p_inversionista_id: inv.id })
+    // 2. Obtener métricas de la vista profesional (batch request, mucho más eficiente)
+    const { data: metricasProfesionales, error: errorView } = await supabase
+        .from('vista_inversionistas_profesional')
+        .select('*')
 
-        // El RPC devuelve un array, tomamos el primero si existe, sino defaults
-        const metricas = Array.isArray(resumen) && resumen.length > 0 ? resumen[0] : null
+    if (errorView) console.error("Error view:", errorView)
+
+    // Crear mapa para acceso rápido
+    const mapaMetricas = new Map((metricasProfesionales || []).map(m => [m.inversionista_id, m]))
+
+    const inversionistasConMetricas = (data || []).map(inv => {
+        const metricas = mapaMetricas.get(inv.id)
 
         return {
             id: inv.id,
             persona_id: inv.persona_id,
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore - Join resolution complexity
+            // @ts-expect-error - Join resolution complexity
             nombre_completo: `${inv.persona?.nombres} ${inv.persona?.apellido_paterno} ${inv.persona?.apellido_materno || ''}`.trim(),
+            // @ts-expect-error - Join resolution complexity
+            numero_documento: inv.persona?.numero_documento,
             tipo_relacion: inv.tipo_relacion,
             participacion_porcentaje: inv.participacion_porcentaje,
             fecha_ingreso: inv.fecha_ingreso,
             activo: inv.activo,
             metadata: inv.metadata,
-            total_invertido: metricas ? Number(metricas.total_invertido) : 0,
-            rendimiento_acumulado: metricas ? Number(metricas.total_ganado_estimado) : 0
+            // Usar datos de la vista profesional
+            total_invertido: metricas ? Number(metricas.capital_total || 0) : 0,
+            rendimiento_acumulado: metricas ? Number(metricas.rendimiento_devengado || 0) : 0
         }
-    }))
+    })
 
     return inversionistasConMetricas
 }
 
 export async function crearInversionista(formData: FormData) {
     const supabase = await createClient()
+    const { empresaId } = await requireEmpresaActual()
 
-    const persona_id = formData.get('persona_id') as string
+    let persona_id = formData.get('persona_id') as string
     const tipo = formData.get('tipo') as string // 'SOCIO' | 'PRESTAMISTA'
     const fecha = formData.get('fecha') as string // Fecha de ingreso
     const metadataStr = formData.get('metadata') as string
+
+    // Datos opcionales de RENIEC para crear persona nueva
+    const reniec_nombre = formData.get('reniec_nombre') as string
+    const reniec_dni = formData.get('reniec_dni') as string
 
     if (!persona_id || !tipo) return { error: 'Datos incompletos' }
 
@@ -380,17 +395,114 @@ export async function crearInversionista(formData: FormData) {
         console.error("Error parsing metadata", e)
     }
 
-    const { error } = await supabase
+    // Si persona_id empieza con "temp_", debemos crear o buscar la persona primero
+    if (persona_id.startsWith('temp_')) {
+        if (!reniec_nombre || !reniec_dni) {
+            return { error: 'Faltan datos de RENIEC para crear la persona' }
+        }
+
+        // Use SERVICE ROLE to manipulate Persons (Global Table) to avoid RLS conflicts and ensure privacy
+        const adminSupabase = createServiceClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!,
+            { auth: { persistSession: false } }
+        )
+
+        // Primero verificar si la persona ya existe por DNI (Global search)
+        const { data: existingPersona } = await adminSupabase
+            .from('personas')
+            .select('id')
+            .eq('numero_documento', reniec_dni)
+            .single()
+
+        if (existingPersona) {
+            // Ya existe, usar el ID existente
+            persona_id = existingPersona.id
+            console.log('[crearInversionista] Persona existente encontrada (Global) con ID:', persona_id)
+        } else {
+            // Separar nombre completo en partes (formato: APELLIDO_PATERNO APELLIDO_MATERNO, NOMBRES)
+            const partes = reniec_nombre.split(' ')
+            const apellido_paterno = partes[0] || ''
+            const apellido_materno = partes[1] || ''
+            const nombres = partes.slice(2).join(' ') || reniec_nombre
+
+            // Crear persona en la base de datos (Global registry)
+            const { data: newPersona, error: personaError } = await adminSupabase
+                .from('personas')
+                .insert({
+                    tipo_documento: 'DNI',
+                    numero_documento: reniec_dni,
+                    nombres: nombres,
+                    apellido_paterno: apellido_paterno,
+                    apellido_materno: apellido_materno
+                })
+                .select('id')
+                .single()
+
+            if (personaError) {
+                console.error('Error creando persona:', personaError)
+                return { error: `Error al crear persona: ${personaError.message}` }
+            }
+
+            persona_id = newPersona.id
+            console.log('[crearInversionista] Persona creada con ID:', persona_id)
+        }
+    }
+
+    const { data: newInversionista, error } = await supabase
         .from('inversionistas')
         .insert({
             persona_id,
             tipo_relacion: tipo,
             fecha_ingreso: fecha, // Save flexible date
-            metadata: metadata // Save return date or other flexible terms
+            metadata: metadata, // Save return date or other flexible terms
+            empresa_id: empresaId
         })
+        .select('id')
+        .single()
 
     if (error) return { error: error.message }
+
+    // 2. Si se solicitó, registrar el ingreso de dinero a CAJA
+    const registrar_ingreso = formData.get('registrar_ingreso') === 'true'
+    const cuenta_destino_id = formData.get('cuenta_destino_id') as string
+    const monto_ingreso = Number(formData.get('monto_ingreso') || 0)
+    const referencia_ingreso = formData.get('referencia_ingreso') as string
+
+    if (registrar_ingreso && cuenta_destino_id && monto_ingreso > 0 && newInversionista) {
+        // Buscar nombre del inversor para la descripción
+        const { data: persona } = await supabase.from('personas').select('nombres, apellido_paterno').eq('id', persona_id).single()
+        const nombreRef = persona ? `${persona.nombres} ${persona.apellido_paterno}` : 'Inversionista'
+
+        let descripcion = `Aporte de Capital - ${nombreRef}`
+        if (referencia_ingreso) descripcion += ` (Ref: ${referencia_ingreso})`
+
+        const { error: errorTransaccion } = await supabase
+            .from('transacciones_capital')
+            .insert({
+                tipo: 'APORTE',
+                monto: monto_ingreso,
+                descripcion: descripcion,
+                fecha_operacion: new Date().toISOString(), // O usar fecha de ingreso? Mejor fecha real de operación (hoy)
+                destino_cuenta_id: cuenta_destino_id,
+                inversionista_id: newInversionista.id,
+                empresa_id: empresaId,
+                metadata: {
+                    auto_generated: true,
+                    fecha_ingreso_contrato: fecha,
+                    referencia_operacion: referencia_ingreso
+                }
+            })
+
+        if (errorTransaccion) {
+            console.error('Error creando transacción de ingreso:', errorTransaccion)
+            // No fallamos toda la operación, pero avisamos (o podríamos hacer rollback manual delete)
+            return { error: `Inversionista creado, pero falló el ingreso a caja: ${errorTransaccion.message}` }
+        }
+    }
+
     revalidatePath('/dashboard/admin/tesoreria')
+    revalidatePath('/dashboard/admin/inversionistas')
     return { success: true }
 }
 
@@ -809,4 +921,106 @@ export async function asignarCajaAction(_cajeroId: string, _monto: number, _obse
     // TODO: Implementar lógica real de asignación (Transferencia Bóveda -> Caja Usuario)
     // Por ahora retornamos error controlado para no romper el build
     return { error: "Funcionalidad en mantenimiento: La asignación de cajas se está migrando al nuevo sistema de Cuentas Financieras." }
+}
+
+// ============================================================================
+// PAGOS DE CUOTAS
+// ============================================================================
+
+export async function registrarPagoCuota(formData: FormData) {
+    const supabase = _getServiceClient() // Use Service Role to bypass RLS on financial tables
+    const { empresaId } = await requireEmpresaActual()
+
+    const cuotaId = formData.get('cuota_id') as string
+    const cuentaOrigenId = formData.get('cuenta_origen_id') as string
+    const monto = Number(formData.get('monto') || 0)
+    const fechaPago = new Date().toISOString()
+
+    if (!cuotaId || !cuentaOrigenId || monto <= 0) {
+        return { error: 'Datos incompletos para el pago' }
+    }
+
+    // 1. Verificar Cuota
+    const { data: cuota, error: errorCuota } = await supabase
+        .from('cronograma_pagos_fondeo')
+        .select(`
+            *,
+            contrato:contratos_fondeo(
+                inversionista_id,
+                inversionista:inversionistas(
+                    persona:personas(nombres, apellido_paterno)
+                )
+            )
+        `)
+        .eq('id', cuotaId)
+        .single()
+
+    if (errorCuota || !cuota) return { error: 'Cuota no encontrada' }
+    if (cuota.estado === 'PAGADO') return { error: 'Esta cuota ya está pagada' }
+
+    // 2. Verificar Saldo Cuenta Origen
+    const { data: cuenta, error: errorCuenta } = await supabase
+        .from('cuentas_financieras')
+        .select('saldo, nombre')
+        .eq('id', cuentaOrigenId)
+        .single()
+
+    if (errorCuenta || !cuenta) return { error: 'Cuenta de origen no encontrada' }
+    if (cuenta.saldo < monto) return { error: 'Saldo insuficiente en la cuenta seleccionada' }
+
+    // 3. ACTUALIZAR TODO
+
+    // 3.1 Descontar Saldo
+    const { error: errorUpdateSaldo } = await supabase
+        .from('cuentas_financieras')
+        .update({ saldo: cuenta.saldo - monto })
+        .eq('id', cuentaOrigenId)
+
+    if (errorUpdateSaldo) return { error: 'Error actualizando saldo de cuenta' }
+
+    // 3.2 Registrar Transacción (EGRESO)
+    // @ts-expect-error - Acceso anidado seguro
+    const nombreInv = `${cuota.contrato?.inversionista?.persona?.nombres || ''} ${cuota.contrato?.inversionista?.persona?.apellido_paterno || ''}`.trim()
+    const descripcion = `Pago Cuota #${cuota.numero_cuota} - ${nombreInv}`
+
+    const { error: errorTransaccion } = await supabase
+        .from('transacciones_capital')
+        .insert({
+            tipo: 'EGRESO', // O 'PAGO_RENDIMIENTO' si existiera
+            monto: monto,
+            descripcion: descripcion,
+            fecha_operacion: fechaPago,
+            origen_cuenta_id: cuentaOrigenId,
+            empresa_id: empresaId,
+            metadata: {
+                cuota_id: cuotaId,
+                contrato_id: cuota.contrato_id,
+                tipo_pago: cuota.tipo_pago
+            }
+        })
+
+    if (errorTransaccion) {
+        console.error('Error creando transacción pago:', errorTransaccion)
+        return { error: 'Error registrando transacción de egreso' }
+    }
+
+    // 3.3 Actualizar Estado Cuota
+    const { error: errorUpdateCuota } = await supabase
+        .from('cronograma_pagos_fondeo')
+        .update({
+            estado: 'PAGADO',
+            fecha_pago_real: fechaPago,
+            updated_at: fechaPago
+        })
+        .eq('id', cuotaId)
+
+    // Auto-update Contrato summaries is handled by DB triggers/views usually, 
+    // or next read will pick up from cronograma (e.g. montos_pagados aggregation)
+
+    if (errorUpdateCuota) return { error: 'Error actualizando estado de la cuota' }
+
+    revalidatePath('/dashboard/admin/inversionistas')
+    revalidatePath('/dashboard/admin/tesoreria')
+
+    return { success: true }
 }

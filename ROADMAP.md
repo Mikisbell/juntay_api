@@ -160,10 +160,10 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [ ] Importar catálogo de categorías (N/A: global lookup)
 - [x] Configurar tasas de interés por defecto (20% default)
 
-### 3. Landing Page + Demo [ ]
-- [ ] Landing page de producto
-- [ ] Demo interactivo con datos ficticios
-- [ ] Formulario de contacto/solicitud
+### 3. Landing Page + Demo [x]
+- [x] Landing page de producto
+- [x] Demo interactivo con datos ficticios
+- [x] Formulario de contacto/solicitud
 - [ ] Video explicativo
 
 ### 4. Seguridad RLS [ ]

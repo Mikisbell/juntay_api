@@ -12,6 +12,9 @@
 - Helper `src/lib/auth/empresa-context.ts` para contexto multi-tenant centralizado
 - Estrategia "SaaS-Ready Single-Tenant" en ROADMAP (Fase 0)
 - Script `scripts/test-onboarding.ts` para verificar flujo E2E de onboarding
+- **SaaS Super Admin**: Implementado rol `SUPER_ADMIN` con dashboard global `/dashboard/saas`.
+- **Impersonation**: Funcionalidad "Modo Camaleón" que permite al Super Admin operar como cualquier empresa.
+- **Script**: `scripts/make-user-superadmin.ts` para autopromoción de privilegios.
 
 ### Fixed
 - **Onboarding Actions**: Corregidos 6 bugs de schema en `onboarding-actions.ts`:

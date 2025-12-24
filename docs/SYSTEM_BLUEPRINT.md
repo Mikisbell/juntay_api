@@ -12,8 +12,9 @@
 4. [Modelo de Datos](#4-modelo-de-datos)
 5. [Módulos de Negocio](#5-módulos-de-negocio)
 6. [Decisiones Técnicas (ADRs)](#6-decisiones-técnicas)
-7. [Guía de Desarrollo](#7-guía-de-desarrollo)
-8. [Roadmap](#8-roadmap)
+7. [Arquitectura SaaS (Multi-Tenant)](#7-arquitectura-saas)
+8. [Guía de Desarrollo](#8-guía-de-desarrollo)
+9. [Roadmap](#9-roadmap)
 
 ---
 
@@ -340,6 +341,7 @@ Todos los server actions están en `src/lib/actions/`. Documentación completa:
 | `pagos-digitales-actions.ts` | 5 | Yape, Plin, transferencias |
 | `pagos-rpc-actions.ts` | 1 | RPC de pagos |
 | `monitor-cajas-actions.ts` | 2 | Monitoreo de cajas activas |
+| `rendimientos-actions.ts` | 7 | Cálculo y proyección de rendimientos (Inversionistas) |
 
 #### Créditos y Garantías
 | Archivo | Funciones | Propósito |
@@ -446,7 +448,34 @@ Todos los server actions están en `src/lib/actions/`. Documentación completa:
 
 ---
 
-## 7. Guía de Desarrollo
+
+---
+
+## 7. Arquitectura SaaS (Multi-Tenant)
+
+El sistema soporta múltiples empresas ("tenants") con aislamiento estricto de datos.
+
+### Jerarquía de Roles
+1. **SaaS Super Admin (`SUPER_ADMIN`)**:
+   - Visión "Dios" de la plataforma.
+   - Acceso a `/dashboard/saas`.
+   - Puede operar como cualquier empresa (Impersonation).
+2. **Empresa Admin (`admin`)**:
+   - Dueño de un tenant.
+   - Acceso total solo a sus datos.
+
+### Aislamiento de Datos (RLS)
+- **Strategy**: Row Level Security (PostgreSQL)
+- **Policy**: `auth.uid() -> usuario.empresa_id -> row.empresa_id`
+- **Fallback**: Server Actions usan `requireEmpresaActual()` para doble validación.
+
+### Contexto de Empresa
+- El contexto se resuelve en cada request vía `getEmpresaActual()`.
+- Para Super Admins, el `empresa_id` puede ser "switcheado" para auditoría y soporte.
+
+---
+
+## 8. Guía de Desarrollo
 
 ### Prerrequisitos
 
@@ -522,7 +551,7 @@ src/
 
 ---
 
-## 8. Roadmap
+## 9. Roadmap
 
 ### ✅ Fase 1: Infraestructura (Completado)
 

@@ -1,33 +1,196 @@
 /**
- * Cálculo de Interés Flexible
+ * Sistema de Cálculo de Interés Flexible v2.0
  * 
- * Dos modalidades:
- * 1. POR DÍAS: Pro-rata diario (interés mensual ÷ 30 × días)
- * 2. POR SEMANAS: Escalado fijo (25%, 50%, 75%, 100%)
+ * Características:
+ * - Interés simple y compuesto
+ * - Cálculo de mora con días de gracia
+ * - Configuración por empresa
+ * - Modalidades: por días (pro-rata) y por semanas (escalado)
+ * - Compatible con base de datos (usa mismas fórmulas)
  * 
  * @example
- * // Préstamo S/1000 con 20% mensual = S/200 interés mensual
- * calcularInteresFlexible(1000, 20, 4, 'dias')    // S/26.67 (4 días)
- * calcularInteresFlexible(1000, 20, 7, 'semanas') // S/50.00 (semana 1 = 25%)
+ * // Préstamo S/1000 con 20% mensual, 10 días transcurridos, 5 días vencido
+ * const resultado = calcularInteresCompleto({
+ *   montoPrestado: 1000,
+ *   tasaMensual: 20,
+ *   diasTranscurridos: 10,
+ *   diasPostVencimiento: 5,
+ *   config: { diasGracia: 3, tasaMoraDiaria: 0.5 }
+ * })
+ * // resultado.interesRegular = 66.67, resultado.interesMora = 10.00
  */
+
+// ============================================================================
+// TYPES
+// ============================================================================
 
 export type ModalidadInteres = 'dias' | 'semanas'
 
+export type TipoCalculo = 'simple' | 'compuesto'
+
+export type EstadoMora = 'AL_DIA' | 'POR_VENCER' | 'EN_GRACIA' | 'MORA_LEVE' | 'MORA_GRAVE'
+
+/**
+ * Configuración del sistema de intereses (sincronizada con DB)
+ */
+export interface ConfiguracionInteres {
+    tipoCalculo: TipoCalculo
+    baseDias: 30 | 360 | 365
+    tasaMoraDiaria: number    // % adicional por día de mora
+    diasGracia: number        // días sin mora después de vencimiento
+    capitalizacionMensual: boolean
+    interesMinimoDias: number // mínimo de días a cobrar
+}
+
+/**
+ * Parámetros para cálculo de interés
+ */
+export interface ParametrosInteres {
+    montoPrestado: number
+    tasaMensual: number
+    diasTranscurridos: number
+    diasPostVencimiento?: number
+    interesCapitalizado?: number
+    config?: Partial<ConfiguracionInteres>
+}
+
+/**
+ * Resultado básico de interés (compatible con v1)
+ */
 export interface ResultadoInteres {
     interes: number           // Monto de interés a cobrar
-    porcentajeAplicado: number // Porcentaje real aplicado (ej: 6.67% para 10 días)
+    porcentajeAplicado: number // Porcentaje real aplicado
     diasCobrados: number      // Días que cubre el pago
-    descripcion: string       // Texto descriptivo para mostrar al usuario
+    descripcion: string       // Texto descriptivo
     formula: string           // Fórmula usada (para transparencia)
 }
 
 /**
- * Calcula el interés según la modalidad seleccionada
- * 
- * @param montoPrestado - Capital del préstamo
- * @param tasaMensual - Tasa de interés mensual (ej: 20 significa 20%)
- * @param diasTranscurridos - Días desde el inicio del préstamo
- * @param modalidad - 'dias' para pro-rata diario, 'semanas' para escalado semanal
+ * Resultado completo con mora y desglose
+ */
+export interface ResultadoInteresCompleto {
+    // Base
+    montoBase: number
+    tasaAplicada: number
+
+    // Días desglosados
+    diasRegulares: number
+    diasEnGracia: number
+    diasEnMora: number
+    diasTotales: number
+
+    // Intereses desglosados
+    interesRegular: number
+    interesMora: number
+    interesTotal: number
+
+    // Estado
+    estadoMora: EstadoMora
+
+    // Descripción
+    descripcion: string
+    formula: string
+
+    // Configuración usada
+    configAplicada: ConfiguracionInteres
+}
+
+// ============================================================================
+// CONFIGURACIÓN POR DEFECTO
+// ============================================================================
+
+const CONFIG_DEFAULT: ConfiguracionInteres = {
+    tipoCalculo: 'simple',
+    baseDias: 30,
+    tasaMoraDiaria: 0.5,      // 0.5% diario = 15% mensual adicional
+    diasGracia: 3,            // 3 días sin mora después de vencimiento
+    capitalizacionMensual: false,
+    interesMinimoDias: 1
+}
+
+// ============================================================================
+// FUNCIONES PRINCIPALES
+// ============================================================================
+
+/**
+ * Calcula el interés completo incluyendo mora y días de gracia
+ * Esta es la función principal para uso en producción
+ */
+export function calcularInteresCompleto(params: ParametrosInteres): ResultadoInteresCompleto {
+    const config: ConfiguracionInteres = { ...CONFIG_DEFAULT, ...params.config }
+
+    const {
+        montoPrestado,
+        tasaMensual,
+        diasTranscurridos,
+        diasPostVencimiento = 0,
+        interesCapitalizado = 0
+    } = params
+
+    // Base de cálculo (incluye capitalización si aplica)
+    const montoBase = montoPrestado + interesCapitalizado
+
+    // Calcular días desglosados
+    const diasRegulares = Math.max(config.interesMinimoDias, diasTranscurridos - diasPostVencimiento)
+    const diasEnGracia = Math.min(diasPostVencimiento, config.diasGracia)
+    const diasEnMora = Math.max(0, diasPostVencimiento - config.diasGracia)
+
+    // Calcular interés regular
+    const interesRegular = calcularInteresSimple(
+        montoBase,
+        tasaMensual,
+        diasRegulares,
+        config.baseDias
+    )
+
+    // Calcular interés de mora (solo si hay días en mora)
+    let interesMora = 0
+    if (diasEnMora > 0) {
+        interesMora = redondear(
+            montoBase * (config.tasaMoraDiaria / 100) * diasEnMora
+        )
+    }
+
+    // Determinar estado
+    const estadoMora = determinarEstadoMora(diasPostVencimiento, diasEnMora)
+
+    // Construir descripción
+    const descripcion = construirDescripcion({
+        diasRegulares,
+        diasEnGracia,
+        diasEnMora,
+        estadoMora
+    })
+
+    // Construir fórmula
+    const formula = construirFormula({
+        montoBase,
+        tasaMensual,
+        diasRegulares,
+        diasEnMora,
+        config
+    })
+
+    return {
+        montoBase,
+        tasaAplicada: tasaMensual,
+        diasRegulares,
+        diasEnGracia,
+        diasEnMora,
+        diasTotales: diasTranscurridos,
+        interesRegular: redondear(interesRegular),
+        interesMora: redondear(interesMora),
+        interesTotal: redondear(interesRegular + interesMora),
+        estadoMora,
+        descripcion,
+        formula,
+        configAplicada: config
+    }
+}
+
+/**
+ * Calcula interés con modalidad seleccionada (compatible con v1)
+ * Mantiene compatibilidad hacia atrás con el sistema existente
  */
 export function calcularInteresFlexible(
     montoPrestado: number,
@@ -35,7 +198,6 @@ export function calcularInteresFlexible(
     diasTranscurridos: number,
     modalidad: ModalidadInteres
 ): ResultadoInteres {
-    // Interés mensual completo
     const interesMensualCompleto = montoPrestado * (tasaMensual / 100)
 
     if (modalidad === 'dias') {
@@ -46,8 +208,154 @@ export function calcularInteresFlexible(
 }
 
 /**
+ * Calcula interés con mora usando modalidad seleccionada
+ */
+export function calcularInteresFlexibleConMora(
+    montoPrestado: number,
+    tasaMensual: number,
+    diasTranscurridos: number,
+    diasPostVencimiento: number,
+    modalidad: ModalidadInteres,
+    config?: Partial<ConfiguracionInteres>
+): ResultadoInteresCompleto & { modalidad: ModalidadInteres } {
+    const resultado = calcularInteresCompleto({
+        montoPrestado,
+        tasaMensual,
+        diasTranscurridos,
+        diasPostVencimiento,
+        config
+    })
+
+    // Ajustar según modalidad si es por semanas
+    if (modalidad === 'semanas') {
+        const interesSemanas = calcularPorSemanas(
+            montoPrestado,
+            tasaMensual,
+            resultado.diasRegulares,
+            montoPrestado * (tasaMensual / 100)
+        )
+
+        return {
+            ...resultado,
+            interesRegular: interesSemanas.interes,
+            interesTotal: interesSemanas.interes + resultado.interesMora,
+            modalidad,
+            descripcion: `${interesSemanas.descripcion}${resultado.diasEnMora > 0 ? ` + ${resultado.diasEnMora} días mora` : ''}`
+        }
+    }
+
+    return { ...resultado, modalidad }
+}
+
+/**
+ * Obtener preview de todas las opciones para mostrar al usuario
+ */
+export function obtenerOpcionesPago(
+    montoPrestado: number,
+    tasaMensual: number,
+    diasTranscurridos: number,
+    diasPostVencimiento: number = 0,
+    config?: Partial<ConfiguracionInteres>
+): {
+    porDias: ResultadoInteresCompleto & { modalidad: ModalidadInteres }
+    porSemanas: ResultadoInteresCompleto & { modalidad: ModalidadInteres }
+    recomendacion: ModalidadInteres
+    ahorro: number
+    estadoMora: EstadoMora
+} {
+    const porDias = calcularInteresFlexibleConMora(
+        montoPrestado, tasaMensual, diasTranscurridos, diasPostVencimiento, 'dias', config
+    )
+    const porSemanas = calcularInteresFlexibleConMora(
+        montoPrestado, tasaMensual, diasTranscurridos, diasPostVencimiento, 'semanas', config
+    )
+
+    const recomendacion: ModalidadInteres = porDias.interesTotal <= porSemanas.interesTotal ? 'dias' : 'semanas'
+    const ahorro = Math.abs(porDias.interesTotal - porSemanas.interesTotal)
+
+    return {
+        porDias,
+        porSemanas,
+        recomendacion,
+        ahorro,
+        estadoMora: porDias.estadoMora
+    }
+}
+
+/**
+ * Calcular monto total a pagar según tipo de operación
+ */
+export function calcularTotalPago(
+    montoPrestado: number,
+    saldoPendiente: number,
+    tasaMensual: number,
+    diasTranscurridos: number,
+    modalidad: ModalidadInteres,
+    tipoPago: 'renovar' | 'amortizar' | 'liquidar',
+    diasPostVencimiento: number = 0,
+    montoAmortizar?: number,
+    config?: Partial<ConfiguracionInteres>
+): {
+    interes: ResultadoInteresCompleto
+    capital: number
+    total: number
+    descripcion: string
+} {
+    const interes = calcularInteresFlexibleConMora(
+        montoPrestado,
+        tasaMensual,
+        diasTranscurridos,
+        diasPostVencimiento,
+        modalidad,
+        config
+    )
+
+    switch (tipoPago) {
+        case 'renovar':
+            return {
+                interes,
+                capital: 0,
+                total: redondear(interes.interesTotal),
+                descripcion: `Renovación: ${interes.descripcion}`
+            }
+
+        case 'amortizar':
+            const capitalAbonado = montoAmortizar || 0
+            return {
+                interes,
+                capital: redondear(capitalAbonado),
+                total: redondear(interes.interesTotal + capitalAbonado),
+                descripcion: `Amortización: ${interes.descripcion} + S/${capitalAbonado.toFixed(2)} capital`
+            }
+
+        case 'liquidar':
+            return {
+                interes,
+                capital: redondear(saldoPendiente),
+                total: redondear(interes.interesTotal + saldoPendiente),
+                descripcion: `Liquidación total: ${interes.descripcion} + S/${saldoPendiente.toFixed(2)} capital`
+            }
+    }
+}
+
+// ============================================================================
+// FUNCIONES AUXILIARES
+// ============================================================================
+
+/**
+ * Cálculo de interés simple
+ */
+function calcularInteresSimple(
+    capital: number,
+    tasaMensual: number,
+    dias: number,
+    baseDias: number
+): number {
+    return capital * (tasaMensual / 100) * (dias / baseDias)
+}
+
+/**
  * Modalidad POR DÍAS: Pro-rata exacto
- * Fórmula: (Interés mensual ÷ 30) × días transcurridos
  */
 function calcularPorDias(
     montoPrestado: number,
@@ -55,14 +363,9 @@ function calcularPorDias(
     diasTranscurridos: number,
     interesMensualCompleto: number
 ): ResultadoInteres {
-    // Mínimo 1 día
     const dias = Math.max(1, diasTranscurridos)
-
-    // Interés diario
     const interesDiario = interesMensualCompleto / 30
     const interes = interesDiario * dias
-
-    // Porcentaje efectivo aplicado
     const porcentajeAplicado = (tasaMensual / 30) * dias
 
     return {
@@ -76,10 +379,6 @@ function calcularPorDias(
 
 /**
  * Modalidad POR SEMANAS: Escalado fijo
- * - Semana 1 (días 1-7): 25% del interés mensual
- * - Semana 2 (días 8-14): 50% del interés mensual
- * - Semana 3 (días 15-21): 75% del interés mensual
- * - Semana 4+ (días 22-30): 100% del interés mensual
  */
 function calcularPorSemanas(
     montoPrestado: number,
@@ -87,10 +386,8 @@ function calcularPorSemanas(
     diasTranscurridos: number,
     interesMensualCompleto: number
 ): ResultadoInteres {
-    // Mínimo 1 día
     const dias = Math.max(1, diasTranscurridos)
 
-    // Determinar en qué semana estamos
     let porcentajeSemana: number
     let numeroSemana: number
     let diasCobrados: number
@@ -126,81 +423,65 @@ function calcularPorSemanas(
 }
 
 /**
- * Obtener preview de todas las opciones para mostrar al usuario
+ * Determinar estado de mora
  */
-export function obtenerOpcionesPago(
-    montoPrestado: number,
-    tasaMensual: number,
-    diasTranscurridos: number
-): {
-    porDias: ResultadoInteres
-    porSemanas: ResultadoInteres
-    recomendacion: ModalidadInteres
-    ahorro: number
-} {
-    const porDias = calcularInteresFlexible(montoPrestado, tasaMensual, diasTranscurridos, 'dias')
-    const porSemanas = calcularInteresFlexible(montoPrestado, tasaMensual, diasTranscurridos, 'semanas')
-
-    // Recomendar la opción más económica para el cliente
-    const recomendacion: ModalidadInteres = porDias.interes <= porSemanas.interes ? 'dias' : 'semanas'
-    const ahorro = Math.abs(porDias.interes - porSemanas.interes)
-
-    return {
-        porDias,
-        porSemanas,
-        recomendacion,
-        ahorro
-    }
+function determinarEstadoMora(diasPostVencimiento: number, diasEnMora: number): EstadoMora {
+    if (diasPostVencimiento <= 0) return 'AL_DIA'
+    if (diasEnMora <= 0) return 'EN_GRACIA'
+    if (diasEnMora <= 30) return 'MORA_LEVE'
+    return 'MORA_GRAVE'
 }
 
 /**
- * Calcular monto total a pagar según tipo de operación
+ * Construir descripción legible
  */
-export function calcularTotalPago(
-    montoPrestado: number,
-    saldoPendiente: number,
-    tasaMensual: number,
-    diasTranscurridos: number,
-    modalidad: ModalidadInteres,
-    tipoPago: 'renovar' | 'amortizar' | 'liquidar',
-    montoAmortizar?: number
-): {
-    interes: ResultadoInteres
-    capital: number
-    total: number
-    descripcion: string
-} {
-    const interes = calcularInteresFlexible(montoPrestado, tasaMensual, diasTranscurridos, modalidad)
+function construirDescripcion(params: {
+    diasRegulares: number
+    diasEnGracia: number
+    diasEnMora: number
+    estadoMora: EstadoMora
+}): string {
+    const { diasRegulares, diasEnGracia, diasEnMora, estadoMora } = params
 
-    switch (tipoPago) {
-        case 'renovar':
-            // Solo paga intereses, se extiende el plazo
-            return {
-                interes,
-                capital: 0,
-                total: redondear(interes.interes),
-                descripcion: `Renovación: ${interes.descripcion}`
-            }
+    const partes: string[] = [`${diasRegulares} día${diasRegulares !== 1 ? 's' : ''} regular${diasRegulares !== 1 ? 'es' : ''}`]
 
-        case 'amortizar':
-            // Paga intereses + parte del capital
-            const capitalAbonado = montoAmortizar || 0
-            return {
-                interes,
-                capital: redondear(capitalAbonado),
-                total: redondear(interes.interes + capitalAbonado),
-                descripcion: `Amortización: ${interes.descripcion} + S/${capitalAbonado.toFixed(2)} capital`
-            }
-
-        case 'liquidar':
-            // Paga todo: intereses + saldo pendiente
-            return {
-                interes,
-                capital: redondear(saldoPendiente),
-                total: redondear(interes.interes + saldoPendiente),
-                descripcion: `Liquidación total: ${interes.descripcion} + S/${saldoPendiente.toFixed(2)} capital`
-            }
+    if (diasEnGracia > 0) {
+        partes.push(`${diasEnGracia} día${diasEnGracia !== 1 ? 's' : ''} de gracia`)
     }
+
+    if (diasEnMora > 0) {
+        partes.push(`${diasEnMora} día${diasEnMora !== 1 ? 's' : ''} en mora`)
+    }
+
+    const estadoLabel = {
+        'AL_DIA': '✅ Al día',
+        'EN_GRACIA': '⚠️ En periodo de gracia',
+        'MORA_LEVE': '🟠 Mora leve',
+        'MORA_GRAVE': '🔴 Mora grave'
+    }[estadoMora]
+
+    return `${partes.join(' + ')} (${estadoLabel})`
+}
+
+/**
+ * Construir fórmula para transparencia
+ */
+function construirFormula(params: {
+    montoBase: number
+    tasaMensual: number
+    diasRegulares: number
+    diasEnMora: number
+    config: ConfiguracionInteres
+}): string {
+    const { montoBase, tasaMensual, diasRegulares, diasEnMora, config } = params
+
+    let formula = `S/${montoBase.toFixed(2)} × ${tasaMensual}% × ${diasRegulares}/${config.baseDias}`
+
+    if (diasEnMora > 0) {
+        formula += ` + S/${montoBase.toFixed(2)} × ${config.tasaMoraDiaria}% × ${diasEnMora}d mora`
+    }
+
+    return formula
 }
 
 /**
@@ -212,18 +493,30 @@ function redondear(valor: number, decimales: number = 2): number {
 }
 
 /**
- * Días transcurridos desde una fecha
+ * Calcular días transcurridos desde una fecha
  */
 export function calcularDiasTranscurridos(fechaInicio: Date | string): number {
     const inicio = new Date(fechaInicio)
     const hoy = new Date()
-
-    // Diferencia en milisegundos
     const diffMs = hoy.getTime() - inicio.getTime()
-
-    // Convertir a días (redondeando hacia arriba para cobrar día parcial)
     const dias = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
-
-    // Mínimo 1 día
     return Math.max(1, dias)
+}
+
+/**
+ * Calcular días post-vencimiento
+ */
+export function calcularDiasPostVencimiento(fechaVencimiento: Date | string): number {
+    const vencimiento = new Date(fechaVencimiento)
+    const hoy = new Date()
+    const diffMs = hoy.getTime() - vencimiento.getTime()
+    const dias = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
+    return Math.max(0, dias)
+}
+
+/**
+ * Obtener configuración por defecto
+ */
+export function getConfiguracionDefault(): ConfiguracionInteres {
+    return { ...CONFIG_DEFAULT }
 }

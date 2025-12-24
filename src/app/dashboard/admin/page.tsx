@@ -31,13 +31,7 @@ export default function AdminPage() {
             icon: DollarSign,
             color: 'text-green-600 bg-green-100'
         },
-        {
-            titulo: 'Monitor de Cajas',
-            descripcion: 'Estado de cajas operativas',
-            href: '/dashboard/admin/monitor-cajas',
-            icon: Wallet,
-            color: 'text-purple-600 bg-purple-100'
-        },
+
         {
             titulo: 'Empleados',
             descripcion: 'Gestión de usuarios y permisos',

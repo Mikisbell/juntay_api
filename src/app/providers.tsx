@@ -4,16 +4,19 @@ import { QueryClient, QueryClientProvider, onlineManager, focusManager } from '@
 import { Toaster } from "@/components/ui/toaster"
 import { PrintProvider } from "@/components/printing/PrintProvider"
 import { TooltipProvider } from "@/components/ui/tooltip"
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useState, useEffect, Suspense, lazy } from 'react'
 import { ConnectionStatus } from '@/components/ui/ConnectionStatus'
 
 // 🚀 PERFORMANCE: Lazy load RxDB para evitar cargar 3000+ módulos en arranque inicial
-// RxDB solo se carga cuando:
-// 1. El usuario está offline
-// 2. El usuario accede a features que requieren offline-first (POS)
 const LazyRxDBProvider = lazy(() =>
     import('@/components/providers/RxDBProvider').then(mod => ({ default: mod.RxDBProvider }))
+)
+
+// 🚀 PERFORMANCE: Lazy load DevTools solo en desarrollo (Code Splitting)
+const ReactQueryDevtools = lazy(() =>
+    import('@tanstack/react-query-devtools').then(d => ({
+        default: d.ReactQueryDevtools,
+    }))
 )
 
 // Feature flag para habilitar/deshabilitar RxDB en desarrollo
@@ -86,8 +89,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
         },
     }))
 
+    // Prevent hydration mismatch for DevTools
+    const [mounted, setMounted] = useState(false)
+
     // Handle app visibility changes for mobile (when app goes to background)
     useEffect(() => {
+        setMounted(true)
+
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
                 focusManager.setFocused(true)
@@ -124,11 +132,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     </TooltipProvider>
                 </PrintProvider>
                 <Toaster />
-                {/* DevTools only in development */}
-                {process.env.NODE_ENV === 'development' && (
-                    <ReactQueryDevtools initialIsOpen={false} />
+                {/* DevTools only in development - after mount to prevent hydration mismatch */}
+                {mounted && process.env.NODE_ENV === 'development' && (
+                    <Suspense fallback={null}>
+                        <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
+                    </Suspense>
                 )}
             </ConditionalRxDBProvider>
         </QueryClientProvider>
     )
 }
+

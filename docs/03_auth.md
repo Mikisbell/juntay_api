@@ -33,7 +33,8 @@ sequenceDiagram
 
 | Rol | Descripción | Permisos |
 |-----|-------------|----------|
-| `admin` | Administrador total | Todo |
+| `SUPER_ADMIN` | SaaS Master (Dueño de Plataforma) | Acceso global a todos los tenants, métricas SaaS, impersonation |
+| `admin` | Administrador de Empresa (Dueño) | Todo dentro de su tenant |
 | `gerente` | Supervisor de sucursal | Ver reportes, gestionar cajas |
 | `cajero` | Operador de caja | Solo su caja asignada |
 | `cobrador` | Agente de campo | Solo sus rutas asignadas |

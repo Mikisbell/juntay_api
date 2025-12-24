@@ -41,9 +41,9 @@ export function LandingHeroB2C() {
         <section className="relative pt-24 pb-20 overflow-hidden">
             {/* Background Gradient Mesh - Navy/Gold tones */}
             <div className="absolute inset-0 -z-10">
-                <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#1E3A5F]/10 rounded-full blur-[120px]" />
-                <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#D4AF37]/15 rounded-full blur-[100px]" />
-                <div className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-amber-100 rounded-full blur-[80px] opacity-40" />
+                <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-[120px]" />
+                <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#D4AF37]/10 rounded-full blur-[100px]" />
+                <div className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-amber-500/10 rounded-full blur-[80px] opacity-40" />
             </div>
 
             {/* Live Social Proof Popup */}
@@ -59,7 +59,7 @@ export function LandingHeroB2C() {
                             <span className="text-lg">💰</span>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-900">
+                            <p className="text-sm text-gray-900 dark:text-gray-100">
                                 <strong>{proof.name}</strong> de {proof.location}
                             </p>
                             <p className="text-xs text-gray-500">
@@ -101,7 +101,7 @@ export function LandingHeroB2C() {
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.2 }}
-                                className="inline-flex items-center gap-2 bg-[#1E3A5F]/10 text-[#1E3A5F] px-3 py-1.5 rounded-full text-xs font-bold"
+                                className="inline-flex items-center gap-2 bg-blue-900/40 text-blue-200 px-3 py-1.5 rounded-full text-xs font-bold border border-blue-500/20"
                             >
                                 <Shield className="w-3 h-3" />
                                 Regulados SBS
@@ -127,21 +127,21 @@ export function LandingHeroB2C() {
                         </div>
 
                         {/* Headline - Emotional Copy */}
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 leading-[1.1] mb-6 tracking-tight">
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.1] mb-6 tracking-tight">
                             Tu emergencia
-                            <span className="block text-[#1E3A5F]">
+                            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-amber-200">
                                 no puede esperar
                             </span>
                         </h1>
 
                         {/* Subheadline */}
-                        <p className="text-lg sm:text-xl text-gray-600 mb-6 leading-relaxed max-w-lg">
-                            Empeña tus <strong className="text-gray-900">joyas, celulares o laptops</strong> y sal con efectivo en la mano. Hoy mismo.
+                        <p className="text-lg sm:text-xl text-slate-400 mb-6 leading-relaxed max-w-lg">
+                            Empeña tus <strong className="text-white">joyas, celulares o laptops</strong> y sal con efectivo en la mano. Hoy mismo.
                         </p>
 
                         {/* Urgency Box */}
                         <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-xl p-4 mb-8">
-                            <p className="text-[#8B6914] font-medium text-sm">
+                            <p className="text-[#D4AF37] font-medium text-sm">
                                 ⚡ <strong>Oferta del día:</strong> 0% comisión de apertura hasta las 7pm
                             </p>
                         </div>

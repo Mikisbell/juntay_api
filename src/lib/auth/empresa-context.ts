@@ -23,6 +23,8 @@ export interface EmpresaContext {
     sucursalPrincipalId: string | null
     usuarioId: string | null
     usuarioEmail: string | null
+    rol: string | null
+    isSuperAdmin: boolean
 }
 
 /**
@@ -44,7 +46,9 @@ export async function getEmpresaActual(): Promise<EmpresaContext> {
             empresaRuc: null,
             sucursalPrincipalId: null,
             usuarioId: null,
-            usuarioEmail: null
+            usuarioEmail: null,
+            rol: null,
+            isSuperAdmin: false
         }
     }
 
@@ -54,28 +58,43 @@ export async function getEmpresaActual(): Promise<EmpresaContext> {
         .select(`
             id,
             empresa_id,
+            rol,
             empresas (
                 id,
-                nombre,
+                razon_social,
+                nombre_comercial,
                 ruc
             )
         `)
         .eq('id', user.id)
         .single()
 
+    // 2.1 Si el join falla, al menos obtener el rol del usuario directamente
+    let userRol: string | null = usuario?.rol || null
+    if (error) {
+        console.warn('[getEmpresaActual] Join con empresas falló, intentando obtener rol directamente...', { error })
+        const { data: userOnly, error: rolError } = await supabase
+            .from('usuarios')
+            .select('rol, empresa_id')
+            .eq('id', user.id)
+            .single()
+        console.log('[DEBUG] Fallback rol query result:', { userOnly, rolError })
+        userRol = userOnly?.rol || null
+    }
+
     if (error || !usuario || !usuario.empresa_id) {
-        console.warn('[getEmpresaActual] Usuario sin empresa asignada o error. Intentando fallback...', { error, userId: user.id })
+        console.warn('[getEmpresaActual] Usuario sin empresa asignada o error. Intentando fallback...', { error, userId: user.id, rolRecuperado: userRol })
 
         // FALLBACK DE EMERGENCIA: Obtener la primera empresa disponible
         // Esto permite que el sistema funcione si el onboarding falló o en desarrollo
         const { data: primeraEmpresa } = await supabase
             .from('empresas')
-            .select('id, nombre, ruc')
+            .select('id, razon_social, nombre_comercial, ruc')
             .limit(1)
             .single()
 
         if (primeraEmpresa) {
-            console.log('[getEmpresaActual] Usando empresa fallback:', primeraEmpresa.nombre)
+            console.log('[getEmpresaActual] Usando empresa fallback:', primeraEmpresa.razon_social)
 
             // Buscar sucursal principal de esta empresa fallback
             const { data: sucursal } = await supabase
@@ -87,11 +106,13 @@ export async function getEmpresaActual(): Promise<EmpresaContext> {
 
             return {
                 empresaId: primeraEmpresa.id,
-                empresaNombre: primeraEmpresa.nombre,
+                empresaNombre: primeraEmpresa.nombre_comercial || primeraEmpresa.razon_social,
                 empresaRuc: primeraEmpresa.ruc,
                 sucursalPrincipalId: sucursal?.id || null,
                 usuarioId: user.id,
-                usuarioEmail: user.email || null
+                usuarioEmail: user.email || null,
+                rol: userRol,
+                isSuperAdmin: userRol === 'SUPER_ADMIN'
             }
         }
 
@@ -101,11 +122,13 @@ export async function getEmpresaActual(): Promise<EmpresaContext> {
             empresaRuc: null,
             sucursalPrincipalId: null,
             usuarioId: user.id,
-            usuarioEmail: user.email || null
+            usuarioEmail: user.email || null,
+            rol: userRol,
+            isSuperAdmin: userRol === 'SUPER_ADMIN'
         }
     }
 
-    // 3. Obtener sucursal principal (si existe)
+    // 3. Obtener sucursal principal
     let sucursalPrincipalId: string | null = null
     if (usuario.empresa_id) {
         const { data: sucursal } = await supabase
@@ -118,22 +141,26 @@ export async function getEmpresaActual(): Promise<EmpresaContext> {
         sucursalPrincipalId = sucursal?.id || null
     }
 
-    // Type assertion para empresas anidado (puede ser objeto o array según la relación)
+    // Type assertion para empresas
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const empresaRaw = usuario.empresas as any
     const empresa = Array.isArray(empresaRaw)
-        ? empresaRaw[0] as { id: string; nombre: string; ruc: string } | undefined
-        : empresaRaw as { id: string; nombre: string; ruc: string } | null
+        ? empresaRaw[0] as { id: string; razon_social: string; nombre_comercial: string | null; ruc: string } | undefined
+        : empresaRaw as { id: string; razon_social: string; nombre_comercial: string | null; ruc: string } | null
 
     return {
         empresaId: usuario.empresa_id || null,
-        empresaNombre: empresa?.nombre || null,
+        empresaNombre: empresa?.nombre_comercial || empresa?.razon_social || null,
         empresaRuc: empresa?.ruc || null,
         sucursalPrincipalId,
         usuarioId: user.id,
-        usuarioEmail: user.email || null
+        usuarioEmail: user.email || null,
+        rol: usuario.rol || null,
+        isSuperAdmin: usuario.rol === 'SUPER_ADMIN'
     }
 }
+
+
 
 /**
  * Versión que lanza error si no hay empresa (para actions que la requieren).

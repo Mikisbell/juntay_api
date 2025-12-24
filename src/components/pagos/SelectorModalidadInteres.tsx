@@ -4,28 +4,43 @@ import { useState, useMemo } from 'react'
 import { Card } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Calendar, Clock, TrendingDown, Check } from 'lucide-react'
+import { Calendar, Clock, TrendingDown, Check, AlertTriangle } from 'lucide-react'
 import {
     ModalidadInteres,
     obtenerOpcionesPago,
-    ResultadoInteres
+    ResultadoInteresCompleto,
+    EstadoMora,
+    ConfiguracionInteres
 } from '@/lib/utils/interes-flexible'
+import { MoraIndicator, MoraAlertBanner } from '@/components/creditos/MoraIndicator'
+
+// ============================================================================
+// TYPES
+// ============================================================================
 
 type Props = {
     montoPrestado: number
     saldoPendiente: number
     tasaMensual: number
     diasTranscurridos: number
+    diasPostVencimiento?: number
+    config?: Partial<ConfiguracionInteres>
     onModalidadChange: (modalidad: ModalidadInteres) => void
-    onInteresCalculado: (interes: ResultadoInteres) => void
+    onInteresCalculado: (interes: ResultadoInteresCompleto) => void
     modalidadSeleccionada?: ModalidadInteres
 }
+
+// ============================================================================
+// COMPONENT
+// ============================================================================
 
 export function SelectorModalidadInteres({
     montoPrestado,
     saldoPendiente: _saldoPendiente,
     tasaMensual,
     diasTranscurridos,
+    diasPostVencimiento = 0,
+    config,
     onModalidadChange,
     onInteresCalculado,
     modalidadSeleccionada = 'dias'
@@ -33,8 +48,14 @@ export function SelectorModalidadInteres({
     const [modalidad, setModalidad] = useState<ModalidadInteres>(modalidadSeleccionada)
 
     const opciones = useMemo(() => {
-        return obtenerOpcionesPago(montoPrestado, tasaMensual, diasTranscurridos)
-    }, [montoPrestado, tasaMensual, diasTranscurridos])
+        return obtenerOpcionesPago(
+            montoPrestado,
+            tasaMensual,
+            diasTranscurridos,
+            diasPostVencimiento,
+            config
+        )
+    }, [montoPrestado, tasaMensual, diasTranscurridos, diasPostVencimiento, config])
 
     const handleSeleccion = (nuevaModalidad: ModalidadInteres) => {
         setModalidad(nuevaModalidad)
@@ -47,17 +68,40 @@ export function SelectorModalidadInteres({
     }
 
     const interesMensualCompleto = montoPrestado * (tasaMensual / 100)
+    const tieneAlgunaMora = opciones.estadoMora !== 'AL_DIA'
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            {/* Alerta de mora si aplica */}
+            {tieneAlgunaMora && (
+                <MoraAlertBanner
+                    estadoMora={opciones.estadoMora}
+                    diasEnMora={opciones.porDias.diasEnMora}
+                    diasEnGracia={opciones.porDias.diasEnGracia}
+                    interesMora={opciones.porDias.interesMora}
+                    diasGraciaConfig={config?.diasGracia ?? 3}
+                />
+            )}
+
+            {/* Header con indicadores */}
+            <div className="flex items-center justify-between flex-wrap gap-2">
                 <Label className="text-base font-semibold">Modalidad de Cobro</Label>
-                <Badge variant="outline" className="gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {diasTranscurridos} días transcurridos
-                </Badge>
+                <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {diasTranscurridos} días transcurridos
+                    </Badge>
+                    {tieneAlgunaMora && (
+                        <MoraIndicator
+                            estadoMora={opciones.estadoMora}
+                            diasEnMora={opciones.porDias.diasEnMora}
+                            showDetails={false}
+                        />
+                    )}
+                </div>
             </div>
 
+            {/* Cards de opciones */}
             <div className="grid grid-cols-2 gap-3">
                 {/* Opción Por Días */}
                 <Card
@@ -79,15 +123,29 @@ export function SelectorModalidadInteres({
                         )}
                     </div>
 
+                    {/* Monto principal */}
                     <p className="text-2xl font-bold text-blue-600">
-                        S/{opciones.porDias.interes.toFixed(2)}
+                        S/{opciones.porDias.interesTotal.toFixed(2)}
                     </p>
+
+                    {/* Desglose si hay mora */}
+                    {opciones.porDias.interesMora > 0 && (
+                        <div className="text-xs mt-1 space-y-0.5">
+                            <div className="text-muted-foreground">
+                                Regular: S/{opciones.porDias.interesRegular.toFixed(2)}
+                            </div>
+                            <div className="text-orange-600 font-medium flex items-center gap-1">
+                                <AlertTriangle className="h-3 w-3" />
+                                Mora: +S/{opciones.porDias.interesMora.toFixed(2)}
+                            </div>
+                        </div>
+                    )}
 
                     <p className="text-xs text-muted-foreground mt-1">
                         {opciones.porDias.descripcion}
                     </p>
 
-                    <div className="mt-2 p-2 bg-muted/30 rounded text-xs font-mono">
+                    <div className="mt-2 p-2 bg-muted/30 rounded text-xs font-mono overflow-hidden text-ellipsis">
                         {opciones.porDias.formula}
                     </div>
 
@@ -119,15 +177,29 @@ export function SelectorModalidadInteres({
                         )}
                     </div>
 
+                    {/* Monto principal */}
                     <p className="text-2xl font-bold text-purple-600">
-                        S/{opciones.porSemanas.interes.toFixed(2)}
+                        S/{opciones.porSemanas.interesTotal.toFixed(2)}
                     </p>
+
+                    {/* Desglose si hay mora */}
+                    {opciones.porSemanas.interesMora > 0 && (
+                        <div className="text-xs mt-1 space-y-0.5">
+                            <div className="text-muted-foreground">
+                                Regular: S/{opciones.porSemanas.interesRegular.toFixed(2)}
+                            </div>
+                            <div className="text-orange-600 font-medium flex items-center gap-1">
+                                <AlertTriangle className="h-3 w-3" />
+                                Mora: +S/{opciones.porSemanas.interesMora.toFixed(2)}
+                            </div>
+                        </div>
+                    )}
 
                     <p className="text-xs text-muted-foreground mt-1">
                         {opciones.porSemanas.descripcion}
                     </p>
 
-                    <div className="mt-2 p-2 bg-muted/30 rounded text-xs font-mono">
+                    <div className="mt-2 p-2 bg-muted/30 rounded text-xs font-mono overflow-hidden text-ellipsis">
                         {opciones.porSemanas.formula}
                     </div>
 
@@ -176,6 +248,16 @@ export function SelectorModalidadInteres({
                         <strong>S/{opciones.ahorro.toFixed(2)}</strong>
                     </span>
                 </div>
+            )}
+
+            {/* Info de configuración (solo en desarrollo) */}
+            {process.env.NODE_ENV === 'development' && config && (
+                <details className="text-xs text-muted-foreground">
+                    <summary className="cursor-pointer">Config intereses</summary>
+                    <pre className="mt-2 p-2 bg-muted rounded overflow-auto">
+                        {JSON.stringify(opciones.porDias.configAplicada, null, 2)}
+                    </pre>
+                </details>
             )}
         </div>
     )
