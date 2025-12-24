@@ -48,10 +48,10 @@ cat AGENT.md
 ## 3. Qué Hacer (ROADMAP 2026)
 
 ### Q1 2026 - Listo para Vender
-1. [ ] Multi-tenant (CRÍTICO)
-2. [ ] Onboarding automatizado
-3. [ ] Landing page + Demo
-4. [ ] Seguridad RLS
+1. [x] Multi-tenant (CRÍTICO)
+2. [x] Onboarding automatizado
+3. [x] Landing page + Demo
+4. [x] Seguridad RLS
 
 ### Q2 2026 - El "WOW" del Demo
 5. [ ] Dashboard gerencial premium
@@ -108,3 +108,20 @@ npm run docs:audit    # Verificar documentación
 ---
 
 *Este archivo es la autoridad máxima de comportamiento. AGENT.md es la autoridad técnica.*
+
+---
+
+## 8. Protocolo de Despliegue y Entorno (CI/CD)
+
+**Arquitectura de Deploy:**
+1. **GitHub (`main`)**: Fuente única de verdad.
+2. **Vercel**: Conectado a GitHub. Despliega automáticamente al hacer Push.
+3. **Supabase**: Conectado a GitHub/Vercel.
+
+**Reglas de Entorno:**
+1. **Docker**: El entorno local (Docker) contiene la CLI de Supabase **ya conectada y autenticada** a Supabase Cloud.
+2. **Migraciones**:
+   - Crear archivos en `supabase/migrations/` con timestamp (`YYYYMMDDHHMMSS_name.sql`).
+   - **NO** crear scripts de sincronización manual (`PRODUCTION_SYNC.sql`) a menos que falle la automatización.
+   - Si se requiere ejecución manual: Usar `supabase db push` (disponible en el entorno).
+3. **Preferencia**: SIEMPRE intentar `git push` primero para desencadenar el pipeline CI/CD. Solo usar comandos manuales si el usuario lo solicita explícitamente.
