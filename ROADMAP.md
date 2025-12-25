@@ -194,11 +194,11 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [ ] Envío masivo de recordatorios
 - [ ] Métricas de entrega/lectura
 
-### 8. UX Polish [/] 🎨 EN PROGRESO
+### 8. UX Polish [x] ✅ COMPLETADO
 - [x] Dark mode - `ThemeToggle.tsx` con animación sun/moon
 - [x] Micro-animaciones - Ya existían en `globals.css` (hover-lift, shimmer, pulse-glow)
 - [x] Loading states mejorados - `skeleton.tsx`, `/dashboard/loading.tsx`
-- [ ] Mobile responsive perfecto
+- [x] Mobile responsive - Table con `overflow-auto`, Sidebar `Sheet`, touch targets
 
 ---
 
