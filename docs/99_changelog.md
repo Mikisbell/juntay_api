@@ -21,6 +21,10 @@
   - Preview: Cálculo en vivo de ejemplo en la UI
   - Fix: `TablaVencimientos.tsx` ahora usa `calcularMora()` centralizado
   - Default: 0.5% diario (15% mensual)
+- **UX Polish** (25 Dic 2025):
+  - Dark Mode: `ThemeToggle.tsx` con animación sun/moon, agregado a `DashboardHeader.tsx`
+  - Loading States: `skeleton.tsx` base, `/dashboard/loading.tsx` con `DashboardSkeleton`
+  - Estilos dark mode en header (dark:bg-slate-950, dark:border-slate-800)
 
 ### Security - Q1 2026 RLS COMPLETADO
 - **RLS 100% Coverage**: 41/41 tablas públicas con RLS habilitado, 53 políticas definidas.
