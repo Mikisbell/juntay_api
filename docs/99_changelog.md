@@ -15,6 +15,12 @@
 - **SaaS Super Admin**: Implementado rol `SUPER_ADMIN` con dashboard global `/dashboard/saas`.
 - **Impersonation**: Funcionalidad "Modo Camaleón" que permite al Super Admin operar como cualquier empresa.
 - **Script**: `scripts/make-user-superadmin.ts` para autopromoción de privilegios.
+- **Tasas de Mora Configurables** (25 Dic 2025):
+  - Nuevo: `config-intereses-actions.ts` con `obtenerConfigIntereses()`, `actualizarConfigIntereses()`
+  - UI: `/dashboard/admin/configuracion` - Formulario para editar tasa_mora_diaria, dias_gracia, tope_mora_mensual
+  - Preview: Cálculo en vivo de ejemplo en la UI
+  - Fix: `TablaVencimientos.tsx` ahora usa `calcularMora()` centralizado
+  - Default: 0.5% diario (15% mensual)
 
 ### Security - Q1 2026 RLS COMPLETADO
 - **RLS 100% Coverage**: 41/41 tablas públicas con RLS habilitado, 53 políticas definidas.

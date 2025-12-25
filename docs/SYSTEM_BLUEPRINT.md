@@ -1,6 +1,6 @@
 # 🏦 JUNTAY - BLUEPRINTS DEL SISTEMA
 
-**Versión:** 4.6 | **Fecha:** 17 Diciembre 2025 | **Estado:** Producción + AI Features
+**Versión:** 4.7 | **Fecha:** 25 Diciembre 2025 | **Estado:** Producción + AI Features + Config Dinámica
 
 ---
 
@@ -335,6 +335,7 @@ Todos los server actions están en `src/lib/actions/`. Documentación completa:
 |---------|-----------|-----------|
 | `caja-actions.ts` | 5 | Apertura, cierre, movimientos de caja |
 | `tesoreria-actions.ts` | 20 | Gestión multi-cuenta, capital, inversionistas |
+| `config-intereses-actions.ts` | 3 | ⭐ Configuración dinámica de tasas de mora por empresa |
 | `financial-actions.ts` | 1 | Cálculos financieros generales |
 | `intereses-actions.ts` | 5 | Cálculo y aplicación de intereses |
 | `pagos-actions.ts` | 8 | Registro de cobros |
