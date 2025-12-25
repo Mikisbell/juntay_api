@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { ChevronDown, User, Settings, LogOut, Wallet, Zap, Plus, Banknote, UserPlus, ClipboardList, Calculator } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -106,7 +107,7 @@ export function DashboardHeader() {
     ]
 
     return (
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b border-slate-200 px-4 bg-white sticky top-0 z-40">
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b border-slate-200 dark:border-slate-800 px-4 bg-white dark:bg-slate-950 sticky top-0 z-40 transition-colors">
             {/* Elementos de Navegación del Dashboard */}
             <div className="flex items-center gap-2">
                 <SidebarTrigger className="-ml-1" />
@@ -116,6 +117,9 @@ export function DashboardHeader() {
 
             {/* Zona Central / Derecha */}
             <div className="ml-auto flex items-center gap-3">
+
+                {/* 0. Theme Toggle */}
+                <ThemeToggle />
 
                 {/* 1. Estado de Caja (Minimalista) */}
                 <TooltipProvider>

@@ -1,39 +1,29 @@
 'use client'
 
-/**
- * ThemeToggle - Dark/Light mode toggle button
- * Uses next-themes for theme management
- */
-
-import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
 import { Moon, Sun } from 'lucide-react'
+import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { useEffect, useState } from 'react'
 
-interface ThemeToggleProps {
-    className?: string
-    size?: 'default' | 'sm' | 'lg' | 'icon'
-}
-
-export function ThemeToggle({ className, size = 'icon' }: ThemeToggleProps) {
+/**
+ * ThemeToggle - Botón animado para cambiar entre light/dark mode
+ * 
+ * Features:
+ * - Animación de rotación en el cambio
+ * - Iconos sun/moon con transición suave
+ * - Soporta system preference
+ */
+export function ThemeToggle() {
     const { theme, setTheme, resolvedTheme } = useTheme()
     const [mounted, setMounted] = useState(false)
 
-    // Avoid hydration mismatch
-    useEffect(() => {
-        setMounted(true)
-    }, [])
+    // Evitar hydration mismatch
+    useEffect(() => setMounted(true), [])
 
     if (!mounted) {
         return (
-            <Button
-                variant="ghost"
-                size={size}
-                className={cn('relative', className)}
-                disabled
-            >
-                <div className="w-5 h-5 animate-pulse bg-slate-200 dark:bg-slate-700 rounded-full" />
+            <Button variant="ghost" size="icon" className="h-9 w-9">
+                <div className="h-4 w-4 animate-pulse bg-muted rounded-full" />
             </Button>
         )
     }
@@ -43,65 +33,72 @@ export function ThemeToggle({ className, size = 'icon' }: ThemeToggleProps) {
     return (
         <Button
             variant="ghost"
-            size={size}
-            className={cn(
-                'relative overflow-hidden transition-all duration-300',
-                className
-            )}
+            size="icon"
+            className="h-9 w-9 relative overflow-hidden group"
             onClick={() => setTheme(isDark ? 'light' : 'dark')}
-            aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+            aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}
         >
-            {/* Sun icon */}
+            {/* Sun icon - visible in dark mode */}
             <Sun
-                className={cn(
-                    'w-5 h-5 absolute transition-all duration-500 transform',
-                    isDark
+                className={`h-4 w-4 absolute transition-all duration-300 ease-out
+                    ${isDark
                         ? 'rotate-0 scale-100 opacity-100'
-                        : 'rotate-90 scale-0 opacity-0'
-                )}
+                        : '-rotate-90 scale-0 opacity-0'
+                    }
+                    text-amber-400 group-hover:text-amber-300
+                `}
             />
-
-            {/* Moon icon */}
+            {/* Moon icon - visible in light mode */}
             <Moon
-                className={cn(
-                    'w-5 h-5 absolute transition-all duration-500 transform',
-                    isDark
-                        ? '-rotate-90 scale-0 opacity-0'
+                className={`h-4 w-4 absolute transition-all duration-300 ease-out
+                    ${isDark
+                        ? 'rotate-90 scale-0 opacity-0'
                         : 'rotate-0 scale-100 opacity-100'
-                )}
+                    }
+                    text-slate-600 group-hover:text-slate-800
+                `}
             />
-
-            {/* Invisible spacer */}
-            <span className="w-5 h-5" />
         </Button>
     )
 }
 
-// Compact version for mobile/small spaces
-export function ThemeToggleCompact({ className }: { className?: string }) {
+/**
+ * ThemeToggleWithLabel - Versión con texto para menús
+ */
+export function ThemeToggleWithLabel() {
     const { theme, setTheme, resolvedTheme } = useTheme()
     const [mounted, setMounted] = useState(false)
 
-    useEffect(() => {
-        setMounted(true)
-    }, [])
+    useEffect(() => setMounted(true), [])
 
-    if (!mounted) return null
+    if (!mounted) {
+        return (
+            <Button variant="ghost" className="w-full justify-start gap-2">
+                <div className="h-4 w-4 animate-pulse bg-muted rounded-full" />
+                <span className="text-muted-foreground">Cargando...</span>
+            </Button>
+        )
+    }
 
     const isDark = resolvedTheme === 'dark'
 
     return (
-        <button
+        <Button
+            variant="ghost"
+            className="w-full justify-start gap-2"
             onClick={() => setTheme(isDark ? 'light' : 'dark')}
-            className={cn(
-                'p-2 rounded-lg transition-colors',
-                'text-slate-500 hover:text-slate-700 hover:bg-slate-100',
-                'dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800',
-                className
-            )}
-            aria-label={isDark ? 'Modo claro' : 'Modo oscuro'}
         >
-            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-        </button>
+            {isDark ? (
+                <>
+                    <Sun className="h-4 w-4 text-amber-400" />
+                    <span>Modo Claro</span>
+                </>
+            ) : (
+                <>
+                    <Moon className="h-4 w-4 text-slate-600" />
+                    <span>Modo Oscuro</span>
+                </>
+            )}
+        </Button>
     )
 }
