@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Phone, Search, Eye, AlertCircle, Clock, Calendar as CalendarIcon, Gift } from 'lucide-react'
 import { FaWhatsapp } from 'react-icons/fa'
 import { GestionMoraSheet } from '@/components/creditos/GestionMoraSheet'
+import { calcularMora } from '@/lib/constants/mora-config'
 import {
     Table,
     TableBody,
@@ -269,8 +270,8 @@ function FilaAcciones({
                     creditoId={contrato.id}
                     codigoCredito={contrato.codigo}
                     clienteNombre={contrato.cliente}
-                    moraPendiente={Math.abs(contrato.diasRestantes) * contrato.saldo * 0.003}
-                    diasMora={Math.abs(contrato.diasRestantes)}
+                    moraPendiente={calcularMora(contrato.saldo, contrato.fechaVencimiento).moraPendiente}
+                    diasMora={calcularMora(contrato.saldo, contrato.fechaVencimiento).diasMora}
                 >
                     <Button
                         size="sm"
