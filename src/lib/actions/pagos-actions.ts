@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { requireEmpresaActual } from '@/lib/auth/empresa-context'
+import { calcularMora } from '@/lib/constants/mora-config'
 
 export type ContratoParaPago = {
     id: string
@@ -48,22 +49,11 @@ export async function buscarContratoPorCodigo(codigo: string): Promise<ContratoP
     // Handle cliente data (might be array from join)
     const clienteData = Array.isArray(credito.cliente) ? credito.cliente[0] : credito.cliente
 
-    // Calcular mora con período de gracia y tasa unificada
-    const PERIODO_GRACIA_DIAS = 3      // 3 días sin mora
-    const TASA_MORA_DIARIA = 0.003     // 0.3% diario (unificado con RPC)
-    const TOPE_MORA_MENSUAL = 0.10     // Máximo 10% mensual
-
-    const hoy = new Date()
-    const vencimiento = new Date(credito.fecha_vencimiento)
-    const diasVencido = Math.floor((hoy.getTime() - vencimiento.getTime()) / (1000 * 60 * 60 * 24))
-
-    // Solo aplica mora después del período de gracia
-    const diasMoraEfectivos = Math.max(0, diasVencido - PERIODO_GRACIA_DIAS)
-
-    // Calcular mora con tope mensual
-    const moraSinTope = credito.saldo_pendiente * TASA_MORA_DIARIA * diasMoraEfectivos
-    const moraMensualMaxima = credito.saldo_pendiente * TOPE_MORA_MENSUAL
-    const moraPendiente = Math.min(moraSinTope, moraMensualMaxima)
+    // Usar función centralizada para cálculo de mora
+    const { diasMora: diasMoraEfectivos, moraPendiente } = calcularMora(
+        credito.saldo_pendiente,
+        credito.fecha_vencimiento
+    )
 
     return {
         id: credito.id,
@@ -230,18 +220,12 @@ export async function buscarContratosPorClienteId(clienteId: string): Promise<Co
 
     if (error || !creditos?.length) return []
 
-    const hoy = new Date()
-    const PERIODO_GRACIA_DIAS = 3
-    const TASA_MORA_DIARIA = 0.003
-    const TOPE_MORA_MENSUAL = 0.10
-
     return creditos.map(credito => {
-        const vencimiento = new Date(credito.fecha_vencimiento)
-        const diasVencido = Math.floor((hoy.getTime() - vencimiento.getTime()) / (1000 * 60 * 60 * 24))
-        const diasMoraEfectivos = Math.max(0, diasVencido - PERIODO_GRACIA_DIAS)
-        const moraSinTope = credito.saldo_pendiente * TASA_MORA_DIARIA * diasMoraEfectivos
-        const moraMensualMaxima = credito.saldo_pendiente * TOPE_MORA_MENSUAL
-        const moraPendiente = Math.min(moraSinTope, moraMensualMaxima)
+        // Usar función centralizada para cálculo de mora
+        const { diasMora: diasMoraEfectivos, moraPendiente } = calcularMora(
+            credito.saldo_pendiente,
+            credito.fecha_vencimiento
+        )
 
         const garantia = Array.isArray(credito.garantias) ? credito.garantias[0] : credito.garantias
 
@@ -317,20 +301,13 @@ export async function buscarContratosPorCliente(query: string): Promise<Contrato
 
     if (errorCreditos || !creditos?.length) return []
 
-    // Combinar datos
-    const hoy = new Date()
-    const PERIODO_GRACIA_DIAS = 3
-    const TASA_MORA_DIARIA = 0.003
-    const TOPE_MORA_MENSUAL = 0.10
-
+    // Combinar datos usando función centralizada de mora
     return creditos.map(credito => {
         const cliente = clientes.find(c => c.id === credito.cliente_id)!
-        const vencimiento = new Date(credito.fecha_vencimiento)
-        const diasVencido = Math.floor((hoy.getTime() - vencimiento.getTime()) / (1000 * 60 * 60 * 24))
-        const diasMoraEfectivos = Math.max(0, diasVencido - PERIODO_GRACIA_DIAS)
-        const moraSinTope = credito.saldo_pendiente * TASA_MORA_DIARIA * diasMoraEfectivos
-        const moraMensualMaxima = credito.saldo_pendiente * TOPE_MORA_MENSUAL
-        const moraPendiente = Math.min(moraSinTope, moraMensualMaxima)
+        const { diasMora: diasMoraEfectivos, moraPendiente } = calcularMora(
+            credito.saldo_pendiente,
+            credito.fecha_vencimiento
+        )
 
         // Get garantia description
         const garantia = Array.isArray(credito.garantias) ? credito.garantias[0] : credito.garantias
@@ -355,31 +332,16 @@ export async function buscarContratosPorCliente(query: string): Promise<Contrato
 }
 
 /**
- * Agregar un mes calendario a una fecha (maneja Feb, meses cortos, etc.)
- * Ejemplos:
- * - 31 Ene + 1 mes = 28/29 Feb
- * - 31 Mar + 1 mes = 30 Abr
- * - 28 Feb + 1 mes = 28 Mar
- */
-function agregarUnMes(fecha: Date): Date {
-    const resultado = new Date(fecha)
-    const diaOriginal = resultado.getDate()
-
-    // Avanzar al mes siguiente
-    resultado.setMonth(resultado.getMonth() + 1)
-
-    // Si el día cambió, significa que el mes siguiente tiene menos días
-    // Ejemplo: 31 Ene → 3 Mar (porque Feb no tiene día 31)
-    // En ese caso, retroceder al último día del mes correcto
-    if (resultado.getDate() !== diaOriginal) {
-        resultado.setDate(0) // Último día del mes anterior
-    }
-
-    return resultado
-}
-
-/**
- * Renovar contrato: Paga interés + mora y extiende 1 mes calendario
+ * Renovar contrato: Paga interés + mora y extiende vencimiento
+ * 
+ * NOTA: El RPC registrar_pago_oficial ya maneja atómicamente:
+ * - Registro del pago
+ * - Actualización de fecha_vencimiento (usando periodo_dias del crédito)
+ * - Reset de interes_acumulado
+ * - Actualización del estado a 'vigente'
+ * - Movimiento de caja
+ * 
+ * Por lo tanto, esta función solo necesita llamar al RPC y devolver el resultado.
  */
 export async function renovarContratoAction({
     creditoId,
@@ -392,25 +354,14 @@ export async function renovarContratoAction({
 }): Promise<{ success: boolean; error?: string; mensaje?: string; nuevaFecha?: string }> {
     const supabase = await createClient()
 
-    // 1. Obtener crédito actual
-    const { data: credito, error: errorCredito } = await supabase
-        .from('creditos')
-        .select('id, codigo_credito, fecha_vencimiento, saldo_pendiente, tasa_interes, interes_acumulado')
-        .eq('id', creditoId)
-        .single()
-
-    if (errorCredito || !credito) {
-        return { success: false, error: 'Crédito no encontrado' }
-    }
-
-    // 1.5 Obtener usuario actual
+    // 1. Validar sesión
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
         return { success: false, error: 'Usuario no autenticado' }
     }
 
-    // 2. Registrar el pago de interés
-    const { error: errorPago } = await supabase.rpc('registrar_pago_oficial', {
+    // 2. Llamar al RPC atómico que maneja TODO el proceso de renovación
+    const { data, error: errorPago } = await supabase.rpc('registrar_pago_oficial', {
         p_caja_id: cajaId,
         p_credito_id: creditoId,
         p_monto_pago: montoPagado,
@@ -421,39 +372,30 @@ export async function renovarContratoAction({
     })
 
     if (errorPago) {
-        console.error('Error registrando pago de renovación:', errorPago)
+        console.error('Error en renovación:', errorPago)
         return { success: false, error: errorPago.message }
     }
 
-    // 3. Calcular nueva fecha de vencimiento (1 mes calendario)
-    const fechaActual = new Date(credito.fecha_vencimiento)
-    const nuevaFecha = agregarUnMes(fechaActual)
-
-    // 4. Actualizar crédito con nueva fecha y resetear interés acumulado
-    const nuevoInteres = credito.saldo_pendiente * (credito.tasa_interes / 100)
-
-    const { error: errorUpdate } = await supabase
+    // 3. Obtener la nueva fecha para el mensaje (el RPC ya la actualizó)
+    const { data: creditoActualizado } = await supabase
         .from('creditos')
-        .update({
-            fecha_vencimiento: nuevaFecha.toISOString().split('T')[0],
-            interes_acumulado: nuevoInteres, // Interés del nuevo período
-            observaciones: `Renovado el ${new Date().toLocaleDateString('es-PE')} - Nuevo vencimiento: ${nuevaFecha.toLocaleDateString('es-PE')}`
-        })
+        .select('fecha_vencimiento')
         .eq('id', creditoId)
-
-    if (errorUpdate) {
-        return { success: false, error: 'Error al actualizar fecha de vencimiento' }
-    }
+        .single()
 
     revalidatePath('/dashboard/pagos')
     revalidatePath('/dashboard/contratos')
     revalidatePath('/dashboard/vencimientos')
     revalidatePath('/dashboard/caja')
 
+    const nuevaFecha = creditoActualizado?.fecha_vencimiento
+        ? new Date(creditoActualizado.fecha_vencimiento)
+        : null
+
     return {
         success: true,
-        mensaje: `Contrato renovado. Nuevo vencimiento: ${nuevaFecha.toLocaleDateString('es-PE')}`,
-        nuevaFecha: nuevaFecha.toISOString()
+        mensaje: data?.mensaje || `Contrato renovado exitosamente${nuevaFecha ? `. Nuevo vencimiento: ${nuevaFecha.toLocaleDateString('es-PE')}` : ''}`,
+        nuevaFecha: creditoActualizado?.fecha_vencimiento
     }
 }
 
