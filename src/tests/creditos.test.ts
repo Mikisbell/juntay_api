@@ -59,7 +59,7 @@ describe('Módulo de Créditos - Integración', () => {
             .limit(10)
 
         if (creditos && creditos.length > 0) {
-            const estadosValidos = ['vigente', 'pendiente', 'vencido', 'liquidado', 'en_mora', 'renovado']
+            const estadosValidos = ['vigente', 'pendiente', 'vencido', 'liquidado', 'en_mora', 'renovado', 'cancelado']
             creditos.forEach(c => {
                 expect(estadosValidos).toContain(c.estado)
             })

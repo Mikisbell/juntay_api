@@ -1,11 +1,5 @@
-import { DashboardSkeleton } from "@/components/ui/skeletons"
+import { LoadingScreen } from "@/components/ui/loading-screen"
 
-/**
- * Dashboard Loading State
- * 
- * Muestra un skeleton animado mientras se cargan los datos del dashboard.
- * Next.js usa este archivo automáticamente durante Suspense.
- */
 export default function DashboardLoading() {
-    return <DashboardSkeleton />
+    return <LoadingScreen />
 }

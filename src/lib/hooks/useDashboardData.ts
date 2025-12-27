@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-console */
 /**
  * Dashboard Data Hook
  * 
@@ -70,50 +72,75 @@ export function useDashboardData(): UseDashboardDataResult {
         const semanaStr = new Date(hoy.getTime() + 7 * 86400000).toISOString().split('T')[0]
         const inicioHoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).toISOString()
 
-        // 1. Contratos urgentes
-        const { data: contratos } = await supabase
-            .from('creditos')
-            .select(`
-                id,
-                codigo_credito,
-                monto_prestado,
-                saldo_pendiente,
-                fecha_vencimiento,
-                clientes!inner(id, nombres, apellido_paterno, telefono_principal)
-            `)
-            .lte('fecha_vencimiento', semanaStr)
-            .in('estado_detallado', ['vigente', 'por_vencer', 'vencido', 'en_mora'])
-            .order('fecha_vencimiento', { ascending: true })
-            .limit(30)
+        // 5. Pagos 7 dias (Prepare promise)
+        const last7Days: { date: string; monto: number }[] = []
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(hoy)
+            date.setDate(date.getDate() - i)
+            last7Days.push({ date: date.toISOString().split('T')[0], monto: 0 })
+        }
 
-        const contratosUrgentes: ContratoUrgente[] = (contratos || []).map((c: unknown) => {
-            const contrato = c as {
-                id: string
-                codigo_credito: string
-                monto_prestado: number
-                saldo_pendiente: number
-                fecha_vencimiento: string
-                clientes: { id: string; nombres: string; apellido_paterno: string; telefono_principal: string | null }
-            }
-            return {
-                id: contrato.id,
-                codigo: contrato.codigo_credito,
-                cliente_id: contrato.clientes.id,
-                cliente_nombre: `${contrato.clientes.nombres} ${contrato.clientes.apellido_paterno}`,
-                cliente_telefono: contrato.clientes.telefono_principal,
-                monto: contrato.monto_prestado,
-                saldo: contrato.saldo_pendiente,
-                fecha_vencimiento: contrato.fecha_vencimiento,
-                dias_vencido: Math.floor((hoy.getTime() - new Date(contrato.fecha_vencimiento).getTime()) / (1000 * 60 * 60 * 24))
-            }
-        })
+        const pagosPromise = supabase
+            .from('pagos')
+            .select('monto_total, fecha_pago')
+            .gte('fecha_pago', last7Days[0].date)
+            .lte('fecha_pago', last7Days[6].date + 'T23:59:59')
+            .eq('anulado', false)
+
+        // PARALLEL EXECUTION OF INDEPENDENT QUERIES
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const [contratosResult, riskResult, cajaResult, pagosResult] = await Promise.all([
+            // 1. Contratos urgentes
+            supabase
+                .from('creditos')
+                .select(`
+                    id,
+                    codigo_credito,
+                    monto_prestado,
+                    saldo_pendiente,
+                    fecha_vencimiento,
+                    clientes!inner(id, nombres, apellido_paterno, telefono_principal)
+                `)
+                .lte('fecha_vencimiento', semanaStr)
+                .in('estado_detallado', ['vigente', 'por_vencer', 'vencido', 'en_mora'])
+                .order('fecha_vencimiento', { ascending: true })
+                .limit(30),
+
+            // 2. Cartera Risk
+            supabase.rpc('get_cartera_risk_summary'),
+
+            // 3. Caja base info
+            supabase
+                .from('cajas_operativas')
+                .select('id, saldo_inicial, saldo_actual, estado')
+                .eq('usuario_id', userId)
+                .eq('estado', 'abierta')
+                .single(),
+
+            // 4. Pagos (Promise created above)
+            pagosPromise
+        ]) as [any, any, any, any];
+
+        // PROCESS RESULTS
+
+        // 1. Contratos
+        const contratosUrgentes: ContratoUrgente[] = (contratosResult.data || []).map((c: any) => ({
+            id: c.id,
+            codigo: c.codigo_credito,
+            cliente_id: c.clientes.id,
+            cliente_nombre: `${c.clientes.nombres} ${c.clientes.apellido_paterno}`,
+            cliente_telefono: c.clientes.telefono_principal,
+            monto: c.monto_prestado,
+            saldo: c.saldo_pendiente,
+            fecha_vencimiento: c.fecha_vencimiento,
+            dias_vencido: Math.floor((hoy.getTime() - new Date(c.fecha_vencimiento).getTime()) / (1000 * 60 * 60 * 24))
+        }))
 
         // 2. Cartera
-        const { data: riskData } = await supabase.rpc('get_cartera_risk_summary')
-        const riskArray = riskData || []
-        const vigente = riskArray.find((r: { estado_grupo: string; cantidad: number; total_saldo: number }) => r.estado_grupo === 'VIGENTE')
-        const porVencer = riskArray.find((r: { estado_grupo: string; cantidad: number; total_saldo: number }) => r.estado_grupo === 'POR_VENCER')
-        const vencido = riskArray.find((r: { estado_grupo: string; cantidad: number; total_saldo: number }) => r.estado_grupo === 'VENCIDO')
+        const riskArray = riskResult.data || []
+        const vigente = riskArray.find((r: any) => r.estado_grupo === 'VIGENTE')
+        const porVencer = riskArray.find((r: any) => r.estado_grupo === 'POR_VENCER')
+        const vencido = riskArray.find((r: any) => r.estado_grupo === 'VENCIDO')
 
         const cartera: CarteraResumen = {
             al_dia: { count: vigente?.cantidad || 0, total: vigente?.total_saldo || 0 },
@@ -121,14 +148,7 @@ export function useDashboardData(): UseDashboardDataResult {
             en_mora: { count: vencido?.cantidad || 0, total: vencido?.total_saldo || 0 }
         }
 
-        // 3. Caja
-        const { data: cajaData } = await supabase
-            .from('cajas_operativas')
-            .select('id, saldo_inicial, saldo_actual, estado')
-            .eq('usuario_id', userId)
-            .eq('estado', 'abierta')
-            .single()
-
+        // 3. Caja (Requires extra fetch if found, intentional waterfall here as it depends on ID)
         let caja: CajaStatus = {
             abierta: false,
             saldo_inicial: 0,
@@ -138,49 +158,35 @@ export function useDashboardData(): UseDashboardDataResult {
             operaciones: 0
         }
 
-        if (cajaData) {
-            const cajaTyped = cajaData as { id: string; saldo_inicial: number; saldo_actual: number }
+        if (cajaResult.data) {
+            const cajaTyped = cajaResult.data
             const { data: movimientos } = await supabase
                 .from('movimientos_caja_operativa')
                 .select('tipo, monto')
                 .eq('caja_operativa_id', cajaTyped.id)
                 .gte('fecha', inicioHoy)
 
-            const movArray = movimientos as Array<{ tipo: string; monto: number }> || []
+            const movArray = movimientos || []
             caja = {
                 abierta: true,
                 saldo_inicial: cajaTyped.saldo_inicial || 0,
                 saldo_actual: cajaTyped.saldo_actual || 0,
-                ingresos: movArray.filter(m => m.tipo === 'INGRESO').reduce((acc, m) => acc + Number(m.monto), 0),
-                egresos: movArray.filter(m => m.tipo === 'EGRESO').reduce((acc, m) => acc + Number(m.monto), 0),
+                ingresos: movArray.filter((m: any) => m.tipo === 'INGRESO').reduce((acc: number, m: any) => acc + Number(m.monto), 0),
+                egresos: movArray.filter((m: any) => m.tipo === 'EGRESO').reduce((acc: number, m: any) => acc + Number(m.monto), 0),
                 operaciones: movArray.length
             }
         }
 
-        // 4. Pagos 7 dias
-        const last7Days: { date: string; monto: number }[] = []
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date(hoy)
-            date.setDate(date.getDate() - i)
-            last7Days.push({ date: date.toISOString().split('T')[0], monto: 0 })
-        }
-
-        const { data: pagos7dias } = await supabase
-            .from('pagos')
-            .select('monto_total, fecha_pago')
-            .gte('fecha_pago', last7Days[0].date)
-            .lte('fecha_pago', last7Days[6].date + 'T23:59:59')
-            .eq('anulado', false)
-
-        if (pagos7dias) {
-            pagos7dias.forEach((p: { monto_total: number; fecha_pago: string }) => {
+        // 4. Pagos
+        if (pagosResult.data) {
+            pagosResult.data.forEach((p: any) => {
                 const dateStr = p.fecha_pago.split('T')[0]
                 const dayEntry = last7Days.find(d => d.date === dateStr)
                 if (dayEntry) dayEntry.monto += Number(p.monto_total)
             })
         }
 
-        const pagos_7_dias: PagoDia[] = last7Days.map(d => ({ fecha: d.date, monto: d.monto }))
+        const pagos_7_dias = last7Days.map(d => ({ fecha: d.date, monto: d.monto }))
 
         setData({
             contratos_urgentes: contratosUrgentes,

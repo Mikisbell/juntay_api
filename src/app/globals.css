@@ -48,34 +48,41 @@
     }
 
     .dark {
-        --background: 240 10% 3.9%;
-        --foreground: 0 0% 98%;
-        --card: 240 10% 3.9%;
-        --card-foreground: 0 0% 98%;
-        --popover: 240 10% 3.9%;
-        --popover-foreground: 0 0% 98%;
-        --primary: 45 100% 50%;
-        --primary-foreground: 0 0% 100%;
-        --secondary: 210 100% 50%;
-        --secondary-foreground: 0 0% 100%;
-        --muted: 240 3.7% 15.9%;
-        --muted-foreground: 240 5% 64.9%;
-        --accent: 240 3.7% 15.9%;
-        --accent-foreground: 0 0% 98%;
+        /* Deep Blue/Black - Premium Vault Feel */
+        --background: 222 47% 11%; /* slate-950 equivalent */
+        --foreground: 210 40% 98%;
+        --card: 222 47% 11%;
+        --card-foreground: 210 40% 98%;
+        --popover: 222 47% 11%;
+        --popover-foreground: 210 40% 98%;
+        
+        --primary: 45 100% 50%; /* Gold */
+        --primary-foreground: 222 47% 11%;
+        
+        --secondary: 217.2 32.6% 17.5%;
+        --secondary-foreground: 210 40% 98%;
+        
+        --muted: 217.2 32.6% 17.5%;
+        --muted-foreground: 215 20.2% 65.1%;
+        
+        --accent: 217.2 32.6% 17.5%;
+        --accent-foreground: 210 40% 98%;
+        
         --destructive: 0 62.8% 30.6%;
-        --destructive-foreground: 0 0% 98%;
-        --border: 240 3.7% 15.9%;
-        --input: 240 3.7% 15.9%;
-        --ring: 240 4.9% 83.9%;
+        --destructive-foreground: 210 40% 98%;
+        
+        --border: 217.2 32.6% 17.5%;
+        --input: 217.2 32.6% 17.5%;
+        --ring: 212.7 26.8% 83.9%;
 
-        /* Sidebar Dark */
-        --sidebar-background: 240 5.9% 10%;
+        /* Sidebar Dark - Slightly Lighter than bg for depth */
+        --sidebar-background: 222 47% 9%; /* Darker than main bg or lighter? Usually sidebar is darker/lighter to contrast. Let's make it slightly darker/richer */
         --sidebar-foreground: 240 4.8% 95.9%;
         --sidebar-primary: 224.3 76.3% 48%;
         --sidebar-primary-foreground: 0 0% 100%;
-        --sidebar-accent: 240 3.7% 15.9%;
+        --sidebar-accent: 217.2 32.6% 17.5%;
         --sidebar-accent-foreground: 240 4.8% 95.9%;
-        --sidebar-border: 240 3.7% 15.9%;
+        --sidebar-border: 217.2 32.6% 17.5%;
         --sidebar-ring: 217.2 91.2% 59.8%;
     }
 }

@@ -45,12 +45,14 @@ export async function obtenerUsageActual(): Promise<UsageActual | null> {
         .eq('empresa_id', empresaId)
         .single()
 
-    const plan = suscripcion?.plan || {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const planData = suscripcion?.plan as any
+    const plan = Array.isArray(planData) ? planData[0] : (planData || {
         max_usuarios: 3,
         max_sucursales: 1,
         max_creditos_mes: 100,
         max_creditos_activos: 50
-    }
+    })
 
     // Contar usuarios activos
     const { count: usuariosCount } = await supabase

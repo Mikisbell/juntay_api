@@ -21,6 +21,7 @@ import { Textarea } from '@/components/ui/textarea'
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog'
@@ -327,6 +328,9 @@ export function BancoPanel() {
                             <Upload className="h-5 w-5" />
                             Importar Extracto Bancario
                         </DialogTitle>
+                        <DialogDescription>
+                            Pega el extracto bancario para importar transacciones
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
                         <div className="space-y-2">
@@ -377,6 +381,9 @@ export function BancoPanel() {
                             <Link2 className="h-5 w-5" />
                             Conciliar Transacción
                         </DialogTitle>
+                        <DialogDescription>
+                            Vincula esta transacción bancaria con un pago registrado
+                        </DialogDescription>
                     </DialogHeader>
 
                     {dialogConciliar && (

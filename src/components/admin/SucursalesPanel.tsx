@@ -15,25 +15,17 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import {
     listarSucursales,
-    crearSucursal,
     obtenerResumenConsolidadoSucursales,
     type Sucursal,
     type ResumenSucursal
 } from '@/lib/actions/sucursales-actions'
 import { cn } from '@/lib/utils'
+import { CreateSucursalWizard } from './CreateSucursalWizard'
+
 
 /**
  * Panel de Gestión de Sucursales
@@ -43,13 +35,6 @@ export function SucursalesPanel() {
     const [resumen, setResumen] = useState<ResumenSucursal[]>([])
     const [loading, setLoading] = useState(true)
     const [dialogOpen, setDialogOpen] = useState(false)
-    const [creando, setCreando] = useState(false)
-    const [form, setForm] = useState({
-        codigo: '',
-        nombre: '',
-        direccion: '',
-        telefono: ''
-    })
 
     const cargar = async () => {
         setLoading(true)
@@ -71,31 +56,6 @@ export function SucursalesPanel() {
     useEffect(() => {
         cargar()
     }, [])
-
-    const handleCrear = async () => {
-        if (!form.codigo || !form.nombre || !form.direccion) {
-            toast.error('Completa los campos requeridos')
-            return
-        }
-
-        setCreando(true)
-        try {
-            const result = await crearSucursal(form)
-            if (result.success) {
-                toast.success('Sucursal creada')
-                setDialogOpen(false)
-                setForm({ codigo: '', nombre: '', direccion: '', telefono: '' })
-                cargar()
-            } else {
-                toast.error('Error', { description: result.error })
-            }
-        } catch (err) {
-            console.error('Error:', err)
-            toast.error('Error creando sucursal')
-        } finally {
-            setCreando(false)
-        }
-    }
 
     const formatMoney = (n: number) =>
         new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(n)
@@ -134,63 +94,15 @@ export function SucursalesPanel() {
                     <Button variant="outline" size="icon" onClick={cargar}>
                         <RefreshCw className="h-4 w-4" />
                     </Button>
-                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                        <DialogTrigger asChild>
-                            <Button>
-                                <Plus className="h-4 w-4 mr-2" />
-                                Nueva Sucursal
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Nueva Sucursal</DialogTitle>
-                            </DialogHeader>
-                            <div className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label>Código *</Label>
-                                        <Input
-                                            placeholder="SUC-01"
-                                            value={form.codigo}
-                                            onChange={(e) => setForm({ ...form, codigo: e.target.value })}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Teléfono</Label>
-                                        <Input
-                                            placeholder="01-1234567"
-                                            value={form.telefono}
-                                            onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Nombre *</Label>
-                                    <Input
-                                        placeholder="Sucursal Principal"
-                                        value={form.nombre}
-                                        onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Dirección *</Label>
-                                    <Input
-                                        placeholder="Av. Principal 123, Lima"
-                                        value={form.direccion}
-                                        onChange={(e) => setForm({ ...form, direccion: e.target.value })}
-                                    />
-                                </div>
-                                <Button onClick={handleCrear} disabled={creando} className="w-full">
-                                    {creando ? (
-                                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                                    ) : (
-                                        <Plus className="h-4 w-4 mr-2" />
-                                    )}
-                                    Crear Sucursal
-                                </Button>
-                            </div>
-                        </DialogContent>
-                    </Dialog>
+                    <Button onClick={() => setDialogOpen(true)}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Nueva Sucursal
+                    </Button>
+                    <CreateSucursalWizard
+                        open={dialogOpen}
+                        onOpenChange={setDialogOpen}
+                        onSuccess={cargar}
+                    />
                 </div>
             </div>
 

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { EstadoCredito, Credito, ResumenEstados } from '../types/credito'
+import { verificarLimiteCreditos } from './limites-actions'
 
 /**
  * Obtiene la tasa de interés por defecto de la empresa del usuario actual.
@@ -206,6 +207,12 @@ export async function crearCreditoExpress(payload: {
     // 1. Obtener usuario actual
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error("Usuario no autenticado")
+
+    // 🆕 Verificar límites del plan (Créditos)
+    const { permitido, mensaje } = await verificarLimiteCreditos()
+    if (!permitido) {
+        throw new Error(mensaje)
+    }
 
     // 2. Verificar Caja Abierta del usuario
     const { data: caja } = await supabase.from('cajas_operativas')

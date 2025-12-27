@@ -332,6 +332,7 @@ export async function obtenerInversionistas(): Promise<InversionistaDetalle[]> {
             persona:personas(nombres, apellido_paterno, apellido_materno, numero_documento)
         `)
         .order('fecha_ingreso', { ascending: false })
+        .limit(50)
 
     if (error) {
         console.error('Error obteniendo inversionistas:', error)

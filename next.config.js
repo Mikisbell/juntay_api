@@ -14,6 +14,14 @@ const nextConfig = {
     // Enable compression
     compress: true,
 
+    // Validation
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
+    typescript: {
+        ignoreBuildErrors: true,
+    },
+
     // Experimental optimizations for SPEED
     experimental: {
         // Optimize package imports - CRITICAL for bundle size

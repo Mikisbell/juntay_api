@@ -34,22 +34,41 @@ export async function middleware(request: NextRequest, _options: NextFetchEvent)
         data: { user },
     } = await supabase.auth.getUser()
 
-    // Si no hay usuario y está en ruta protegida, redirigir a login
+    // Definición de rutas
     const isAuthRoute = request.nextUrl.pathname.startsWith('/login') ||
         request.nextUrl.pathname.startsWith('/auth')
     const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard')
+    const isRootRoute = request.nextUrl.pathname === '/'
 
+    // 1. PROTECCIÓN DE RUTAS (Usuario no autenticado)
     if (!user && isProtectedRoute) {
         const url = request.nextUrl.clone()
         url.pathname = '/login'
         return NextResponse.redirect(url)
     }
 
-    // Si hay usuario y está en login, redirigir a dashboard
-    if (user && isAuthRoute) {
-        const url = request.nextUrl.clone()
-        url.pathname = '/dashboard'
-        return NextResponse.redirect(url)
+    // 2. REDIRECCIONES (Usuario autenticado)
+    if (user) {
+        const rol = user.user_metadata?.rol
+
+        // A. Lógica para SUPER_ADMIN
+        // Deben ir siempre a su panel de control, no al dashboard de tenant
+        if (rol === 'SUPER_ADMIN') {
+            // Si intenta entrar al root, login o al dashboard genérico -> Redirigir a SysAdmin
+            if (isRootRoute || isAuthRoute || request.nextUrl.pathname === '/dashboard') {
+                const url = request.nextUrl.clone()
+                url.pathname = '/dashboard/sysadmin/empresas'
+                return NextResponse.redirect(url)
+            }
+        }
+
+        // B. Lógica para Usuarios Normales
+        // Si intenta entrar al root o login -> Redirigir a Dashboard
+        if (isRootRoute || isAuthRoute) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/dashboard'
+            return NextResponse.redirect(url)
+        }
     }
 
     return supabaseResponse

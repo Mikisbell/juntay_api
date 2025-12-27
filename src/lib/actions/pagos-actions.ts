@@ -26,7 +26,7 @@ export type ContratoParaPago = {
 export async function buscarContratoPorCodigo(codigo: string): Promise<ContratoParaPago | null> {
     const supabase = await createClient()
 
-    const { data: credito, error } = await supabase
+    let queryBuilder = supabase
         .from('creditos')
         .select(`
       id,
@@ -40,7 +40,12 @@ export async function buscarContratoPorCodigo(codigo: string): Promise<ContratoP
       estado_detallado,
       cliente:clientes(nombres, apellido_paterno, numero_documento)
     `)
-        .eq('codigo_credito', codigo.toUpperCase())
+
+    if (codigo) {
+        queryBuilder = queryBuilder.eq('codigo_credito', codigo.toUpperCase())
+    }
+
+    const { data: credito, error } = await queryBuilder
         .in('estado', ['vigente', 'pendiente'])
         .single()
 

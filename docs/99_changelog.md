@@ -12,9 +12,9 @@
 - Helper `src/lib/auth/empresa-context.ts` para contexto multi-tenant centralizado
 - Estrategia "SaaS-Ready Single-Tenant" en ROADMAP (Fase 0)
 - Script `scripts/test-onboarding.ts` para verificar flujo E2E de onboarding
-- **SaaS Super Admin**: Implementado rol `SUPER_ADMIN` con dashboard global `/dashboard/saas`.
-- **Impersonation**: Funcionalidad "Modo Camaleón" que permite al Super Admin operar como cualquier empresa.
-- **Script**: `scripts/make-user-superadmin.ts` para autopromoción de privilegios.
+- **SaaS Super Admin**: Implementado rol `super_admin` (Level 1000) en DB con acceso global seguro via RLS policies (`super_admin_select_all_*`).
+- **Analytics de Uso (Scalable)**: Arquitectura "Materialized Cache" con triggers en tiempo real (`metricas_uso_tenant`) y visualización con Recharts.
+- **Limit Enforcement**: Gatekeeping transaccional activo (bloqueo real) para usuarios, sucursales y créditos según plan.
 - **Tasas de Mora Configurables** (25 Dic 2025):
   - Nuevo: `config-intereses-actions.ts` con `obtenerConfigIntereses()`, `actualizarConfigIntereses()`
   - UI: `/dashboard/admin/configuracion` - Formulario para editar tasa_mora_diaria, dias_gracia, tope_mora_mensual
@@ -25,6 +25,12 @@
   - Dark Mode: `ThemeToggle.tsx` con animación sun/moon, agregado a `DashboardHeader.tsx`
   - Loading States: `skeleton.tsx` base, `/dashboard/loading.tsx` con `DashboardSkeleton`
   - Estilos dark mode en header (dark:bg-slate-950, dark:border-slate-800)
+- **Billing/Suscripciones System (Q3 2026)** (25 Dic 2025):
+  - **Database**: Tablas `planes_suscripcion`, `suscripciones`, `facturas`.
+  - **Planes**: Básico (S/99), Pro (S/199), Enterprise (S/499).
+  - **Límites**: Control automático de usuarios, sucursales y créditos máximos por mes.
+  - **UI**: Dashboard de gestión de suscripciones `/dashboard/admin/suscripcion`.
+  - **Server Actions**: CRUD completo para planes, suscripciones y facturación.
 
 ### Security - Q1 2026 RLS COMPLETADO
 - **RLS 100% Coverage**: 41/41 tablas públicas con RLS habilitado, 53 políticas definidas.

@@ -40,6 +40,22 @@ export function CarteraReportPDF() {
             // Fetch data
             const datos = await obtenerDatosCarteraReporte()
 
+            // Load logo if exists
+            let logoBase64: string | null = null
+            if (datos.empresa.logoUrl) {
+                try {
+                    const response = await fetch(datos.empresa.logoUrl)
+                    const blob = await response.blob()
+                    logoBase64 = await new Promise((resolve) => {
+                        const reader = new FileReader()
+                        reader.onloadend = () => resolve(reader.result as string)
+                        reader.readAsDataURL(blob)
+                    })
+                } catch (e) {
+                    console.error('Error loading logo:', e)
+                }
+            }
+
             const doc = new jsPDF({
                 orientation: 'landscape',
                 unit: 'mm',
@@ -52,15 +68,42 @@ export function CarteraReportPDF() {
             let y = 20
 
             // ===== HEADER =====
-            doc.setFont('helvetica', 'bold')
-            doc.setFontSize(20)
-            doc.text(datos.empresa.nombre, margin, y)
+            if (logoBase64) {
+                const imgProps = doc.getImageProperties(logoBase64)
+                const imgWidth = 40
+                const imgHeight = (imgProps.height * imgWidth) / imgProps.width
+                doc.addImage(logoBase64, 'PNG', margin, y, imgWidth, imgHeight)
+
+                // Adjust text position if logo exists
+                doc.setFont('helvetica', 'bold')
+                doc.setFontSize(20)
+                doc.text(datos.empresa.nombre, margin, y + imgHeight + 8)
+
+                // RUC
+                doc.setFontSize(10)
+                doc.setFont('helvetica', 'normal')
+                if (datos.empresa.ruc) {
+                    doc.text(`RUC: ${datos.empresa.ruc}`, margin, y + imgHeight + 14)
+                }
+            } else {
+                // No Logo fallback
+                doc.setFont('helvetica', 'bold')
+                doc.setFontSize(20)
+                doc.text(datos.empresa.nombre, margin, y + 10)
+
+                doc.setFontSize(10)
+                doc.setFont('helvetica', 'normal')
+                if (datos.empresa.ruc) {
+                    doc.text(`RUC: ${datos.empresa.ruc}`, margin, y + 16)
+                }
+            }
 
             doc.setFontSize(10)
             doc.setFont('helvetica', 'normal')
-            if (datos.empresa.ruc) {
-                doc.text(`RUC: ${datos.empresa.ruc}`, margin, y + 6)
-            }
+            // Removed old RUC rendering logic as it is handled above
+            // if (datos.empresa.ruc) {
+            //     doc.text(`RUC: ${datos.empresa.ruc}`, margin, y + 6)
+            // }
 
             doc.setFontSize(16)
             doc.setFont('helvetica', 'bold')

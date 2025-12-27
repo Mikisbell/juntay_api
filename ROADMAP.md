@@ -176,11 +176,11 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 
 ## 🎨 Q2 2026 - El "Wow" del Demo
 
-### 5. Dashboard Gerencial Premium [ ]
-- [ ] Gráficos animados e interactivos
-- [ ] KPIs en tiempo real
-- [ ] Comparativas mes a mes
-- [ ] Diseño ejecutivo que impresione
+### 5. Dashboard Gerencial Premium [x] ✅ COMPLETADO
+- [x] Gráficos animados e interactivos
+- [x] KPIs en tiempo real
+- [x] Comparativas mes a mes
+- [x] Diseño ejecutivo que impresione
 
 ### 6. Reportes PDF Profesionales [ ]
 - [ ] Reporte de cartera con logo empresa
@@ -204,11 +204,11 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 
 ##  Q3 2026 - Monetización
 
-### 9. Billing/Suscripciones [ ]
-- [ ] Planes: Básico / Pro / Enterprise
-- [ ] Cobro mensual automático
-- [ ] Límites por plan (usuarios, créditos)
-- [ ] Portal de facturación para cliente
+### 9. Billing/Suscripciones [x] ✅ COMPLETADO
+- [x] Planes: Básico / Pro / Enterprise - (`planes_suscripcion`, `planes-actions.ts`)
+- [x] Cobro mensual automático - (Gestión suscripciones en `suscripciones-actions.ts`)
+- [x] Límites por plan (usuarios, créditos) - (`check_usuario_limit`, `limites-actions.ts`)
+- [x] Portal de facturación para cliente - (`/dashboard/admin/suscripcion`, `facturacion-actions.ts`)
 
 ### 10. Admin Panel (Super Admin) [ ]
 - [ ] Ver todos los tenants

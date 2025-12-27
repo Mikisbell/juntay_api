@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { verificarLimiteUsuarios } from './limites-actions'
 
 export type EstadoEmpleado = 'ACTIVO' | 'LICENCIA' | 'SUSPENDIDO' | 'BAJA'
 
@@ -148,6 +149,12 @@ export async function actualizarEmpleado(
 export async function reactivarEmpleado(empleadoId: string) {
     const supabase = await createClient()
 
+    // 🆕 Verificar límites del plan
+    const { permitido, mensaje } = await verificarLimiteUsuarios()
+    if (!permitido) {
+        throw new Error(mensaje)
+    }
+
     const { error } = await supabase
         .from('empleados')
         .update({
@@ -175,6 +182,12 @@ export async function crearEmpleado(datos: {
     email?: string
     direccion?: string
 }) {
+    // 🆕 Verificar límites del plan
+    const { permitido, mensaje } = await verificarLimiteUsuarios()
+    if (!permitido) {
+        throw new Error(mensaje)
+    }
+
     const supabase = await createClient()
 
     // 1. Crear o obtener party (persona natural)

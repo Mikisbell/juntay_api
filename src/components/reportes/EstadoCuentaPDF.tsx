@@ -51,6 +51,21 @@ export function EstadoCuentaPDF({ clienteId, clienteNombre, variant = 'secondary
                 return
             }
 
+            let logoBase64: string | null = null
+            if (datos.empresa.logoUrl) {
+                try {
+                    const response = await fetch(datos.empresa.logoUrl)
+                    const blob = await response.blob()
+                    logoBase64 = await new Promise((resolve) => {
+                        const reader = new FileReader()
+                        reader.onloadend = () => resolve(reader.result as string)
+                        reader.readAsDataURL(blob)
+                    })
+                } catch (e) {
+                    console.error('Error loading logo:', e)
+                }
+            }
+
             const doc = new jsPDF({
                 orientation: 'portrait',
                 unit: 'mm',
@@ -62,9 +77,21 @@ export function EstadoCuentaPDF({ clienteId, clienteNombre, variant = 'secondary
             let y = 20
 
             // ===== HEADER =====
-            doc.setFont('helvetica', 'bold')
-            doc.setFontSize(18)
-            doc.text('ESTADO DE CUENTA', pageWidth / 2, y, { align: 'center' })
+            if (logoBase64) {
+                const imgProps = doc.getImageProperties(logoBase64)
+                const imgWidth = 35
+                const imgHeight = (imgProps.height * imgWidth) / imgProps.width
+                doc.addImage(logoBase64, 'PNG', margin, y, imgWidth, imgHeight)
+
+                doc.setFont('helvetica', 'bold')
+                doc.setFontSize(18)
+                doc.text('ESTADO DE CUENTA', pageWidth / 2, y + 10, { align: 'center' })
+                y += imgHeight + 5
+            } else {
+                doc.setFont('helvetica', 'bold')
+                doc.setFontSize(18)
+                doc.text('ESTADO DE CUENTA', pageWidth / 2, y, { align: 'center' })
+            }
 
             doc.setFontSize(10)
             doc.setFont('helvetica', 'normal')

@@ -14,6 +14,7 @@ export interface DatosCarteraReporte {
     empresa: {
         nombre: string
         ruc?: string
+        logoUrl?: string
     }
     fecha: string
     resumen: {
@@ -60,6 +61,10 @@ export interface DatosEstadoCuenta {
         creditoCodigo: string
     }[]
     saldoTotal: number
+    empresa: {
+        nombre: string
+        logoUrl?: string
+    }
 }
 
 export interface DatosMoraReporte {
@@ -79,6 +84,10 @@ export interface DatosMoraReporte {
         fechaVencimiento: string
         prioridad: 'ALTA' | 'MEDIA' | 'BAJA'
     }[]
+    empresa: {
+        nombre: string
+        logoUrl?: string
+    }
 }
 
 // ============ CARTERA REPORT ============
@@ -90,7 +99,7 @@ export async function obtenerDatosCarteraReporte(): Promise<DatosCarteraReporte>
     const { data: usuario } = await supabase.auth.getUser()
     const { data: empresaData } = await supabase
         .from('usuarios')
-        .select('empresas(nombre, ruc)')
+        .select('empresas(nombre, ruc, logo_url)')
         .eq('id', usuario.user?.id || '')
         .single()
 
@@ -135,12 +144,13 @@ export async function obtenerDatosCarteraReporte(): Promise<DatosCarteraReporte>
     const montoMora = enMora.reduce((sum, c) => sum + c.saldo, 0)
 
     const empresaRaw = empresaData?.empresas
-    const empresa = (Array.isArray(empresaRaw) ? empresaRaw[0] : empresaRaw) as { nombre: string; ruc: string } | null
+    const empresa = (Array.isArray(empresaRaw) ? empresaRaw[0] : empresaRaw) as { nombre: string; ruc: string; logo_url?: string } | null
 
     return {
         empresa: {
             nombre: empresa?.nombre || 'JUNTAY',
-            ruc: empresa?.ruc
+            ruc: empresa?.ruc,
+            logoUrl: empresa?.logo_url
         },
         fecha: hoy.toISOString(),
         resumen: {
@@ -159,6 +169,16 @@ export async function obtenerDatosCarteraReporte(): Promise<DatosCarteraReporte>
 
 export async function obtenerEstadoCuentaCliente(clienteId: string): Promise<DatosEstadoCuenta | null> {
     const supabase = await createClient()
+
+    // Get company info (for logo)
+    const { data: usuario } = await supabase.auth.getUser()
+    const { data: empresaData } = await supabase
+        .from('usuarios')
+        .select('empresas(nombre, logo_url)')
+        .eq('id', usuario.user?.id || '')
+        .single()
+
+    const empresaInfo = (Array.isArray(empresaData?.empresas) ? empresaData?.empresas[0] : empresaData?.empresas) as { nombre: string; logo_url?: string } | null
 
     // Get client info
     const { data: cliente } = await supabase
@@ -214,7 +234,11 @@ export async function obtenerEstadoCuentaCliente(clienteId: string): Promise<Dat
                 creditoCodigo: credito?.codigo || ''
             }
         }),
-        saldoTotal
+        saldoTotal,
+        empresa: {
+            nombre: empresaInfo?.nombre || 'JUNTAY',
+            logoUrl: empresaInfo?.logo_url
+        }
     }
 }
 
@@ -222,6 +246,16 @@ export async function obtenerEstadoCuentaCliente(clienteId: string): Promise<Dat
 
 export async function obtenerDatosMoraReporte(): Promise<DatosMoraReporte> {
     const supabase = await createClient()
+
+    // Get company info
+    const { data: usuario } = await supabase.auth.getUser()
+    const { data: empresaData } = await supabase
+        .from('usuarios')
+        .select('empresas(nombre, logo_url)')
+        .eq('id', usuario.user?.id || '')
+        .single()
+    const empresaInfo = (Array.isArray(empresaData?.empresas) ? empresaData?.empresas[0] : empresaData?.empresas) as { nombre: string; logo_url?: string } | null
+
     const hoy = new Date()
 
     // Get overdue credits
@@ -280,6 +314,10 @@ export async function obtenerDatosMoraReporte(): Promise<DatosMoraReporte> {
             clientesEnMora: clientesUnicos.size,
             montoEnRiesgo
         },
-        creditos: creditosFormateados
+        creditos: creditosFormateados,
+        empresa: {
+            nombre: empresaInfo?.nombre || 'JUNTAY',
+            logoUrl: empresaInfo?.logo_url
+        }
     }
 }

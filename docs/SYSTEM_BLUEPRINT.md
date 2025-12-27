@@ -137,6 +137,16 @@ PostgreSQL triggers protegen contra sincronización conflictiva:
 | **Doble Gasto** | Index Único en `numero_operacion` (Voucher Bancario) |
 | **Manipulación Ledger** | `trg_ledger_smart_lock` impide UPDATE/DELETE en montos |
 | **Auditoría Fantasma** | Server Actions fuerzan identidad `auth.uid()` (No confían en cliente) |
+| **Aislamiento Multi-Tenant** | RLS Policies (`tenant_isolation`) obligatorias en todas las tablas sensibles |
+| **Acceso "Modo Dios"** | Rol `super_admin` (Level 1000) controla acceso global vía `is_super_admin()` (Key & Lock) |
+
+### Arquitectura Analytics (Escalabilidad)
+
+Para evitar consultar 1000 tabla tenants en tiempo real, usamos **Materialized Usage Cache**:
+
+1.  **Tabla Caché**: `metricas_uso_tenant` almacena totales (usuarios, créditos, volumen).
+2.  **Sincronización Event-Driven**: Triggers en `creditos` y `empleados` actualizan la caché instantáneamente (O(1)).
+3.  **Visualización**: Dashboard Super Admin lee solo de la caché.
 
 ### Precisión Financiera (Opción 3B)
 
@@ -324,6 +334,18 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000  # URL de redirección para magic lin
 | SUSPENDIDO | 🔴 Rojo | No | No (deshabilitado) |
 | BAJA | ⚫ Gris | No | Eliminado |
 
+### ⚖️ Cumplimiento Normativo (SBS/UIF)
+
+Módulo especializado para cumplir con la Resolución SBS N° 00650-2024 y Ley N.º 27693.
+
+**Características:**
+1.  **Oficial de Cumplimiento:** Registro y designación formal.
+2.  **ROS (Reporte de Operaciones Sospechosas):** Flujo completo (Borrador -> Revisión -> Enviado).
+3.  **KYC Digital:** Verificación reforzada de identidad (DNI, PEP, Riesgo) con integración RENIEC.
+4.  **Umbrales de Operación:** Alertas automáticas cuando los montos superan límites definidos (ej. $10,000).
+5.  **Capacitaciones:** Registro de horas de formación en lavado de activos.
+
+
 ---
 
 ### 🔌 Server Actions (Backend)
@@ -336,6 +358,10 @@ Todos los server actions están en `src/lib/actions/`. Documentación completa:
 | `caja-actions.ts` | 5 | Apertura, cierre, movimientos de caja |
 | `tesoreria-actions.ts` | 20 | Gestión multi-cuenta, capital, inversionistas |
 | `config-intereses-actions.ts` | 3 | ⭐ Configuración dinámica de tasas de mora por empresa |
+| `planes-actions.ts` | 4 | 🆕 Planes de suscripción SaaS |
+| `suscripciones-actions.ts` | 5 | 🆕 Gestión de suscripciones |
+| `facturacion-actions.ts` | 5 | 🆕 Facturas y cobros |
+| `limites-actions.ts` | 5 | 🆕 Verificación de límites por plan |
 | `financial-actions.ts` | 1 | Cálculos financieros generales |
 | `intereses-actions.ts` | 5 | Cálculo y aplicación de intereses |
 | `pagos-actions.ts` | 8 | Registro de cobros |
@@ -415,6 +441,8 @@ Todos los server actions están en `src/lib/actions/`. Documentación completa:
 |---------|-----------|-----------|
 | `eventos-actions.ts` | 6 | Sistema de eventos |
 | `auditoria-actions.ts` | 2 | Logs de auditoría |
+| `compliance-actions.ts` | 13 | ⭐ Módulo SBS/UIF (ROS, KYC, Oficial) |
+| `health-actions.ts` | 5 | Monitoreo de salud del sistema y métricas |
 | `seed-actions.ts` | 1 | Datos de prueba |
 | `render-status.ts` | 1 | Estado de Render.com |
 | `pagos-wrapper.ts` | 0 | Re-export para uso en cliente (wrapper) |

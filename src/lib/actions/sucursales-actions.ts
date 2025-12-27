@@ -11,6 +11,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { verificarLimiteSucursales } from './limites-actions'
 
 // ============ TYPES ============
 
@@ -110,7 +111,18 @@ export async function crearSucursal(params: {
     nombre: string
     direccion: string
     telefono?: string
+    // Geographic location (Hybrid Pattern)
+    ubigeo_cod?: string
+    departamento?: string
+    provincia?: string
+    distrito?: string
 }): Promise<{ success: boolean; sucursalId?: string; error?: string }> {
+    // 🆕 Verificar límites del plan
+    const { permitido, mensaje } = await verificarLimiteSucursales()
+    if (!permitido) {
+        return { success: false, error: mensaje }
+    }
+
     const supabase = await createClient()
 
     const { data, error } = await supabase
@@ -120,6 +132,10 @@ export async function crearSucursal(params: {
             nombre: params.nombre,
             direccion: params.direccion,
             telefono: params.telefono,
+            ubigeo_cod: params.ubigeo_cod,
+            departamento: params.departamento,
+            provincia: params.provincia,
+            distrito: params.distrito,
             activa: true
         })
         .select('id')
@@ -144,8 +160,21 @@ export async function actualizarSucursal(
         direccion: string
         telefono: string
         activa: boolean
+        // Geographic location (Hybrid Pattern)
+        ubigeo_cod: string
+        departamento: string
+        provincia: string
+        distrito: string
     }>
 ): Promise<{ success: boolean; error?: string }> {
+    // 🆕 Verificar límites si se está activando
+    if (params.activa === true) {
+        const { permitido, mensaje } = await verificarLimiteSucursales()
+        if (!permitido) {
+            return { success: false, error: mensaje }
+        }
+    }
+
     const supabase = await createClient()
 
     const { error } = await supabase

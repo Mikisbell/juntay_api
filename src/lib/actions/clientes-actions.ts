@@ -201,7 +201,7 @@ export async function listarClientes(filtros?: {
     estado?: string,
     page?: number,
     pageSize?: number,
-    ordenarPor?: string,  // 'prioridad' | 'nombre' | 'deuda' | 'vencimiento' | 'estado'
+    ordenarPor?: string,
     direccion?: 'asc' | 'desc'
 }) {
     const supabase = await createClient()
@@ -209,244 +209,186 @@ export async function listarClientes(filtros?: {
     const pageSize = filtros?.pageSize || 10
     const from = (page - 1) * pageSize
     const to = from + pageSize - 1
-    const ordenarPor = filtros?.ordenarPor || 'prioridad'
-    const direccion = filtros?.direccion || 'asc'
+    const ordering = filtros?.ordenarPor || 'prioridad'
+    const direction = filtros?.direccion || 'asc'
+    const busqueda = filtros?.busqueda?.toLowerCase().trim() || ''
 
-    // 1. Query Base para Contar Total (sin paginación, pero con filtros de búsqueda si aplica)
-    // NOTA: Para KPIs globales necesitamos TODOS los activos.
-    // Para la tabla necesitamos PAGINADOS.
-    // Estrategia:
-    // A. Traer todos los activos para KPIs (costoso pero necesario para "Monto Total en Riesgo" global).
-    // B. O traer solo los de la página.
-    // Dado que el Dashboard Táctico muestra TOTALES DE CARTERA, necesitamos procesar todos los activos para los KPIs Cards,
-    // pero solo devolver los registros de la página actual para la tabla.
+    // 1. KPI Queries (Parallel execution)
+    // We optimized this to NOT fetch all clients. We use count() and aggregations.
 
-    // Paso A: Obtener datos de TODOS los clientes (activos e inactivos) para KPIs Dashboard
-    // IMPORTANTE: No filtramos por activo aquí para poder contar suspendidos y mostrarlos si se filtra
-    const { data: todosClientesBase, error } = await supabase
-        .from('clientes_completo')
-        .select('id, nombre_completo, numero_documento, telefono_principal, nombres, activo')
-        .order('created_at', { ascending: false })
+    // A. Count Suspended & Total Activos
+    const countPromise = supabase
+        .from('clientes')
+        .select('activo, id', { count: 'exact', head: true })
 
-    if (error) throw error
-
-    // Contar clientes suspendidos (activo = false)
-    const clientesSuspendidos = todosClientesBase.filter(c => !c.activo).length
-    // Para KPIs, solo contamos activos como "cartera total"
-    const clientesActivos = todosClientesBase.filter(c => c.activo)
-
-    // 2. Obtener TODA la deuda vigente (Optimizado: Solo columnas de cálculo)
-    const { data: creditosActivos } = await supabase
+    // B. Financial KPIs (from Credits)
+    // We still fetch active credits to aggregate risk, but we only select necessary columns.
+    const creditsPromise = supabase
         .from('creditos')
         .select('cliente_id, saldo_pendiente, fecha_vencimiento, estado_detallado')
         .in('estado_detallado', ['vigente', 'por_vencer', 'vencido', 'en_mora'])
 
-    // Estructuras de KPIs Globales
+    // C. Main List Query (Paginated)
+    let query = supabase
+        .from('clientes_completo')
+        .select('*', { count: 'exact' })
+
+    // Apply Search Filters
+    if (busqueda) {
+        query = query.or(`nombre_completo.ilike.%${busqueda}%,numero_documento.ilike.%${busqueda}%,nombres.ilike.%${busqueda}%`)
+    }
+
+    // Apply State Filters (Requires specialized logic if filtering by 'critico' which is a calculated field)
+    // If filtering by calculated risk, we must fetch IDs from credits first.
+    // For simple 'suspendido', we use the column.
+
+    let filterIds: string[] | null = null
+
+    // Run parallel fetches for KPIs
+    const [countsResult, creditsResult] = await Promise.all([
+        supabase.from('clientes').select('activo', { count: 'exact' }).eq('activo', false), // Just count suspended
+        creditsPromise
+    ])
+
+    const clientesSuspendidos = countsResult.count || 0
+    const creditosActivos = creditsResult.data || []
+
+    // Process Financial KPIs in Memory (Node.js is fast at this loop)
     const mapaDeuda = new Map<string, number>()
     const mapaVencimiento = new Map<string, string>()
     const mapaRiesgo = new Map<string, 'critico' | 'alerta' | 'normal'>()
 
-    // Acumuladores KPI Dashboard (Globales)
     let clientesCriticos = 0
     let montoCritico = 0
     let vencimientosSemana = 0
     let montoPorVencer = 0
+    const activeClientIds = new Set<string>() // To accurate count active clients with debt
 
-    const hoy = new Date()
     const en7dias = new Date()
-    en7dias.setDate(hoy.getDate() + 7)
+    en7dias.setDate(new Date().getDate() + 7)
 
-    // Agrupar créditos y calcular KPIs
-    if (creditosActivos) {
-        const creditosPorCliente = new Map<string, typeof creditosActivos>()
-        creditosActivos.forEach(c => {
-            const list = creditosPorCliente.get(c.cliente_id) || []
-            list.push(c)
-            creditosPorCliente.set(c.cliente_id, list)
-        })
+    // Group credits by client
+    const creditosPorCliente = new Map<string, typeof creditosActivos>()
+    creditosActivos.forEach(c => {
+        const list = creditosPorCliente.get(c.cliente_id) || []
+        list.push(c)
+        creditosPorCliente.set(c.cliente_id, list)
+    })
 
-        creditosPorCliente.forEach((listaCreditos, clienteId) => {
-            // IMPORTANTE: Solo contar en KPIs si el cliente está activo
-            const clienteData = todosClientesBase.find(c => c.id === clienteId)
-            const clienteActivo = clienteData?.activo ?? true
+    creditosPorCliente.forEach((lista, clienteId) => {
+        let totalDeuda = 0
+        let peorVencimiento: string | null = null
+        let esCritico = false
+        let esAlerta = false
 
-            let totalDeuda = 0
-            let peorVencimiento: string | null = null
-            let esCritico = false
-            let esAlerta = false
-
-            listaCreditos.forEach(c => {
-                totalDeuda += Number(c.saldo_pendiente)
-                // Vencimiento
-                if (!peorVencimiento || new Date(c.fecha_vencimiento) < new Date(peorVencimiento)) {
-                    peorVencimiento = c.fecha_vencimiento
-                }
-                // Estados
-                if (['vencido', 'en_mora'].includes(c.estado_detallado)) esCritico = true
-                if (new Date(c.fecha_vencimiento) <= en7dias && c.estado_detallado === 'vigente') esAlerta = true
-            })
-
-            mapaDeuda.set(clienteId, totalDeuda)
-            if (peorVencimiento) mapaVencimiento.set(clienteId, peorVencimiento)
-
-            if (esCritico) {
-                mapaRiesgo.set(clienteId, 'critico')
-                // Solo contar en KPIs si cliente está activo
-                if (clienteActivo) {
-                    clientesCriticos++
-                    montoCritico += totalDeuda
-                }
-            } else if (esAlerta || (peorVencimiento && new Date(peorVencimiento!) <= en7dias)) {
-                mapaRiesgo.set(clienteId, 'alerta')
-                // Solo contar en KPIs si cliente está activo
-                if (clienteActivo) {
-                    vencimientosSemana++
-                    montoPorVencer += totalDeuda
-                }
-            } else {
-                mapaRiesgo.set(clienteId, 'normal')
+        lista.forEach(c => {
+            totalDeuda += Number(c.saldo_pendiente)
+            if (!peorVencimiento || new Date(c.fecha_vencimiento) < new Date(peorVencimiento)) {
+                peorVencimiento = c.fecha_vencimiento
             }
+            if (['vencido', 'en_mora'].includes(c.estado_detallado)) esCritico = true
+            if (new Date(c.fecha_vencimiento) <= en7dias && c.estado_detallado === 'vigente') esAlerta = true
         })
+
+        mapaDeuda.set(clienteId, totalDeuda)
+        if (peorVencimiento) mapaVencimiento.set(clienteId, peorVencimiento)
+
+        let riesgo: 'critico' | 'alerta' | 'normal' = 'normal'
+        if (esCritico) {
+            riesgo = 'critico'
+            clientesCriticos++
+            montoCritico += totalDeuda
+        } else if (esAlerta || (peorVencimiento && new Date(peorVencimiento!) <= en7dias)) {
+            riesgo = 'alerta'
+            vencimientosSemana++
+            montoPorVencer += totalDeuda
+        }
+        mapaRiesgo.set(clienteId, riesgo)
+    })
+
+    // Apply Complex Filters to the Query
+    if (filtros?.estado) {
+        if (filtros.estado === 'suspendido') {
+            query = query.eq('activo', false)
+        } else if (['critico', 'alerta'].includes(filtros.estado)) {
+            // Filter by calculated risk using IDs
+            const targetRisk = filtros.estado
+            const ids = Array.from(mapaRiesgo.entries())
+                .filter(([_, risk]) => risk === targetRisk)
+                .map(([id, _]) => id)
+
+            // If no IDs found, force empty result
+            if (ids.length === 0) query = query.in('id', ['00000000-0000-0000-0000-000000000000'])
+            else query = query.in('id', ids)
+
+            query = query.eq('activo', true)
+        } else {
+            // Default or 'todos': show actives
+            query = query.eq('activo', true)
+        }
+    } else {
+        query = query.eq('activo', true)
     }
 
-    // 3. Filtrado en Memoria (Búsqueda y Estado) sobre el universo total
-    // Se hace en memoria porque los KPIs de riesgo son calculados, no están en BD base.
-    let clientesFiltrados = todosClientesBase.map(c => ({
+    // Apply Sorting
+    // Note: sorting by calculated fields (deuda, vencimiento) works poorly with server-side pagination.
+    // We prioritize DB sortable fields. For 'prioridad', we fall back to 'created_at' or simple Logic.
+    // If the user REALLY needs sort by Debt, we might need a hybrid approach or a materialized column.
+    // For now, we map 'prioridad' to 'created_at' desc as a safe fallback for speed.
+
+    if (ordering === 'nombre') {
+        query = query.order('nombre_completo', { ascending: direction === 'asc' })
+    } else if (ordering === 'prioridad') {
+        // Business Logic: We can't sort efficiently by computed priority in SQL without a view column.
+        // Fallback: Sort by name or created_at
+        query = query.order('created_at', { ascending: false })
+    } else {
+        query = query.order('created_at', { ascending: false })
+    }
+
+    // Execute Main Query
+    query = query.range(from, to)
+    const { data: clientesPaginados, count: totalRecordsQuery, error: queryError } = await query
+
+    if (queryError) {
+        console.error('Error listing clients:', queryError)
+        throw queryError
+    }
+
+    // Merge Calculated Fields
+    const dataFinal = (clientesPaginados || []).map(c => ({
         ...c,
         deuda_total: mapaDeuda.get(c.id) || 0,
         proximo_vencimiento: mapaVencimiento.get(c.id) || null,
         riesgo_calculado: mapaRiesgo.get(c.id) || 'normal'
     }))
 
-    // Filtros de búsqueda
-    if (filtros?.busqueda) {
-        const q = filtros.busqueda.toLowerCase()
-        clientesFiltrados = clientesFiltrados.filter(c =>
-            c.nombre_completo?.toLowerCase().includes(q) ||
-            c.numero_documento?.includes(q) ||
-            c.telefono_principal?.includes(q) ||
-            c.nombres?.toLowerCase().includes(q)
-        )
-    }
-
-    // Filtros de estado
-    if (filtros?.estado) {
-        if (filtros.estado === 'critico') {
-            clientesFiltrados = clientesFiltrados.filter(c => c.riesgo_calculado === 'critico' && c.activo)
-        } else if (filtros.estado === 'alerta') {
-            clientesFiltrados = clientesFiltrados.filter(c => c.riesgo_calculado === 'alerta' && c.activo)
-        } else if (filtros.estado === 'suspendido') {
-            // NUEVO: Filtrar solo clientes suspendidos (activo = false)
-            clientesFiltrados = clientesFiltrados.filter(c => !c.activo)
-        } else if (filtros.estado === 'todos' || !filtros.estado) {
-            // Por defecto mostrar solo activos
-            clientesFiltrados = clientesFiltrados.filter(c => c.activo)
-        }
-    } else {
-        // Sin filtro = mostrar solo activos
-        clientesFiltrados = clientesFiltrados.filter(c => c.activo)
-    }
-
-    // 4. ORDENAMIENTO flexible basado en parámetros
-    clientesFiltrados.sort((a, b) => {
-        const dir = direccion === 'desc' ? -1 : 1
-
-        switch (ordenarPor) {
-            case 'nombre':
-                const nombreA = a.nombre_completo?.toLowerCase() || ''
-                const nombreB = b.nombre_completo?.toLowerCase() || ''
-                return nombreA.localeCompare(nombreB) * dir
-
-            case 'deuda':
-                return ((a.deuda_total || 0) - (b.deuda_total || 0)) * dir
-
-            case 'vencimiento':
-                if (!a.proximo_vencimiento && !b.proximo_vencimiento) return 0
-                if (!a.proximo_vencimiento) return 1 * dir
-                if (!b.proximo_vencimiento) return -1 * dir
-                return (new Date(a.proximo_vencimiento).getTime() - new Date(b.proximo_vencimiento).getTime()) * dir
-
-            case 'estado':
-                const estadoPrioridad = { 'critico': 0, 'alerta': 1, 'normal': 2 }
-                const prioA = estadoPrioridad[a.riesgo_calculado] ?? 2
-                const prioB = estadoPrioridad[b.riesgo_calculado] ?? 2
-                return (prioA - prioB) * dir
-
-            case 'prioridad':
-            default:
-                // Ordenamiento por prioridad de negocio (Críticos primero, Sin Créditos al final)
-                const riesgoPrioridad = { 'critico': 0, 'alerta': 1, 'normal': 2 }
-                const prioridadA = riesgoPrioridad[a.riesgo_calculado] ?? 2
-                const prioridadB = riesgoPrioridad[b.riesgo_calculado] ?? 2
-                if (prioridadA !== prioridadB) return (prioridadA - prioridadB) * dir
-
-                // Los que tienen deuda antes que los sin deuda
-                const tieneDeudaA = a.deuda_total > 0 ? 0 : 1
-                const tieneDeudaB = b.deuda_total > 0 ? 0 : 1
-                if (tieneDeudaA !== tieneDeudaB) return (tieneDeudaA - tieneDeudaB) * dir
-
-                // Por vencimiento más próximo
-                if (a.proximo_vencimiento && b.proximo_vencimiento) {
-                    return (new Date(a.proximo_vencimiento).getTime() - new Date(b.proximo_vencimiento).getTime()) * dir
-                }
-                if (a.proximo_vencimiento) return -1 * dir
-                if (b.proximo_vencimiento) return 1 * dir
-                return 0
-        }
-    })
-
-    // 5. Paginación
-    const totalRecords = clientesFiltrados.length
-    const totalPages = Math.ceil(totalRecords / pageSize)
-    const clientesPaginados = clientesFiltrados.slice(from, to + 1) // slice end is exclusive, so to + 1
-
-    // Recuperar datos completos solo para la página actual (Optimización final)
-    // No necesitamos re-leer de BD porque clients_completo ya tiene casi todo,
-    // pero si faltaran campos específicos, se haría un fetch aquí por IDs.
-    // Como `todosClientesBase` ya tenía lo básico, y calculamos lo financiero,
-    // solo nos falta, por ejemplo, `apellido_paterno` si no vino en el select inicial.
-    // Para simplificar y asegurar datos, haremos un mapeo final enriquecido o asumimos `clientes_completo` tiene todo.
-    // En el paso 1 pedimos select('*') en la version anterior. Ahora pedí select reducido.
-    // CORRECCIÓN: Pedir todo en paso 1 es más simple si no son millones. Con 100-5000 registros es OK.
-    // Revertimos a select('*') en paso 1 para simplificar, o hacemos fetch por IDs de la página.
-    // Haremos fetch por IDs para ser puristas en performance si crece mucho.
-
-    const idsPagina = clientesPaginados.map(c => c.id)
-    const { data: detallesFinal } = await supabase
-        .from('clientes_completo')
-        .select('*')
-        .in('id', idsPagina)
-        .order('created_at', { ascending: false })
-
-    // Mezclar detalles con cálculos
-    const dataFinal = detallesFinal?.map(d => {
-        const calculado = clientesPaginados.find(p => p.id === d.id)
-        return {
-            ...d,
-            deuda_total: calculado?.deuda_total || 0,
-            proximo_vencimiento: calculado?.proximo_vencimiento || null,
-            riesgo_calculado: calculado?.riesgo_calculado || 'normal'
-        }
-    }) || []
-
-    // DEBUG: Verificar que activo está presente
-    if (dataFinal.length > 0) {
-        console.log('[DEBUG listarClientes] filtro:', filtros?.estado, 'activo del primero:', dataFinal[0].activo, 'nombre:', dataFinal[0].nombre_completo?.slice(0, 20))
+    // Sort In-Memory for current page (Partial sort) if ordered by computed fields
+    if (ordering === 'deuda') {
+        dataFinal.sort((a, b) => (a.deuda_total - b.deuda_total) * (direction === 'desc' ? -1 : 1))
+    } else if (ordering === 'prioridad') {
+        // Re-apply visual priority sort on the fetched page
+        const prioridad = { 'critico': 0, 'alerta': 1, 'normal': 2 }
+        dataFinal.sort((a, b) => {
+            const pa = prioridad[a.riesgo_calculado as 'critico' | 'alerta' | 'normal'] ?? 2
+            const pb = prioridad[b.riesgo_calculado as 'critico' | 'alerta' | 'normal'] ?? 2
+            return (pa - pb)
+        })
     }
 
     return {
         meta: {
-            totalClientes: clientesActivos.length, // Solo activos para KPI de cartera
+            totalClientes: totalRecordsQuery || 0, // Approximate total based on query
             clientesCriticos,
             montoCritico,
             vencimientosSemana,
             montoPorVencer,
-            clientesSuspendidos, // NUEVO: Conteo de suspendidos
+            clientesSuspendidos,
             pagination: {
                 page,
                 pageSize,
-                totalPages,
-                totalRecords
+                totalPages: Math.ceil((totalRecordsQuery || 0) / pageSize),
+                totalRecords: totalRecordsQuery || 0
             }
         },
         data: dataFinal as (ClienteCompleto & { deuda_total: number, proximo_vencimiento: string | null, riesgo_calculado: string })[]
