@@ -170,7 +170,7 @@ export default function DashboardPage() {
                 </header>
 
                 {/* ============ MAIN ACTIONS ============ */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Link
                         href="/dashboard/clientes?f=critico"
                         className={cn(
@@ -224,7 +224,7 @@ export default function DashboardPage() {
                                 Ver todos <ChevronRight className="h-4 w-4" />
                             </Link>
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-2 overflow-x-auto">
                             {vencidos.slice(0, 5).map(c => (
                                 <ContratoRow key={c.id} contrato={c} variant="danger" />
                             ))}
@@ -248,7 +248,7 @@ export default function DashboardPage() {
                                 Vencen Hoy ({vencenHoy.length})
                             </h2>
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-2 overflow-x-auto">
                             {vencenHoy.slice(0, 5).map(c => (
                                 <ContratoRow key={c.id} contrato={c} variant="warning" />
                             ))}
@@ -264,7 +264,7 @@ export default function DashboardPage() {
                                 Próximos Vencimientos ({vencenManana.length + vencenSemana.length})
                             </h2>
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-2 overflow-x-auto">
                             {[...vencenManana, ...vencenSemana].slice(0, 5).map(c => (
                                 <ContratoRow key={c.id} contrato={c} variant="info" />
                             ))}
@@ -282,7 +282,7 @@ export default function DashboardPage() {
                             </Link>
                         </RoleGate>
                     </div>
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <Link href="/dashboard/clientes?f=todos" className="p-4 rounded-xl bg-emerald-50 border border-emerald-100 hover:border-emerald-300 transition-colors">
                             <div className="flex items-center gap-2 mb-1">
                                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
@@ -313,7 +313,7 @@ export default function DashboardPage() {
                 </section>
 
                 {/* ============ QUICK ACTIONS ============ */}
-                <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <section className="grid grid-cols-1 md:grid-cols-2 sm:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                     <Link
                         href="/dashboard/clientes"
                         className="p-4 rounded-xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all text-center"

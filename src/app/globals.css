@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+
+
+
 @layer base {
     :root {
         --background: 0 0% 100%;
@@ -453,4 +456,56 @@
     .page-break {
         page-break-after: always;
     }
+}
+/* Responsive utilities */
+
+/**
+ * Responsive utilities for JUNTAY
+ * Imported in globals.css
+ */
+
+/* Tables responsive: horizontal scroll on mobile */
+@media (max-width: 768px) {
+  .responsive-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .responsive-table {
+    min-width: 600px;
+  }
+}
+
+/* Cards stack on mobile */
+@media (max-width: 640px) {
+  .card-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Hide desktop-only elements */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+/* Show mobile-only elements */
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: block !important;
+  }
+}
+
+/* Touch-friendly buttons */
+@media (max-width: 768px) {
+  button,
+  a[role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }

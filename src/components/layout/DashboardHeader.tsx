@@ -107,11 +107,11 @@ export function DashboardHeader() {
     ]
 
     return (
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b border-slate-200 dark:border-slate-800 px-4 bg-white dark:bg-slate-950 sticky top-0 z-40 transition-colors">
+        <header className="flex h-14 sm:h-16 shrink-0 items-center gap-1 sm:gap-2 border-b border-slate-200 dark:border-slate-800 px-2 sm:px-4 bg-white dark:bg-slate-950 sticky top-0 z-40 transition-colors">
             {/* Elementos de Navegación del Dashboard */}
             <div className="flex items-center gap-2">
                 <SidebarTrigger className="-ml-1" />
-                <Separator orientation="vertical" className="mr-2 h-4" />
+                <Separator orientation="vertical" className="mr-1 sm:mr-2 h-4 hidden xs:block" />
                 <DynamicBreadcrumb />
             </div>
 
@@ -125,7 +125,7 @@ export function DashboardHeader() {
                 <TooltipProvider>
                     <Tooltip delayDuration={300}>
                         <TooltipTrigger asChild>
-                            <div className="flex items-center gap-2 cursor-help px-2 py-1 rounded-md hover:bg-slate-50 transition-colors">
+                            <div className="hidden md:flex items-center gap-2 cursor-help px-2 py-1 rounded-md hover:bg-slate-50 transition-colors">
                                 {caja ? (
                                     <>
                                         <div className="relative flex h-2.5 w-2.5">
@@ -184,7 +184,7 @@ export function DashboardHeader() {
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button
-                            className="bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-sm"
+                            className="bg-blue-600 hover:bg-blue-700 text-white gap-1 sm:gap-2 shadow-sm text-xs sm:text-sm"
                             size="sm"
                         >
                             <Zap className="h-4 w-4" />
@@ -225,7 +225,7 @@ export function DashboardHeader() {
                         <Button
                             variant="ghost"
                             size="sm"
-                            className="gap-2 hover:bg-slate-100"
+                            className="gap-1 sm:gap-2 hover:bg-slate-100 dark:hover:bg-slate-900 px-2 sm:px-3"
                         >
                             <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
                                 <User className="h-4 w-4 text-white" />
