@@ -15,9 +15,6 @@ const nextConfig = {
     compress: true,
 
     // Validation
-    eslint: {
-        ignoreDuringBuilds: true,
-    },
     typescript: {
         ignoreBuildErrors: true,
     },
@@ -39,6 +36,16 @@ const nextConfig = {
             '@radix-ui/react-popover',
             '@tanstack/react-query',
         ],
+    },
+
+    // Turbopack configuration (Next.js 16+ default)
+    turbopack: {
+        // Resolve aliases for Turbopack
+        resolveAlias: {
+            // Add any custom aliases here if needed
+        },
+        // Custom rules can be added here
+        rules: {},
     },
 
     // SWC Compiler optimizations - FASTEST minification
@@ -99,7 +106,7 @@ const nextConfig = {
         ]
     },
 
-    // Webpack optimizations
+    // Webpack optimizations (fallback for when using --webpack flag)
     webpack: (config, { dev, isServer }) => {
         // Production bundle optimizations
         if (!dev) {

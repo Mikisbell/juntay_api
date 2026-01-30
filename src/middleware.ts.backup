@@ -1,0 +1,86 @@
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
+
+export async function middleware(request: NextRequest) {
+  // Crear response una sola vez
+  const response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  });
+
+  // Configurar cliente Supabase con manejo correcto de cookies
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          // Aplicar cookies al response directamente
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
+        },
+      },
+    },
+  );
+
+  // Verificar autenticación (esto refresca la sesión automáticamente)
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Definir tipos de rutas
+  const { pathname } = request.nextUrl;
+  const isAuthRoute =
+    pathname.startsWith("/login") || pathname.startsWith("/auth");
+  const isProtectedRoute = pathname.startsWith("/dashboard");
+  const isRootRoute = pathname === "/";
+
+  // ========================================
+  // PROTECCIÓN: Usuarios no autenticados
+  // ========================================
+  if (!user && isProtectedRoute) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  // ========================================
+  // REDIRECCIONES: Usuarios autenticados
+  // ========================================
+  if (user) {
+    const rol = user.user_metadata?.rol;
+
+    // SUPER_ADMIN -> Panel de administración
+    if (rol === "SUPER_ADMIN") {
+      if (isRootRoute || isAuthRoute || pathname === "/dashboard") {
+        return NextResponse.redirect(
+          new URL("/dashboard/sysadmin/empresas", request.url),
+        );
+      }
+    }
+
+    // Usuarios normales -> Dashboard
+    if (isRootRoute || isAuthRoute) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+  }
+
+  // Retornar response con cookies aplicadas
+  return response;
+}
+
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization)
+     * - favicon.ico
+     * - public assets (images, etc)
+     */
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
+};

@@ -6,6 +6,57 @@
 ---
 
 ## [Unreleased]
+
+### Changed - Next.js 16.1 Upgrade (Ene 2026)
+- **Next.js 16.1.6**: Upgraded from Next.js 15.5.9 to 16.1.6
+  - Turbopack now stable and enabled by default (10x faster cold starts)
+  - File system caching for faster development server restarts
+  - Improved build times with parallel workers (11 workers)
+  - React 19.2.4 support with latest features
+- **Architecture Changes**:
+  - Migrated from `middleware.ts` to `proxy.ts` (Next.js 16 convention)
+  - Updated `next.config.js` to support Turbopack configuration
+  - Removed deprecated `eslint` config from next.config.js
+  - Added `turbopack` section with resolve aliases and rules
+- **Performance**:
+  - Development server startup: ~1.6s (from ~3-4s)
+  - Production build: 15.4s with Turbopack
+  - 51 pages built successfully
+- **Compatibility**:
+  - Node.js 22.15.1 (compatible with Next.js 16 requirements)
+  - All 42 unit tests passing
+  - Build successful with zero errors
+- **Available Features**:
+  - Bundle Analyzer (experimental): `npx next experimental-analyze`
+  - Debug mode: `next dev --inspect`
+  - File system caching for development (stable)
+
+### Added - Event Architecture (Dic 2024)
+</text>
+
+- **System Events Store**: Arquitectura de eventos centralizada con Zustand para monitoreo en tiempo real
+  - Store tipado con 5 niveles de severidad (debug, info, warning, error, critical)
+  - 7 módulos observables (replication, auth, database, business, ui, system, external)
+  - 7 categorías de eventos (sync, validation, security, performance, user_action, background, notification)
+  - Redux DevTools integration para debugging
+  - Hooks convenientes: `useCriticalEvents`, `useErrorCount`, `useUnacknowledgedCount`, `useModuleEvents`
+- **System Health Dashboard**: Dashboard de monitoreo en `/dashboard/system-health`
+  - Top 3 métricas críticas (Errores Activos, Estado de Red, Sincronización)
+  - Estadísticas por módulo y severidad
+  - Log en tiempo real de últimos 50 eventos
+  - Filtrado, acknowledgment y limpieza de eventos
+  - System info cards (RxDB status, Supabase status, Performance)
+- **Event Integration**: Integración completa con RxDB replication
+  - Logs automáticos de errores de sincronización
+  - Detección de conflictos con alertas contextuales
+  - Eventos de offline/online mode
+  - Metadata estructurada para debugging
+- **Documentación**: Nueva documentación completa en `docs/EVENT_ARCHITECTURE.md`
+  - Decisiones de arquitectura (por qué Zustand vs EventEmitter)
+  - Guías de uso con ejemplos
+  - Mejores prácticas
+  - Roadmap de integración
+
 ### Added
 - Script `npm run docs:audit` para verificar health de documentación
 - Archivo `STATUS.md` auto-generado
@@ -39,6 +90,19 @@
   - ✅ Cross-Tenant READ blocked (User A ↛ Client B)
   - ✅ Cross-Tenant WRITE blocked (RLS policy violation)
   - ✅ User Profile Integrity (empresa_id correct)
+
+### Fixed - Build & Structure (Dic 2024)
+- **Build Errors Resolved**: Build ahora compila exitosamente sin errores
+  - Eliminada estructura duplicada `src/app/(dashboard)/` que causaba conflicto de rutas
+  - Movido `gerencial/page.tsx` duplicado (se conservó versión de `dashboard/`)
+  - Fixed JSX structure errors en `reportes/page.tsx` (indentación incorrecta)
+  - Creado `reportes/page.tsx` limpio con estructura correcta
+  - Backup del archivo original en `page.tsx.broken` para referencia
+- **Middleware Refactored**: Actualizado a Next.js 15.5 best practices
+  - Pattern de proxy correcto con single `NextResponse.next()`
+  - Cookie handling simplificado (sin reasignación múltiple)
+  - Redirects modernos con `new URL()` en lugar de `url.clone()`
+  - Eliminado parámetro `NextFetchEvent` no utilizado
 
 ### Fixed
 - **Dashboard Database Errors**:
