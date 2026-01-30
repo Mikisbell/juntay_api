@@ -172,6 +172,32 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [x] Audit log de accesos (`audit_log` + `auditoria_transacciones`)
 - [ ] 2FA para admins *(Diferido a Q3 - Enterprise feature)*
 
+### 5. Next.js 16 Optimizaciones [ ] 🚀 UPGRADE COMPLETADO
+> **Ver:** `NEXTJS_16_TASKS.md` para tracking detallado
+
+#### Corto Plazo (Esta Semana)
+- [ ] Correr Bundle Analyzer en dashboard
+- [ ] Identificar top 5 módulos más grandes
+- [ ] Optimizar imports de lucide-react
+- [ ] Configurar debugging con --inspect
+
+#### Mediano Plazo (Este Mes)
+- [ ] Implementar View Transitions en navegación principal
+- [ ] Migrar componentes críticos a Server Components
+- [ ] Configurar CI/CD con cache de Turbopack
+- [ ] Documentar performance baselines
+
+#### Largo Plazo (Q1 2026)
+- [ ] Adoptar React Compiler (cuando sea stable)
+- [ ] Implementar streaming SSR con Suspense
+- [ ] Optimizar route splitting por módulo
+- [ ] Integrar monitoring de Core Web Vitals
+
+**Recursos:**
+- 📄 `docs/NEXTJS_16_MIGRATION.md` - Guía completa de migración
+- 📄 `docs/NEXTJS_16_FEATURES_GUIDE.md` - Cómo usar nuevas features
+- 📋 `NEXTJS_16_TASKS.md` - Tracking de tareas
+
 ---
 
 ## 🎨 Q2 2026 - El "Wow" del Demo
@@ -182,11 +208,11 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [x] Comparativas mes a mes
 - [x] Diseño ejecutivo que impresione
 
-### 6. Reportes PDF Profesionales [ ]
-- [ ] Reporte de cartera con logo empresa
-- [ ] Estado de cuenta por cliente
-- [ ] Reporte de mora con gráficos
-- [ ] Exportación programada automática
+### 6. Reportes PDF Profesionales [x] ✅ COMPLETADO
+- [x] Reporte de cartera con logo empresa
+- [x] Estado de cuenta por cliente
+- [x] Reporte de mora con gráficos
+- [ ] Exportación programada automática *(Diferido - Nice-to-have)*
 
 ### 7. WhatsApp API Real [ ]
 - [ ] Integración con API oficial de Meta (Por ahora usar WAHA, solo cuando el cliente adquiera el plan Pro lo configuramos)
@@ -210,11 +236,11 @@ Sistema integral de gestión de casa de empeño con enfoque offline-first, autom
 - [x] Límites por plan (usuarios, créditos) - (`check_usuario_limit`, `limites-actions.ts`)
 - [x] Portal de facturación para cliente - (`/dashboard/admin/suscripcion`, `facturacion-actions.ts`)
 
-### 10. Admin Panel (Super Admin) [ ]
-- [ ] Ver todos los tenants
-- [ ] Métricas de uso por tenant
-- [ ] Activar/desactivar tenants
-- [ ] Soporte técnico interno
+### 10. Admin Panel (Super Admin) [x] ✅ COMPLETADO
+- [x] Ver todos los tenants (`/dashboard/sysadmin/empresas` + `MasterControlPanel`)
+- [x] Métricas de uso por tenant (`/analytics` + `AnalyticsDashboard`)
+- [x] Activar/desactivar tenants (`toggleEstadoEmpresa()`)
+- [x] Soporte técnico interno (`HealthDashboard`, `AuditLogViewer`, `AlertsCenter`, `ComplianceDashboard`)
 
 ### 11. Analytics de Uso [ ]
 - [ ] Qué features usan más

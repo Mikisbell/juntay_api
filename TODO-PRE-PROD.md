@@ -37,6 +37,30 @@ const supabase = createClient(URL, ANON_KEY)
 
 ---
 
+## 🔵 Next.js 16 Optimizaciones (Esta Semana)
+
+> **Ver:** `NEXTJS_16_TASKS.md` para tracking completo
+
+### Pendiente:
+- [ ] **Bundle Analyzer:** Correr análisis en dashboard
+  ```bash
+  npx next experimental-analyze
+  ```
+- [ ] Identificar top 5 módulos más grandes (> 50KB)
+- [ ] Optimizar imports de lucide-react (verificar tree-shaking)
+- [ ] Configurar debugging con `--inspect` en VS Code
+
+### Métricas objetivo:
+- Bundle size dashboard: < 200KB
+- Time to Interactive: < 2.5s
+- Lighthouse Score: > 90
+
+### Recursos:
+- 📄 `docs/NEXTJS_16_FEATURES_GUIDE.md` - Guía de uso
+- 📋 `NEXTJS_16_TASKS.md` - Tareas detalladas
+
+---
+
 ## ✅ COMPLETADO
 
 | Verificación | Estado |
