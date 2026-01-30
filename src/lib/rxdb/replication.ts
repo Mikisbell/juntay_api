@@ -1,12 +1,12 @@
 /**
  * Configuración de Replicación RxDB <-> Supabase - VERSIÓN SEGURA
  * Sincronización bidireccional con la nube
- * 
+ *
  * DECISIONES DE SEGURIDAD (Auditoría 13-Dic-2025):
  * - Opción 2C: Resolución de conflictos vía PostgreSQL triggers
  *   El plugin replicateSupabase no soporta conflictHandler en cliente
  *   Se implementará con triggers BEFORE UPDATE en PostgreSQL que verifican estados terminales
- * 
+ *
  * @see ADR-004: Arquitectura Local-First Real con RxDB
  */
 
@@ -18,6 +18,7 @@ import { createClient } from '@supabase/supabase-js'
 import { getDatabase, JuntayDatabase } from './database'
 import { ESTADOS_TERMINALES } from './schemas/creditos'
 import { toast } from 'sonner'
+import { useSystemEvents } from '@/lib/events'
 
 // Helper para detectar errores de red (backend no disponible)
 function isNetworkError(err: any): boolean {
@@ -67,7 +68,7 @@ let replications: ReplicationStates = {
 /**
  * Inicia la sincronización con Supabase
  * Debe llamarse después de initDatabase()
- * 
+ *
  * NOTA: La resolución de conflictos (Opción 2C) se implementa en PostgreSQL:
  * - Los estados terminales (ANULADO, VENDIDO, etc.) no pueden ser sobrescritos
  * - Los montos solo pueden ser actualizados por usuarios con permisos especiales
@@ -110,7 +111,7 @@ export async function startReplication(): Promise<void> {
             modifier: (doc) => {
                 // FIX: Removed parseFloat to preserve Decimal.js 128-bit precision
                 // Supabase handles string-to-numeric casting automatically or we should use string in Postgres if needed.
-                // However, since Postgres is numeric, we send the string. 
+                // However, since Postgres is numeric, we send the string.
                 // Postgres 'numeric' type can accept string representations of numbers in JSON/Insert.
                 const supabaseDoc = { ...doc }
 
@@ -134,11 +135,22 @@ export async function startReplication(): Promise<void> {
 
         console.error('[RxDB Replication] Error en créditos:', err)
 
+        // Log to system events store
+        useSystemEvents.getState().logReplicationError('creditos', err)
+
         // Si es un error de conflicto, puede ser que el servidor rechazó el cambio
         // (por ejemplo, intentar modificar un crédito terminado)
         if (err.code === 'CONFLICT' || err.message?.includes('estado terminal')) {
             console.warn('[RxDB Replication] Conflicto detectado - el servidor rechazó el cambio')
             toast.error('Conflicto de sincronización: El servidor rechazó el cambio (Posible estado terminal o bloqueo de seguridad).')
+
+            useSystemEvents.getState().addEvent({
+                severity: 'warning',
+                module: 'replication',
+                category: 'sync',
+                message: 'Conflicto detectado en créditos - cambio rechazado por el servidor',
+                metadata: { collection: 'creditos', code: err.code }
+            })
         }
     })
 
@@ -202,6 +214,7 @@ export async function startReplication(): Promise<void> {
             return
         }
         console.error('[RxDB Replication] Error en pagos:', err)
+        useSystemEvents.getState().logReplicationError('pagos', err)
     })
 
     // Replicación de Movimientos de Caja
@@ -241,6 +254,7 @@ export async function startReplication(): Promise<void> {
             return
         }
         console.error('[RxDB Replication] Error en movimientos de caja:', err)
+        useSystemEvents.getState().logReplicationError('movimientos_caja', err)
     })
 
     // Replicación de Clientes (Solo si la colección existe)
@@ -277,6 +291,7 @@ export async function startReplication(): Promise<void> {
                 return
             }
             console.error('[RxDB Replication] Error en clientes:', err)
+            useSystemEvents.getState().logReplicationError('clientes', err)
         })
     } else {
         console.debug('[RxDB Replication] Colección clientes no disponible, omitiendo replicación')
@@ -324,6 +339,7 @@ export async function startReplication(): Promise<void> {
                 return
             }
             console.error('[RxDB Replication] Error en garantías:', err)
+            useSystemEvents.getState().logReplicationError('garantias', err)
         })
     } else {
         console.debug('[RxDB Replication] Colección garantias no disponible, omitiendo replicación')
@@ -341,14 +357,37 @@ export async function startReplication(): Promise<void> {
 
         await Promise.all(activeReplications.map(r => r.awaitInitialReplication()))
         console.log(`[RxDB Replication] ✅ Sincronización inicial completada (${activeReplications.length} colecciones)`)
+
+        // Log successful sync to events
+        useSystemEvents.getState().addEvent({
+            severity: 'info',
+            module: 'replication',
+            category: 'sync',
+            message: `Sincronización inicial completada exitosamente (${activeReplications.length} colecciones)`,
+            metadata: { collections: activeReplications.length }
+        })
     } catch (error: any) {
         // Manejar errores de red de forma silenciosa
         if (isNetworkError(error)) {
             if (process.env.NODE_ENV === 'development') {
                 console.info('[RxDB] 📴 Modo offline - trabajando con datos locales')
             }
+            useSystemEvents.getState().addEvent({
+                severity: 'info',
+                module: 'replication',
+                category: 'sync',
+                message: 'Modo offline - trabajando con datos locales',
+                metadata: { offline: true }
+            })
         } else {
             console.error('[RxDB Replication] Error en sincronización inicial:', error)
+            useSystemEvents.getState().addEvent({
+                severity: 'error',
+                module: 'replication',
+                category: 'sync',
+                message: 'Error en sincronización inicial',
+                error: error as Error
+            })
         }
         // No lanzar error, la app debe funcionar offline
     }

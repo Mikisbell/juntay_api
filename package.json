@@ -14,6 +14,8 @@
     "security:verify-isolation": "npx tsx scripts/verify_tenant_isolation.ts",
     "ops:onboard": "npx tsx scripts/onboard_tenant.ts",
     "ops:squash": "bash ./scripts/ops_squash_migrations.sh",
+    "seed:demo": "npx tsx scripts/seed-demo-responsive.ts",
+    "clean:demo": "npx tsx scripts/clean-demo-data.ts",
     "dev:next": "next dev -p 3003",
     "build": "next build",
     "start": "next start",
